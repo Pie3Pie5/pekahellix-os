@@ -172,6 +172,7 @@ html, body { height: 100%; font-family: "Poppins", "Segoe UI", Arial, sans-serif
 /* DOCK */
 .os-dock {
   position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+  z-index: 900;
   display: flex; gap: 0.75rem; align-items: center;
   background: rgba(255,255,255,0.12);
   backdrop-filter: blur(16px);
@@ -909,7 +910,7 @@ html, body { height: 100%; font-family: "Poppins", "Segoe UI", Arial, sans-serif
 }
 
 /* ============================================================
-   V0.4.1 — Navigation mobile persistante dans les applications
+   V0.4.2 — Navigation globale persistante dans les applications
    ============================================================ */
 @media (max-width: 600px) {
   /* La barre reste au-dessus des fenêtres d'application. */

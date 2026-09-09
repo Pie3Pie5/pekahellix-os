@@ -390,6 +390,7 @@ function logout() {
   if (clockInterval) { clearInterval(clockInterval); clockInterval = null; }
   document.getElementById("os-desktop").classList.add("hidden");
   document.querySelectorAll(".os-app-window").forEach(function(w) { w.classList.add("hidden"); });
+  document.getElementById("os-global-dock").classList.add("hidden");
   document.getElementById("os-login").classList.remove("hidden");
   document.getElementById("input-username").value = "";
   document.getElementById("input-password").value = "";
@@ -821,6 +822,7 @@ document.addEventListener("DOMContentLoaded", function() {
     osUser = user;
     document.getElementById("os-login").classList.add("hidden");
     document.getElementById("os-desktop").classList.remove("hidden");
+    document.getElementById("os-global-dock").classList.remove("hidden");
     document.getElementById("os-username").textContent     = osUser.displayName;
     document.getElementById("os-welcome-name").textContent = "Bonjour, " + sanitize(osUser.displayName) + " 👋";
     document.getElementById("temps-welcome").textContent   = "Bonjour, " + sanitize(osUser.displayName) + " !";

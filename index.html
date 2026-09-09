@@ -94,17 +94,6 @@
         </button>
       </div>
 
-      <nav class="os-dock" aria-label="Navigation des outils">
-        <button type="button" class="os-dock-item" data-app="temps" aria-label="Ouvrir Gestion du Temps">
-          <span class="dock-icon" aria-hidden="true">⏱️</span><span class="dock-label">Temps</span>
-        </button>
-        <button type="button" class="os-dock-item" data-app="comm" aria-label="Ouvrir Communication">
-          <span class="dock-icon" aria-hidden="true">💬</span><span class="dock-label">Communication</span>
-        </button>
-        <button type="button" class="os-dock-item" data-app="cyber" aria-label="Ouvrir Cybersécurité">
-          <span class="dock-icon" aria-hidden="true">🔐</span><span class="dock-label">Cyber</span>
-        </button>
-      </nav>
     </div>
   </div>
 
@@ -387,6 +376,21 @@
 
     </div>
   </div>
+
+
+  <!-- Navigation globale : volontairement hors du bureau et des fenêtres
+       pour rester au premier plan pendant l'utilisation des modules. -->
+  <nav id="os-global-dock" class="os-dock hidden" aria-label="Navigation des outils">
+    <button type="button" class="os-dock-item" data-app="temps" aria-label="Ouvrir Gestion du Temps">
+      <span class="dock-icon" aria-hidden="true">⏱️</span><span class="dock-label">Temps</span>
+    </button>
+    <button type="button" class="os-dock-item" data-app="comm" aria-label="Ouvrir Communication">
+      <span class="dock-icon" aria-hidden="true">💬</span><span class="dock-label">Communication</span>
+    </button>
+    <button type="button" class="os-dock-item" data-app="cyber" aria-label="Ouvrir Cybersécurité">
+      <span class="dock-icon" aria-hidden="true">🔐</span><span class="dock-label">Cyber</span>
+    </button>
+  </nav>
 
   <script src="script.js"></script>
 
