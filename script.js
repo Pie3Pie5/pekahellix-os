@@ -1038,8 +1038,25 @@ document.addEventListener("DOMContentLoaded", function() {
   document.getElementById("cyber-btn-next").addEventListener("click", function() {
     if (!cyberCommitCurrentAnswer()) return;
     cyberState.index++;
-    if (cyberState.index >= CYBER_TOTAL) cyberShowResult();
-    else cyberRenderQuestion();
+    if (cyberState.index >= CYBER_TOTAL) {
+      cyberShowResult();
+    } else {
+      cyberRenderQuestion();
+
+      // Après le passage à la question suivante, revenir automatiquement
+      // en haut de la nouvelle question. Cela complète le scroll vers le
+      // bouton « Question suivante » effectué lors de la sélection.
+      window.setTimeout(function() {
+        const questionEl = document.getElementById("cyber-question");
+        if (!questionEl) return;
+        const reduceMotion = window.matchMedia &&
+          window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        questionEl.scrollIntoView({
+          behavior: reduceMotion ? "auto" : "smooth",
+          block: "start"
+        });
+      }, 80);
+    }
   });
 
   document.getElementById("cyber-btn-email-score").addEventListener("click", function() {
