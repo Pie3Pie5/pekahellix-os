@@ -163,7 +163,7 @@ let clockInterval = null;
 
 let tempsState = { index:0, scores:[0,0,0], engagements:[null,null,null] };
 let commState  = { profil:null, index:0, scores:[0,0], npsScore:null, activePlan:"6m" };
-let cyberState = { questions:[], index:0, score:0, answered:false, responses:[] };
+let cyberState = { questions:[], index:0, score:0, answered:false, responses:[], pending:null };
 
 /* ============================================================
    UTILITAIRES
@@ -686,7 +686,8 @@ function cyberInit() {
     index: 0,
     score: 0,
     answered: false,
-    responses: []
+    responses: [],
+    pending: null
   };
   showAppScreen("cyber","cyber-screen-quiz");
   cyberRenderQuestion();
@@ -694,6 +695,7 @@ function cyberInit() {
 
 function cyberRenderQuestion() {
   cyberState.answered = false;
+  cyberState.pending = null;
   const q = cyberState.questions[cyberState.index];
 
   document.getElementById("cyber-category").textContent = sanitize(q.category);
@@ -731,36 +733,43 @@ function cyberRenderQuestion() {
 }
 
 function cyberHandleAnswer(item) {
-  if (cyberState.answered) return;
-  cyberState.answered = true;
-
   const q = cyberState.questions[cyberState.index];
   const isCorrect = item.dataset.correct === "true";
   const selectedText = item.dataset.answerText || item.textContent.trim();
   const correctAnswer = q.answers.find(function(answer) { return answer.correct; });
 
-  if (isCorrect) cyberState.score++;
+  // Une seule réponse visuellement sélectionnée à la fois.
+  document.querySelectorAll("#cyber-answers .app-answer-item").forEach(function(el) {
+    el.classList.remove("selected");
+    el.setAttribute("aria-pressed", "false");
+  });
+  item.classList.add("selected");
+  item.setAttribute("aria-pressed", "true");
 
-  cyberState.responses.push({
+  // La réponse reste modifiable tant que l'utilisateur n'a pas cliqué sur « Question suivante ».
+  cyberState.answered = true;
+  cyberState.pending = {
     question: q.question,
     category: q.category,
     selected: selectedText,
     correct: correctAnswer ? correctAnswer.text : "",
     isCorrect: isCorrect,
     explanation: q.explanation
-  });
+  };
 
-  item.classList.add("selected");
-  document.querySelectorAll("#cyber-answers .app-answer-item").forEach(function(el) {
-    el.classList.add("disabled");
-    el.setAttribute("tabindex","-1");
-  });
-
-  document.getElementById("cyber-score-live").textContent = "Réponse enregistrée ✓";
+  document.getElementById("cyber-score-live").textContent = "Réponse sélectionnée ✓";
   const nextBtn = document.getElementById("cyber-btn-next");
   nextBtn.textContent = (cyberState.index + 1 >= CYBER_TOTAL) ? "Voir mes résultats →" : "Question suivante →";
   nextBtn.disabled = false;
   nextBtn.classList.remove("hidden");
+}
+
+function cyberCommitCurrentAnswer() {
+  if (!cyberState.pending) return false;
+  if (cyberState.pending.isCorrect) cyberState.score++;
+  cyberState.responses.push(cyberState.pending);
+  cyberState.pending = null;
+  return true;
 }
 
 function cyberRenderReview() {
@@ -1011,6 +1020,7 @@ document.addEventListener("DOMContentLoaded", function() {
   });
 
   document.getElementById("cyber-btn-next").addEventListener("click", function() {
+    if (!cyberCommitCurrentAnswer()) return;
     cyberState.index++;
     if (cyberState.index >= CYBER_TOTAL) cyberShowResult();
     else cyberRenderQuestion();
