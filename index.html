@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0d2137" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <title>Pekahellix OS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════
+       ÉCRAN : LOGIN
+  ═══════════════════════════════════════ -->
+  <div id="os-login" class="os-login active">
+    <div class="login-bg"></div>
+    <div class="login-panel">
+      <img src="logo.png" alt="Pekahellix" class="login-logo" />
+      <h1 class="login-title">Pekahellix <span>OS</span></h1>
+      <p class="login-subtitle">Votre espace de diagnostic managérial</p>
+
+      <div class="login-field">
+        <label for="input-username">Identifiant</label>
+        <input type="text" id="input-username" placeholder="Votre identifiant"
+          autocomplete="username" maxlength="64" />
+      </div>
+      <div class="login-field">
+        <label for="input-password">Mot de passe</label>
+        <input type="password" id="input-password" placeholder="Votre mot de passe"
+          autocomplete="current-password" maxlength="128" />
+      </div>
+      <div id="login-error" class="login-error hidden" role="alert" aria-live="polite"></div>
+      <button type="button" id="login-btn" class="login-btn">Connexion →</button>
+
+      <p class="login-footer">Design by <strong>Vibe Code</strong></p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       BUREAU OS
+  ═══════════════════════════════════════ -->
+  <div id="os-desktop" class="os-desktop hidden">
+
+    <div class="os-topbar">
+      <div class="os-topbar-left">
+        <img src="logo.png" alt="Pekahellix" class="topbar-logo" />
+        <span class="topbar-brand">Pekahellix <strong>OS</strong></span>
+      </div>
+      <div class="os-topbar-center">
+        <span id="os-clock" class="os-clock"></span>
+      </div>
+      <div class="os-topbar-right">
+        <span id="os-username" class="os-username"></span>
+        <button type="button" id="btn-logout-os" class="os-logout-btn" title="Se déconnecter" aria-label="Se déconnecter">⏻</button>
+      </div>
+    </div>
+
+    <div class="os-workspace">
+      <div class="os-welcome" id="os-welcome">
+        <h2 id="os-welcome-name"></h2>
+        <p>Sélectionnez un outil pour démarrer votre diagnostic</p>
+      </div>
+
+      <div class="os-apps-grid">
+        <button type="button" class="os-app-icon" data-app="temps" aria-label="Ouvrir Diagnostic Temps">
+          <div class="app-icon-visual app-temps">
+            <span class="app-icon-emoji">⏱️</span>
+          </div>
+          <span class="app-icon-label">Gestion du Temps</span>
+          <span class="app-icon-desc">Priorités · To-do · Délégation</span>
+        </button>
+
+        <button type="button" class="os-app-icon" data-app="comm" aria-label="Ouvrir Diagnostic Communication">
+          <div class="app-icon-visual app-comm">
+            <span class="app-icon-emoji" aria-hidden="true">💬</span>
+          </div>
+          <span class="app-icon-label">Communication</span>
+          <span class="app-icon-desc">Interne · Externe · Benchmark</span>
+        </button>
+
+        <button type="button" class="os-app-icon" data-app="cyber" aria-label="Ouvrir Quiz Cybersécurité">
+          <div class="app-icon-visual app-cyber">
+            <span class="app-icon-emoji">🔐</span>
+          </div>
+          <span class="app-icon-label">Cybersécurité</span>
+          <span class="app-icon-desc">Quiz · Bonnes pratiques</span>
+        </button>
+      </div>
+
+      <nav class="os-dock" aria-label="Navigation des outils">
+        <button type="button" class="os-dock-item" data-app="temps" aria-label="Ouvrir Gestion du Temps">
+          <span class="dock-icon" aria-hidden="true">⏱️</span><span class="dock-label">Temps</span>
+        </button>
+        <button type="button" class="os-dock-item" data-app="comm" aria-label="Ouvrir Communication">
+          <span class="dock-icon" aria-hidden="true">💬</span><span class="dock-label">Communication</span>
+        </button>
+        <button type="button" class="os-dock-item" data-app="cyber" aria-label="Ouvrir Cybersécurité">
+          <span class="dock-icon" aria-hidden="true">🔐</span><span class="dock-label">Cyber</span>
+        </button>
+      </nav>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       APP : GESTION DU TEMPS
+  ═══════════════════════════════════════ -->
+  <div id="app-temps" class="os-app-window hidden">
+    <div class="app-window-bar app-bar-temps">
+      <div class="app-window-bar-left">
+        <span class="app-window-icon">⏱️</span>
+        <span class="app-window-title">Diagnostic — Gestion du Temps</span>
+      </div>
+      <button type="button" class="app-window-close" data-close="temps">✕ Retour accueil</button>
+    </div>
+    <div class="app-window-content" id="content-temps">
+
+      <div id="temps-screen-intro" class="app-screen active">
+        <div class="app-card">
+          <div class="app-card-icon">⏱️</div>
+          <h2 class="app-card-title" id="temps-welcome">Bonjour !</h2>
+          <p class="app-card-subtitle">Diagnostic de vos pertes de temps en tant que gérant</p>
+          <ul class="app-rules">
+            <li><span>📋</span><strong>18 questions</strong> réparties sur 3 axes clés</li>
+            <li><span>🎯</span>Axe 1 — <strong>Gestion des priorités</strong></li>
+            <li><span>✅</span>Axe 2 — <strong>To-do lists</strong></li>
+            <li><span>🤝</span>Axe 3 — <strong>Délégation</strong></li>
+            <li><span>💬</span><strong>3 questions d'engagement</strong></li>
+            <li><span>⏳</span>Durée : <strong>8 à 10 minutes</strong></li>
+          </ul>
+          <button type="button" id="temps-btn-start" class="app-btn app-btn-primary app-btn-full">Démarrer →</button>
+        </div>
+      </div>
+
+      <div id="temps-screen-diag" class="app-screen hidden">
+        <div class="app-diag-header">
+          <div class="app-diag-meta">
+            <span id="temps-axe-label" class="app-axe-label"></span>
+            <span id="temps-counter" class="app-counter"></span>
+          </div>
+          <div class="app-progress-container">
+            <div id="temps-progress" class="app-progress-bar"></div>
+          </div>
+          <div class="app-chips" id="temps-chips"></div>
+        </div>
+        <div class="app-card app-question-card">
+          <p class="app-question-text" id="temps-question"></p>
+          <ul class="app-answers" id="temps-answers" role="list"></ul>
+        </div>
+      </div>
+
+      <div id="temps-screen-engagement" class="app-screen hidden">
+        <div class="app-card">
+          <div class="app-card-icon">🧭</div>
+          <h2 class="app-card-title">Votre plan d'action</h2>
+          <p class="app-card-subtitle">Indiquez votre intention pour chacun des 3 axes identifiés.</p>
+        </div>
+        <div id="temps-engagement-blocks"></div>
+        <button type="button" id="temps-btn-validate" class="app-btn app-btn-primary app-btn-full">
+          Voir mes résultats →
+        </button>
+      </div>
+
+      <div id="temps-screen-result" class="app-screen hidden">
+        <div class="app-card">
+          <h2 class="app-card-title">📊 Votre diagnostic</h2>
+          <p class="app-card-subtitle" id="temps-result-subtitle"></p>
+          <div class="app-axes-scores" id="temps-axes-scores"></div>
+          <button type="button" id="temps-btn-restart" class="app-btn app-btn-outline app-btn-full">🔄 Recommencer</button>
+        </div>
+        <div id="temps-solutions"></div>
+        <div class="app-card app-peka-cta">
+          <div class="app-peka-header">
+            <img src="logo.png" alt="Pekahellix" class="app-peka-logo" />
+            <div>
+              <h3 class="app-peka-title">Pekahellix vous accompagne</h3>
+              <p class="app-peka-sub">Un expert dédié pour transformer votre organisation</p>
+            </div>
+          </div>
+          <div id="temps-forfaits" class="app-forfaits-grid"></div>
+          <div class="app-peka-contact">
+            <p>Prenez rendez-vous avec un consultant Pekahellix</p>
+            <a href="mailto:pierrick@pekahellix.fr" class="app-btn app-btn-primary">Contacter Pekahellix</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       APP : COMMUNICATION
+  ═══════════════════════════════════════ -->
+  <div id="app-comm" class="os-app-window hidden">
+    <div class="app-window-bar app-bar-comm">
+      <div class="app-window-bar-left">
+        <span class="app-window-icon"></span>
+        <span class="app-window-title">Diagnostic — Communication</span>
+      </div>
+      <button type="button" class="app-window-close" data-close="comm">✕ Retour accueil</button>
+    </div>
+    <div class="app-window-content" id="content-comm">
+
+      <div id="comm-screen-profil" class="app-screen active">
+        <div class="app-card">
+          <div class="app-card-icon">👤</div>
+          <h2 class="app-card-title" id="comm-welcome">Bonjour !</h2>
+          <p class="app-card-subtitle">Précisez votre rôle — les questions seront adaptées.</p>
+          <div class="app-profil-grid">
+            <button type="button" id="comm-btn-gerant" class="app-profil-btn">
+              <span class="app-profil-icon">🏪</span>
+              <span class="app-profil-title">Gérant</span>
+              <span class="app-profil-desc">Diagnostic de votre stratégie de communication avec benchmark sectoriel.</span>
+            </button>
+            <button type="button" id="comm-btn-salarie" class="app-profil-btn">
+              <span class="app-profil-icon">👥</span>
+              <span class="app-profil-title">Salarié</span>
+              <span class="app-profil-desc">Partagez votre perception. Réponses anonymes et prises en compte.</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div id="comm-screen-intro" class="app-screen hidden">
+        <div class="app-card">
+          <div class="app-card-icon" id="comm-intro-icon" aria-hidden="true">💬</div>
+          <h2 class="app-card-title" id="comm-intro-title">Diagnostic Communication</h2>
+          <p class="app-card-subtitle" id="comm-intro-subtitle"></p>
+          <ul class="app-rules" id="comm-rules"></ul>
+          <button type="button" id="comm-btn-start" class="app-btn app-btn-primary app-btn-full">Démarrer →</button>
+        </div>
+      </div>
+
+      <div id="comm-screen-diag" class="app-screen hidden">
+        <div class="app-diag-header">
+          <div class="app-diag-meta">
+            <span id="comm-axe-label" class="app-axe-label"></span>
+            <span id="comm-counter" class="app-counter"></span>
+          </div>
+          <div class="app-progress-container">
+            <div id="comm-progress" class="app-progress-bar"></div>
+          </div>
+          <div class="app-chips" id="comm-chips"></div>
+        </div>
+        <div class="app-card app-question-card">
+          <p class="app-question-text" id="comm-question"></p>
+          <ul class="app-answers" id="comm-answers" role="list"></ul>
+        </div>
+      </div>
+
+      <div id="comm-screen-result-salarie" class="app-screen hidden">
+        <div class="app-card" style="text-align:center;">
+          <div class="app-card-icon">💙</div>
+          <h2 class="app-card-title">Merci pour votre participation !</h2>
+          <p class="app-card-subtitle" id="comm-salarie-merci"></p>
+          <div class="app-axes-scores" id="comm-salarie-scores"></div>
+          <div class="app-message-box">
+            <span>✉️</span>
+            <div>
+              <p class="app-message-title">Vos réponses ont bien été enregistrées</p>
+              <p class="app-message-text">Vos réponses sont traitées de façon <strong>anonyme et confidentielle</strong>. Pekahellix accompagnera votre entreprise vers une communication plus fluide.</p>
+            </div>
+          </div>
+          <div id="comm-nps-recap" class="app-nps-recap hidden"></div>
+          <button type="button" id="comm-btn-restart-salarie" class="app-btn app-btn-outline app-btn-full">🔄 Recommencer</button>
+        </div>
+      </div>
+
+      <div id="comm-screen-result-gerant" class="app-screen hidden">
+        <div class="app-card">
+          <h2 class="app-card-title" id="comm-gerant-title">📊 Votre diagnostic</h2>
+          <p class="app-card-subtitle" id="comm-gerant-subtitle"></p>
+          <div class="app-axes-scores" id="comm-gerant-scores"></div>
+          <button type="button" id="comm-btn-restart-gerant" class="app-btn app-btn-outline app-btn-full">🔄 Recommencer</button>
+        </div>
+        <div class="app-card app-benchmark-card">
+          <h3 class="app-section-title">🏆 Benchmark — Enseignes exemplaires</h3>
+          <p class="app-section-intro">Comparez votre situation aux meilleures pratiques du secteur.</p>
+          <div id="comm-benchmark"></div>
+        </div>
+        <div class="app-card app-plan-card">
+          <h3 class="app-section-title">🗓️ Plan de communication personnalisé</h3>
+          <p class="app-section-intro" id="comm-plan-intro"></p>
+          <div class="app-plan-tabs">
+            <button type="button" class="app-plan-tab active" data-plan="6m">6 mois</button>
+            <button type="button" class="app-plan-tab" data-plan="1an">1 an</button>
+            <button type="button" class="app-plan-tab" data-plan="3ans">3 ans</button>
+          </div>
+          <div id="comm-plan-content"></div>
+        </div>
+        <div class="app-card app-peka-cta">
+          <div class="app-peka-header">
+            <img src="logo.png" alt="Pekahellix" class="app-peka-logo" />
+            <div>
+              <h3 class="app-peka-title">Pekahellix vous accompagne</h3>
+              <p class="app-peka-sub">Un expert communication pour transformer votre image</p>
+            </div>
+          </div>
+          <div id="comm-forfaits" class="app-forfaits-grid"></div>
+          <div class="app-peka-contact">
+            <p>Prenez rendez-vous avec un consultant Pekahellix</p>
+            <a href="mailto:pierrick@pekahellix.fr" class="app-btn app-btn-primary">Contacter Pekahellix</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       APP : CYBERSÉCURITÉ
+  ═══════════════════════════════════════ -->
+  <div id="app-cyber" class="os-app-window hidden">
+    <div class="app-window-bar app-bar-cyber">
+      <div class="app-window-bar-left">
+        <span class="app-window-icon">🔐</span>
+        <span class="app-window-title">Quiz — Cybersécurité</span>
+      </div>
+      <button type="button" class="app-window-close" data-close="cyber">Retour Accueil</button>
+    </div>
+    <div class="app-window-content" id="content-cyber">
+
+      <div id="cyber-screen-intro" class="app-screen active">
+        <div class="app-card">
+          <div class="app-card-icon">🛡️</div>
+          <h2 class="app-card-title" id="cyber-welcome">Bonjour !</h2>
+          <p class="app-card-subtitle">Testez vos connaissances en cybersécurité</p>
+          <ul class="app-rules">
+            <li><span>📋</span><strong>27 questions</strong> sur les bonnes pratiques</li>
+            <li><span>🎯</span><strong>4 propositions</strong> par question</li>
+            <li><span>✅</span>Score minimum requis : <strong>80 %</strong></li>
+            <li><span>🔀</span>Réponses présentées en <strong>ordre aléatoire</strong></li>
+            <li><span>💡</span>Une <strong>explication</strong> après chaque réponse</li>
+          </ul>
+          <button type="button" id="cyber-btn-start" class="app-btn app-btn-primary app-btn-full">Démarrer le quiz →</button>
+        </div>
+      </div>
+
+      <div id="cyber-screen-quiz" class="app-screen hidden">
+        <div class="app-diag-header">
+          <div class="app-diag-meta">
+            <span id="cyber-category" class="app-axe-label"></span>
+            <span id="cyber-counter" class="app-counter"></span>
+          </div>
+          <div class="app-progress-container">
+            <div id="cyber-progress" class="app-progress-bar"></div>
+          </div>
+          <div class="app-diag-meta" style="margin-top:0.3rem;">
+            <span></span>
+            <span id="cyber-score-live" class="app-score-live"></span>
+          </div>
+        </div>
+        <div class="app-card app-question-card">
+          <p class="app-question-text" id="cyber-question"></p>
+          <ul class="app-answers" id="cyber-answers" role="list"></ul>
+          <div id="cyber-feedback" class="app-feedback hidden">
+            <div id="cyber-feedback-icon" class="app-feedback-icon"></div>
+            <div id="cyber-feedback-text" class="app-feedback-text"></div>
+            <div id="cyber-feedback-expl" class="app-feedback-expl"></div>
+            <button type="button" id="cyber-btn-next" class="app-btn app-btn-primary">Question suivante →</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="cyber-screen-result" class="app-screen hidden">
+        <div class="app-card" style="text-align:center;">
+          <div class="app-card-icon" id="cyber-result-icon"></div>
+          <h2 class="app-card-title" id="cyber-result-title"></h2>
+          <p class="app-card-subtitle" id="cyber-result-subtitle"></p>
+          <div class="app-cyber-score-circle" id="cyber-score-circle">
+            <span id="cyber-score-pct" class="app-cyber-score-pct"></span>
+            <span class="app-cyber-score-label">Score</span>
+          </div>
+          <p id="cyber-score-detail" class="app-cyber-score-detail"></p>
+          <div id="cyber-badge" class="app-cyber-badge hidden"></div>
+          <div class="app-result-actions">
+            <button type="button" id="cyber-btn-retry" class="app-btn app-btn-secondary">Recommencer</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(console.error));
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,122 @@
+$ErrorActionPreference = 'Stop'
+$Root = Split-Path -Parent $MyInvocation.MyCommand.Path
+$Port = 8000
+
+function Get-IPv4 {
+    try {
+        $ips = Get-NetIPAddress -AddressFamily IPv4 -ErrorAction Stop |
+            Where-Object { $_.IPAddress -notlike '127.*' -and $_.IPAddress -notlike '169.254.*' } |
+            Select-Object -ExpandProperty IPAddress
+        if ($ips) { return $ips[0] }
+    } catch {}
+    try {
+        $line = ipconfig | Select-String 'IPv4.*:' | Select-Object -First 1
+        if ($line -match '(\d{1,3}(?:\.\d{1,3}){3})') { return $Matches[1] }
+    } catch {}
+    return 'ADRESSE_IP_DU_PC'
+}
+
+function Get-MimeType([string]$path) {
+    switch ([IO.Path]::GetExtension($path).ToLowerInvariant()) {
+        '.html' { 'text/html; charset=utf-8'; break }
+        '.css'  { 'text/css; charset=utf-8'; break }
+        '.js'   { 'application/javascript; charset=utf-8'; break }
+        '.json' { 'application/json; charset=utf-8'; break }
+        '.png'  { 'image/png'; break }
+        '.jpg'  { 'image/jpeg'; break }
+        '.jpeg' { 'image/jpeg'; break }
+        '.svg'  { 'image/svg+xml'; break }
+        '.ico'  { 'image/x-icon'; break }
+        '.txt'  { 'text/plain; charset=utf-8'; break }
+        default { 'application/octet-stream'; break }
+    }
+}
+
+function Send-Response($stream, [int]$status, [string]$reason, [byte[]]$body, [string]$contentType) {
+    $header = "HTTP/1.1 $status $reason`r`nContent-Type: $contentType`r`nContent-Length: $($body.Length)`r`nCache-Control: no-store`r`nConnection: close`r`n`r`n"
+    $headerBytes = [Text.Encoding]::ASCII.GetBytes($header)
+    $stream.Write($headerBytes, 0, $headerBytes.Length)
+    if ($body.Length -gt 0) { $stream.Write($body, 0, $body.Length) }
+    $stream.Flush()
+}
+
+Write-Host ''
+Write-Host '============================================='
+Write-Host '      PEKAHELLIX OS - TEST MOBILE' -ForegroundColor Cyan
+Write-Host '============================================='
+Write-Host ''
+Write-Host "Dossier : $Root"
+Write-Host "Port    : $Port"
+$ip = Get-IPv4
+Write-Host ''
+Write-Host 'Sur le smartphone, connecté au MEME Wi-Fi que ce PC :' -ForegroundColor Yellow
+Write-Host "http://${ip}:${Port}" -ForegroundColor Green
+Write-Host ''
+Write-Host 'Si Windows affiche une demande de pare-feu, autorisez uniquement' -ForegroundColor Yellow
+Write-Host 'les réseaux privés si cette option est proposée.' -ForegroundColor Yellow
+Write-Host ''
+Write-Host 'Pour arrêter le serveur : Ctrl+C dans cette fenêtre.'
+Write-Host ''
+
+$listener = New-Object System.Net.Sockets.TcpListener([Net.IPAddress]::Any, $Port)
+try {
+    $listener.Start()
+} catch {
+    Write-Host "ERREUR : impossible d'utiliser le port $Port." -ForegroundColor Red
+    Write-Host $_.Exception.Message -ForegroundColor Red
+    Write-Host ''
+    Read-Host 'Appuyez sur Entrée pour fermer'
+    exit 1
+}
+
+try {
+    while ($true) {
+        $client = $listener.AcceptTcpClient()
+        try {
+            $stream = $client.GetStream()
+            $stream.ReadTimeout = 5000
+            $buffer = New-Object byte[] 8192
+            $requestText = ''
+            do {
+                $read = $stream.Read($buffer, 0, $buffer.Length)
+                if ($read -le 0) { break }
+                $requestText += [Text.Encoding]::ASCII.GetString($buffer, 0, $read)
+                if ($requestText -match "\r?\n\r?\n") { break }
+            } while ($requestText.Length -lt 32768)
+
+            $firstLine = ($requestText -split "\r?\n")[0]
+            if ($firstLine -match '^GET\s+(\S+)\s+HTTP/') {
+                $urlPath = $Matches[1]
+                $urlPath = ($urlPath -split '\?')[0]
+                try { $decoded = [Uri]::UnescapeDataString($urlPath) } catch { $decoded = '/' }
+                if ([string]::IsNullOrWhiteSpace($decoded) -or $decoded -eq '/') { $decoded = '/index.html' }
+                if ($decoded -match '\.\.') {
+                    $body = [Text.Encoding]::UTF8.GetBytes('404 - Not Found')
+                    Send-Response $stream 404 'Not Found' $body 'text/plain; charset=utf-8'
+                } else {
+                    $relative = $decoded.TrimStart('/').Replace('/', [IO.Path]::DirectorySeparatorChar)
+                    $file = Join-Path $Root $relative
+                    $full = [IO.Path]::GetFullPath($file)
+                    $rootFull = ([IO.Path]::GetFullPath($Root)).TrimEnd([IO.Path]::DirectorySeparatorChar) + [IO.Path]::DirectorySeparatorChar
+                    if (-not $full.StartsWith($rootFull, [StringComparison]::OrdinalIgnoreCase) -or -not (Test-Path -LiteralPath $full -PathType Leaf)) {
+                        $body = [Text.Encoding]::UTF8.GetBytes('404 - Not Found')
+                        Send-Response $stream 404 'Not Found' $body 'text/plain; charset=utf-8'
+                    } else {
+                        $body = [IO.File]::ReadAllBytes($full)
+                        Send-Response $stream 200 'OK' $body (Get-MimeType $full)
+                    }
+                }
+            } else {
+                $body = [Text.Encoding]::UTF8.GetBytes('400 - Bad Request')
+                Send-Response $stream 400 'Bad Request' $body 'text/plain; charset=utf-8'
+            }
+        } catch {
+            # Ignore individual browser connection errors and keep the server running.
+        } finally {
+            if ($stream) { $stream.Dispose() }
+            $client.Close()
+        }
+    }
+} finally {
+    $listener.Stop()
+}
