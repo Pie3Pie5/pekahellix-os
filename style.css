@@ -1020,3 +1020,30 @@ html, body { height: 100%; font-family: "Poppins", "Segoe UI", Arial, sans-serif
   .cyber-review-item { padding: 0.8rem; }
   .cyber-review-top { align-items: flex-start; }
 }
+
+
+/* V0.4.5 — partage du score cybersécurité */
+.cyber-mail-share {
+  max-width: 720px;
+  margin: 0.5rem auto 1.25rem;
+  padding: 1rem;
+  text-align: left;
+  border: 1px solid #DDE8F0;
+  border-radius: 12px;
+  background: #F8FBFD;
+}
+.cyber-mail-share h3 { margin: 0 0 0.35rem; font-size: 1rem; }
+.cyber-mail-share > p { margin: 0 0 0.8rem; color: #595959; font-size: 0.86rem; line-height: 1.45; }
+.cyber-mail-share label { display: block; margin-bottom: 0.35rem; font-size: 0.82rem; font-weight: 700; }
+.cyber-mail-row { display: flex; gap: 0.6rem; align-items: stretch; }
+.cyber-mail-input {
+  flex: 1; min-width: 0; min-height: 46px; padding: 0.7rem 0.8rem;
+  border: 1.5px solid #C8D6E0; border-radius: 9px; background: #FFF;
+  font: inherit; font-size: 16px;
+}
+.cyber-mail-input:focus { outline: 2px solid #2E86C1; outline-offset: 1px; border-color: #2E86C1; }
+.cyber-mail-status { min-height: 1.2em; margin: 0.5rem 0 0 !important; font-size: 0.8rem !important; color: #B71C1C !important; }
+@media (max-width: 600px) {
+  .cyber-mail-row { flex-direction: column; }
+  .cyber-mail-row .app-btn { width: 100%; }
+}

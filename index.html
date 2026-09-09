@@ -365,6 +365,16 @@
           </div>
           <p id="cyber-score-detail" class="app-cyber-score-detail"></p>
           <div id="cyber-badge" class="app-cyber-badge hidden"></div>
+          <div id="cyber-mail-share" class="cyber-mail-share hidden">
+            <h3>Transmettre mon score</h3>
+            <p>Vous avez atteint le seuil de 80 %. Vous pouvez préparer un e-mail à votre manager avec votre résultat.</p>
+            <label for="cyber-manager-email">Adresse e-mail du manager</label>
+            <div class="cyber-mail-row">
+              <input type="email" id="cyber-manager-email" class="cyber-mail-input" placeholder="manager@entreprise.fr" autocomplete="email">
+              <button type="button" id="cyber-btn-email-score" class="app-btn app-btn-primary">Envoyer mon score</button>
+            </div>
+            <p id="cyber-mail-status" class="cyber-mail-status" aria-live="polite"></p>
+          </div>
           <div id="cyber-review" class="cyber-review"></div>
           <div class="app-result-actions">
             <button type="button" id="cyber-btn-retry" class="app-btn app-btn-secondary">Recommencer</button>

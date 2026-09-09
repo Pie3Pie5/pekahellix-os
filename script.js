@@ -762,6 +762,13 @@ function cyberHandleAnswer(item) {
   nextBtn.textContent = (cyberState.index + 1 >= CYBER_TOTAL) ? "Voir mes résultats →" : "Question suivante →";
   nextBtn.disabled = false;
   nextBtn.classList.remove("hidden");
+
+  // Sur mobile, amener automatiquement le bouton d'action dans la zone visible
+  // après la sélection afin d'éviter un scroll manuel.
+  window.setTimeout(function() {
+    const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    nextBtn.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "center" });
+  }, 120);
 }
 
 function cyberCommitCurrentAnswer() {
@@ -854,6 +861,15 @@ function cyberShowResult() {
   badge.textContent = success ? "✅ Certification Cybersécurité obtenue" : "❌ Score insuffisant — 80% requis";
   badge.className = "app-cyber-badge " + (success ? "badge-success" : "badge-failure");
   badge.classList.remove("hidden");
+
+  const mailShare = document.getElementById("cyber-mail-share");
+  const managerEmail = document.getElementById("cyber-manager-email");
+  const mailStatus = document.getElementById("cyber-mail-status");
+  if (mailShare) mailShare.classList.toggle("hidden", !success);
+  if (mailStatus) mailStatus.textContent = "";
+  if (success && managerEmail) {
+    try { managerEmail.value = localStorage.getItem("pekahellix_manager_email") || ""; } catch (e) {}
+  }
 
   cyberRenderReview();
   showAppScreen("cyber","cyber-screen-result");
@@ -1024,6 +1040,43 @@ document.addEventListener("DOMContentLoaded", function() {
     cyberState.index++;
     if (cyberState.index >= CYBER_TOTAL) cyberShowResult();
     else cyberRenderQuestion();
+  });
+
+  document.getElementById("cyber-btn-email-score").addEventListener("click", function() {
+    const emailInput = document.getElementById("cyber-manager-email");
+    const status = document.getElementById("cyber-mail-status");
+    const email = (emailInput.value || "").trim();
+    const pct = Math.round((cyberState.score / CYBER_TOTAL) * 100);
+
+    if (pct < CYBER_THRESHOLD * 100) return;
+    if (!email || !emailInput.checkValidity()) {
+      status.textContent = "Saisissez une adresse e-mail valide pour votre manager.";
+      emailInput.focus();
+      return;
+    }
+
+    try { localStorage.setItem("pekahellix_manager_email", email); } catch (e) {}
+
+    const userName = osUser && osUser.displayName ? osUser.displayName : "Collaborateur";
+    const subject = "Pekahellix OS – Résultat questionnaire Cybersécurité";
+    const body = [
+      "Bonjour,",
+      "",
+      "Je vous transmets mon résultat au questionnaire Cybersécurité Pekahellix OS.",
+      "",
+      "Collaborateur : " + userName,
+      "Score : " + pct + "%",
+      "Bonnes réponses : " + cyberState.score + " / " + CYBER_TOTAL,
+      "Seuil de validation : 80%",
+      "Résultat : questionnaire validé",
+      "",
+      "Cordialement"
+    ].join("\n");
+
+    status.textContent = "Ouverture de votre application e-mail…";
+    window.location.href = "mailto:" + encodeURIComponent(email) +
+      "?subject=" + encodeURIComponent(subject) +
+      "&body=" + encodeURIComponent(body);
   });
 
   document.getElementById("cyber-btn-retry").addEventListener("click", cyberInit);
