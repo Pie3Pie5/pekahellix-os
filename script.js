@@ -361,15 +361,28 @@ function startClock() {
   clockInterval = setInterval(tick, 1000);
 }
 
+function setActiveDockApp(appId) {
+  document.querySelectorAll(".os-dock-item").forEach(function(item) {
+    const active = item.dataset.app === appId;
+    item.classList.toggle("is-active", active);
+    if (active) item.setAttribute("aria-current", "page");
+    else item.removeAttribute("aria-current");
+  });
+}
+
 function openApp(appId) {
   document.querySelectorAll(".os-app-window").forEach(function(w) { w.classList.add("hidden"); });
   const win = document.getElementById("app-" + appId);
-  if (win) win.classList.remove("hidden");
+  if (win) {
+    win.classList.remove("hidden");
+    setActiveDockApp(appId);
+  }
 }
 
 function closeApp(appId) {
   const win = document.getElementById("app-" + appId);
   if (win) win.classList.add("hidden");
+  setActiveDockApp(null);
 }
 
 function logout() {

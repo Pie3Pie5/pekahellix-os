@@ -907,3 +907,31 @@ html, body { height: 100%; font-family: "Poppins", "Segoe UI", Arial, sans-serif
   .app-icon-label { font-size: 0.9rem; }
   .dock-label { font-size: 0.58rem; }
 }
+
+/* ============================================================
+   V0.4.1 — Navigation mobile persistante dans les applications
+   ============================================================ */
+@media (max-width: 600px) {
+  /* La barre reste au-dessus des fenêtres d'application. */
+  .os-dock {
+    z-index: 800;
+  }
+
+  /* Réserve l'espace nécessaire pour que le contenu ne passe pas sous la barre. */
+  .app-window-content {
+    padding-bottom: calc(6.2rem + env(safe-area-inset-bottom));
+  }
+
+  /* État du module actuellement ouvert. */
+  .os-dock-item.is-active {
+    background: rgba(255,255,255,0.22);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.22);
+  }
+  .os-dock-item.is-active .dock-label {
+    color: #fff;
+    font-weight: 800;
+  }
+  .os-dock-item.is-active .dock-icon {
+    transform: translateY(-1px) scale(1.06);
+  }
+}
