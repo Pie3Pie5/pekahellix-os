@@ -163,7 +163,7 @@ let clockInterval = null;
 
 let tempsState = { index:0, scores:[0,0,0], engagements:[null,null,null] };
 let commState  = { profil:null, index:0, scores:[0,0], npsScore:null, activePlan:"6m" };
-let cyberState = { questions:[], index:0, score:0, answered:false };
+let cyberState = { questions:[], index:0, score:0, answered:false, responses:[] };
 
 /* ============================================================
    UTILITAIRES
@@ -396,7 +396,7 @@ function logout() {
   document.getElementById("input-password").value = "";
   tempsState = { index:0, scores:[0,0,0], engagements:[null,null,null] };
   commState  = { profil:null, index:0, scores:[0,0], npsScore:null, activePlan:"6m" };
-  cyberState = { questions:[], index:0, score:0, answered:false };
+  cyberState = { questions:[], index:0, score:0, answered:false, responses:[] };
 }
 
 /* ============================================================
@@ -683,7 +683,10 @@ function commRenderPlan(niveauGlobal, duree) {
 function cyberInit() {
   cyberState = {
     questions: shuffleArray(CYBER_QUESTIONS).slice(0, CYBER_TOTAL),
-    index: 0, score: 0, answered: false
+    index: 0,
+    score: 0,
+    answered: false,
+    responses: []
   };
   showAppScreen("cyber","cyber-screen-quiz");
   cyberRenderQuestion();
@@ -693,15 +696,15 @@ function cyberRenderQuestion() {
   cyberState.answered = false;
   const q = cyberState.questions[cyberState.index];
 
-  document.getElementById("cyber-category").textContent   = sanitize(q.category);
-  document.getElementById("cyber-counter").textContent    = "Question " + (cyberState.index + 1) + " / " + CYBER_TOTAL;
-  document.getElementById("cyber-score-live").textContent = "Score : " + cyberState.score;
-  document.getElementById("cyber-progress").style.width   = Math.round((cyberState.index / CYBER_TOTAL) * 100) + "%";
-  document.getElementById("cyber-question").textContent   = sanitize(q.question);
+  document.getElementById("cyber-category").textContent = sanitize(q.category);
+  document.getElementById("cyber-counter").textContent = "Question " + (cyberState.index + 1) + " / " + CYBER_TOTAL;
+  document.getElementById("cyber-score-live").textContent = "Choisissez une réponse";
+  document.getElementById("cyber-progress").style.width = Math.round((cyberState.index / CYBER_TOTAL) * 100) + "%";
+  document.getElementById("cyber-question").textContent = sanitize(q.question);
 
-  const feedback = document.getElementById("cyber-feedback");
-  feedback.classList.add("hidden");
-  feedback.classList.remove("fb-correct","fb-wrong");
+  const nextBtn = document.getElementById("cyber-btn-next");
+  nextBtn.classList.add("hidden");
+  nextBtn.disabled = true;
 
   const answersEl = document.getElementById("cyber-answers");
   answersEl.innerHTML = "";
@@ -712,6 +715,7 @@ function cyberRenderQuestion() {
     li.setAttribute("role","button");
     li.setAttribute("tabindex","0");
     li.dataset.correct = answer.correct ? "true" : "false";
+    li.dataset.answerText = answer.text;
 
     const badge = document.createElement("span");
     badge.classList.add("app-answer-badge");
@@ -730,43 +734,102 @@ function cyberHandleAnswer(item) {
   if (cyberState.answered) return;
   cyberState.answered = true;
 
-  const isCorrect = item.dataset.correct === "true";
   const q = cyberState.questions[cyberState.index];
+  const isCorrect = item.dataset.correct === "true";
+  const selectedText = item.dataset.answerText || item.textContent.trim();
+  const correctAnswer = q.answers.find(function(answer) { return answer.correct; });
 
-  if (isCorrect) {
-    cyberState.score++;
-    item.classList.add("correct");
-    document.getElementById("cyber-feedback-icon").textContent = "✅";
-    document.getElementById("cyber-feedback-text").textContent = "Bonne réponse !";
-    document.getElementById("cyber-feedback").classList.add("fb-correct");
-  } else {
-    item.classList.add("wrong");
-    document.getElementById("cyber-feedback-icon").textContent = "❌";
-    document.getElementById("cyber-feedback-text").textContent = "Mauvaise réponse.";
-    document.getElementById("cyber-feedback").classList.add("fb-wrong");
-    const correctItem = document.querySelector("#cyber-answers [data-correct='true']");
-    if (correctItem) correctItem.classList.add("correct");
-  }
+  if (isCorrect) cyberState.score++;
 
-  document.getElementById("cyber-feedback-expl").textContent = sanitize(q.explanation);
-  document.getElementById("cyber-feedback").classList.remove("hidden");
-  document.getElementById("cyber-score-live").textContent = "Score : " + cyberState.score;
+  cyberState.responses.push({
+    question: q.question,
+    category: q.category,
+    selected: selectedText,
+    correct: correctAnswer ? correctAnswer.text : "",
+    isCorrect: isCorrect,
+    explanation: q.explanation
+  });
 
+  item.classList.add("selected");
   document.querySelectorAll("#cyber-answers .app-answer-item").forEach(function(el) {
     el.classList.add("disabled");
     el.setAttribute("tabindex","-1");
   });
 
-  document.getElementById("cyber-btn-next").textContent =
-    (cyberState.index + 1 >= CYBER_TOTAL) ? "Voir mes résultats →" : "Question suivante →";
+  document.getElementById("cyber-score-live").textContent = "Réponse enregistrée ✓";
+  const nextBtn = document.getElementById("cyber-btn-next");
+  nextBtn.textContent = (cyberState.index + 1 >= CYBER_TOTAL) ? "Voir mes résultats →" : "Question suivante →";
+  nextBtn.disabled = false;
+  nextBtn.classList.remove("hidden");
+}
+
+function cyberRenderReview() {
+  const review = document.getElementById("cyber-review");
+  review.innerHTML = "";
+
+  const heading = document.createElement("div");
+  heading.className = "cyber-review-heading";
+  const wrongCount = CYBER_TOTAL - cyberState.score;
+  heading.innerHTML = "<h3>Corrigé du questionnaire</h3><p>" + cyberState.score + " bonne" + (cyberState.score > 1 ? "s" : "") + " réponse" + (cyberState.score > 1 ? "s" : "") + " · " + wrongCount + " mauvaise" + (wrongCount > 1 ? "s" : "") + " réponse" + (wrongCount > 1 ? "s" : "") + "</p>";
+  review.appendChild(heading);
+
+  cyberState.responses.forEach(function(response, idx) {
+    const item = document.createElement("article");
+    item.className = "cyber-review-item " + (response.isCorrect ? "review-correct" : "review-wrong");
+
+    const top = document.createElement("div");
+    top.className = "cyber-review-top";
+
+    const status = document.createElement("span");
+    status.className = "cyber-review-status";
+    status.textContent = response.isCorrect ? "✅ Bonne réponse" : "❌ Mauvaise réponse";
+
+    const number = document.createElement("span");
+    number.className = "cyber-review-number";
+    number.textContent = "Question " + (idx + 1);
+
+    top.appendChild(status);
+    top.appendChild(number);
+
+    const category = document.createElement("div");
+    category.className = "cyber-review-category";
+    category.textContent = sanitize(response.category);
+
+    const question = document.createElement("p");
+    question.className = "cyber-review-question";
+    question.textContent = sanitize(response.question);
+
+    const chosen = document.createElement("p");
+    chosen.className = "cyber-review-answer";
+    chosen.innerHTML = "<strong>Votre réponse :</strong> ";
+    chosen.appendChild(document.createTextNode(response.selected));
+
+    const correct = document.createElement("p");
+    correct.className = "cyber-review-correction";
+    correct.innerHTML = "<strong>Bonne réponse :</strong> ";
+    correct.appendChild(document.createTextNode(response.correct));
+
+    const explanation = document.createElement("p");
+    explanation.className = "cyber-review-explanation";
+    explanation.innerHTML = "<strong>Explication :</strong> ";
+    explanation.appendChild(document.createTextNode(response.explanation));
+
+    item.appendChild(top);
+    item.appendChild(category);
+    item.appendChild(question);
+    item.appendChild(chosen);
+    item.appendChild(correct);
+    item.appendChild(explanation);
+    review.appendChild(item);
+  });
 }
 
 function cyberShowResult() {
-  const pct     = Math.round((cyberState.score / CYBER_TOTAL) * 100);
+  const pct = Math.round((cyberState.score / CYBER_TOTAL) * 100);
   const success = pct >= CYBER_THRESHOLD * 100;
 
-  document.getElementById("cyber-result-icon").textContent    = success ? "🏆" : "📚";
-  document.getElementById("cyber-result-title").textContent   = success ? "Félicitations !" : "Quiz non validé";
+  document.getElementById("cyber-result-icon").textContent = success ? "🏆" : "📚";
+  document.getElementById("cyber-result-title").textContent = success ? "Félicitations !" : "Quiz non validé";
   document.getElementById("cyber-result-subtitle").textContent = success
     ? "Bravo " + sanitize(osUser.displayName) + ", vous avez réussi le quiz !"
     : "Dommage " + sanitize(osUser.displayName) + ", le score minimum de 80% n'est pas atteint.";
@@ -780,9 +843,10 @@ function cyberShowResult() {
 
   const badge = document.getElementById("cyber-badge");
   badge.textContent = success ? "✅ Certification Cybersécurité obtenue" : "❌ Score insuffisant — 80% requis";
-  badge.className   = "app-cyber-badge " + (success ? "badge-success" : "badge-failure");
+  badge.className = "app-cyber-badge " + (success ? "badge-success" : "badge-failure");
   badge.classList.remove("hidden");
 
+  cyberRenderReview();
   showAppScreen("cyber","cyber-screen-result");
 }
 

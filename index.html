@@ -106,7 +106,7 @@
         <span class="app-window-icon">⏱️</span>
         <span class="app-window-title">Diagnostic — Gestion du Temps</span>
       </div>
-      <button type="button" class="app-window-close" data-close="temps">✕ Retour accueil</button>
+      <button type="button" class="app-window-close" data-close="temps">Retour Accueil</button>
     </div>
     <div class="app-window-content" id="content-temps">
 
@@ -192,7 +192,7 @@
         <span class="app-window-icon"></span>
         <span class="app-window-title">Diagnostic — Communication</span>
       </div>
-      <button type="button" class="app-window-close" data-close="comm">✕ Retour accueil</button>
+      <button type="button" class="app-window-close" data-close="comm">Retour Accueil</button>
     </div>
     <div class="app-window-content" id="content-comm">
 
@@ -325,7 +325,7 @@
             <li><span>🎯</span><strong>4 propositions</strong> par question</li>
             <li><span>✅</span>Score minimum requis : <strong>80 %</strong></li>
             <li><span>🔀</span>Réponses présentées en <strong>ordre aléatoire</strong></li>
-            <li><span>💡</span>Une <strong>explication</strong> après chaque réponse</li>
+            <li><span>💡</span>Un <strong>corrigé complet</strong> à la fin des 27 questions</li>
           </ul>
           <button type="button" id="cyber-btn-start" class="app-btn app-btn-primary app-btn-full">Démarrer le quiz →</button>
         </div>
@@ -342,17 +342,14 @@
           </div>
           <div class="app-diag-meta" style="margin-top:0.3rem;">
             <span></span>
-            <span id="cyber-score-live" class="app-score-live"></span>
+            <span id="cyber-score-live" class="app-score-live">Réponse non validée</span>
           </div>
         </div>
         <div class="app-card app-question-card">
           <p class="app-question-text" id="cyber-question"></p>
           <ul class="app-answers" id="cyber-answers" role="list"></ul>
-          <div id="cyber-feedback" class="app-feedback hidden">
-            <div id="cyber-feedback-icon" class="app-feedback-icon"></div>
-            <div id="cyber-feedback-text" class="app-feedback-text"></div>
-            <div id="cyber-feedback-expl" class="app-feedback-expl"></div>
-            <button type="button" id="cyber-btn-next" class="app-btn app-btn-primary">Question suivante →</button>
+          <div class="app-question-actions">
+            <button type="button" id="cyber-btn-next" class="app-btn app-btn-primary hidden" disabled>Question suivante →</button>
           </div>
         </div>
       </div>
@@ -368,6 +365,7 @@
           </div>
           <p id="cyber-score-detail" class="app-cyber-score-detail"></p>
           <div id="cyber-badge" class="app-cyber-badge hidden"></div>
+          <div id="cyber-review" class="cyber-review"></div>
           <div class="app-result-actions">
             <button type="button" id="cyber-btn-retry" class="app-btn app-btn-secondary">Recommencer</button>
           </div>

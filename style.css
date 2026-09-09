@@ -936,3 +936,87 @@ html, body { height: 100%; font-family: "Poppins", "Segoe UI", Arial, sans-serif
     transform: translateY(-1px) scale(1.06);
   }
 }
+
+
+/* ============================================================
+   V0.4.3 — CYBER : CORRIGÉ GLOBAL EN FIN DE QUIZ
+   ============================================================ */
+.app-answer-item.selected {
+  border-color: #2E86C1;
+  background: #EEF6FD;
+  box-shadow: 0 0 0 2px rgba(46, 134, 193, 0.12);
+}
+.app-question-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+.cyber-review {
+  margin-top: 1.25rem;
+  text-align: left;
+}
+.cyber-review-heading {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+.cyber-review-heading h3 {
+  margin: 0 0 0.35rem;
+  font-size: 1.05rem;
+}
+.cyber-review-heading p {
+  margin: 0;
+  color: #595959;
+  font-size: 0.88rem;
+}
+.cyber-review-item {
+  border: 1px solid #E0E0E0;
+  border-left: 4px solid #BDBDBD;
+  border-radius: 12px;
+  padding: 0.9rem;
+  margin-bottom: 0.85rem;
+  background: #fff;
+}
+.cyber-review-item.review-correct { border-left-color: #28B463; }
+.cyber-review-item.review-wrong { border-left-color: #C62828; }
+.cyber-review-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  align-items: center;
+  margin-bottom: 0.45rem;
+}
+.cyber-review-status { font-size: 0.82rem; font-weight: 800; }
+.cyber-review-number { font-size: 0.78rem; color: #777; white-space: nowrap; }
+.cyber-review-category {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #2E86C1;
+  background: #EEF6FD;
+  border-radius: 999px;
+  padding: 0.18rem 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.cyber-review-question {
+  font-weight: 700;
+  line-height: 1.45;
+  margin: 0 0 0.65rem;
+}
+.cyber-review-answer,
+.cyber-review-correction,
+.cyber-review-explanation {
+  font-size: 0.84rem;
+  line-height: 1.5;
+  margin: 0.38rem 0;
+}
+.cyber-review-correction { color: #176B3A; }
+.cyber-review-explanation {
+  margin-top: 0.6rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid #EEEEEE;
+  color: #444;
+}
+@media (max-width: 600px) {
+  .cyber-review-item { padding: 0.8rem; }
+  .cyber-review-top { align-items: flex-start; }
+}
