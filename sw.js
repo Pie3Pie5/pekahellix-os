@@ -1,6 +1,6 @@
-const CACHE = 'pekahellix-v0.4.6.0';
+const CACHE = 'pekahellix-v0.5-a.0';
 const APP_SHELL = [
-  './', './index.html', './style.css', './script.js', './logo.png',
+  './', './index.html', './style.css', './script.js', './config.js', './logo.png',
   './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png'
 ];
 
@@ -40,7 +40,7 @@ self.addEventListener('fetch', event => {
 
   event.respondWith(
     caches.match(event.request).then(cached => cached || fetch(event.request).then(response => {
-      if (response && response.status === 200 && response.type === 'basic') {
+      if (response && response.status === 200 && (response.type === 'basic' || response.type === 'cors')) {
         const copy = response.clone();
         caches.open(CACHE).then(cache => cache.put(event.request, copy));
       }

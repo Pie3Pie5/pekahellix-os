@@ -27,9 +27,9 @@
       <p class="login-subtitle">Votre espace de diagnostic managérial</p>
 
       <div class="login-field">
-        <label for="input-username">Identifiant</label>
-        <input type="text" id="input-username" placeholder="Votre identifiant"
-          autocomplete="username" maxlength="64" />
+        <label for="input-username">Adresse e-mail</label>
+        <input type="email" id="input-username" placeholder="nom@entreprise.fr"
+          autocomplete="username" maxlength="254" inputmode="email" />
       </div>
       <div class="login-field">
         <label for="input-password">Mot de passe</label>
@@ -92,6 +92,11 @@
           <span class="app-icon-label">Cybersécurité</span>
           <span class="app-icon-desc">Quiz · Bonnes pratiques</span>
         </button>
+      </div>
+
+      <div id="os-no-access" class="os-no-access hidden" role="status">
+        <strong>Aucun module actif</strong>
+        <span>Votre compte ne dispose actuellement d’aucune application. Contactez votre administrateur Pekahellix.</span>
       </div>
 
     </div>
@@ -400,6 +405,8 @@
     </button>
   </nav>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
   <script src="script.js"></script>
 
 <script>

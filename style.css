@@ -1047,3 +1047,14 @@ html, body { height: 100%; font-family: "Poppins", "Segoe UI", Arial, sans-serif
   .cyber-mail-row { flex-direction: column; }
   .cyber-mail-row .app-btn { width: 100%; }
 }
+
+
+/* V0.5-A — Authentification / droits */
+.login-btn:disabled { opacity: .65; cursor: wait; }
+.os-no-access {
+  margin: 18px auto; padding: 18px 20px; max-width: 620px;
+  border: 1px solid rgba(255,255,255,.16); border-radius: 14px;
+  background: rgba(255,255,255,.08); text-align: center;
+}
+.os-no-access strong, .os-no-access span { display: block; }
+.os-no-access span { margin-top: 6px; opacity: .82; font-size: .92rem; }

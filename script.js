@@ -6,14 +6,25 @@
 "use strict";
 
 /* ============================================================
-   UTILISATEURS
+   SUPABASE — AUTHENTIFICATION V0.5-A
    ============================================================ */
-const USERS = [
-  { username: "test",   password: "Test1234!",   displayName: "M.me X" },
-  { username: "collaborateur", password: "Collaborateur1234!",  displayName: "cher collaborateur" },
-  { username: "gerant", password: "Gerant1234!",  displayName: "cher gérant" },
-  { username: "admin",    password: "Admin1234!", displayName: "Administrateur" }
-];
+let supabaseClient = null;
+
+function initSupabase() {
+  const cfg = window.PEKAHELLIX_CONFIG || {};
+  if (!window.supabase || !cfg.supabaseUrl || !cfg.supabasePublishableKey ||
+      cfg.supabaseUrl.includes("A_REMPLACER") || cfg.supabasePublishableKey.includes("A_REMPLACER")) {
+    return false;
+  }
+  supabaseClient = window.supabase.createClient(cfg.supabaseUrl, cfg.supabasePublishableKey, {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true
+    }
+  });
+  return true;
+}
 
 /* ============================================================
    ██  APP : GESTION DU TEMPS — DONNÉES  ██
@@ -340,10 +351,71 @@ function renderAnswersList(containerId, answers, onSelect) {
 /* ============================================================
    OS — FONCTIONS PRINCIPALES
    ============================================================ */
-function authenticate(username, password) {
-  return USERS.find(function(u) {
-    return u.username === username.trim() && u.password === password;
-  }) || null;
+async function authenticate(email, password) {
+  if (!supabaseClient) throw new Error("SUPABASE_NOT_CONFIGURED");
+
+  const authResult = await supabaseClient.auth.signInWithPassword({
+    email: email.trim().toLowerCase(),
+    password: password
+  });
+  if (authResult.error) throw authResult.error;
+
+  const user = authResult.data && authResult.data.user;
+  if (!user) throw new Error("AUTH_NO_USER");
+
+  const profileResult = await supabaseClient
+    .from("profiles")
+    .select("id, first_name, last_name, email, role, is_active, access_temps, access_communication, access_cyber")
+    .eq("id", user.id)
+    .single();
+
+  if (profileResult.error || !profileResult.data) {
+    await supabaseClient.auth.signOut();
+    throw profileResult.error || new Error("PROFILE_NOT_FOUND");
+  }
+
+  const p = profileResult.data;
+  if (!p.is_active) {
+    await supabaseClient.auth.signOut();
+    const err = new Error("ACCOUNT_DISABLED");
+    err.code = "ACCOUNT_DISABLED";
+    throw err;
+  }
+
+  const fullName = [p.first_name, p.last_name].filter(Boolean).join(" ").trim();
+  return {
+    id: p.id,
+    email: p.email,
+    firstName: p.first_name,
+    lastName: p.last_name,
+    displayName: fullName || p.email,
+    role: p.role,
+    isActive: p.is_active,
+    access: {
+      temps: !!p.access_temps,
+      comm: !!p.access_communication,
+      cyber: !!p.access_cyber
+    }
+  };
+}
+
+function applyAccessRights() {
+  const access = (osUser && osUser.access) || {};
+  ["temps", "comm", "cyber"].forEach(function(appId) {
+    const allowed = !!access[appId];
+    document.querySelectorAll('[data-app="' + appId + '"]').forEach(function(el) {
+      el.classList.toggle("hidden", !allowed);
+      el.setAttribute("aria-hidden", allowed ? "false" : "true");
+    });
+  });
+
+  const hasAny = !!(access.temps || access.comm || access.cyber);
+  const empty = document.getElementById("os-no-access");
+  if (empty) empty.classList.toggle("hidden", hasAny);
+}
+
+function userCanAccess(appId) {
+  return !!(osUser && osUser.isActive && osUser.access && osUser.access[appId]);
 }
 
 function startClock() {
@@ -371,6 +443,7 @@ function setActiveDockApp(appId) {
 }
 
 function openApp(appId) {
+  if (!userCanAccess(appId)) return;
   document.querySelectorAll(".os-app-window").forEach(function(w) { w.classList.add("hidden"); });
   const win = document.getElementById("app-" + appId);
   if (win) {
@@ -385,7 +458,10 @@ function closeApp(appId) {
   setActiveDockApp(null);
 }
 
-function logout() {
+async function logout() {
+  if (supabaseClient) {
+    try { await supabaseClient.auth.signOut(); } catch (e) { console.warn("Déconnexion Supabase incomplète", e); }
+  }
   osUser = null;
   if (clockInterval) { clearInterval(clockInterval); clockInterval = null; }
   document.getElementById("os-desktop").classList.add("hidden");
@@ -880,46 +956,62 @@ function cyberShowResult() {
    ============================================================ */
 document.addEventListener("DOMContentLoaded", function() {
 
+  initSupabase();
+
   /* ── ÉTAT INITIAL ── */
   document.getElementById("os-login").classList.remove("hidden");
   document.getElementById("os-desktop").classList.add("hidden");
   document.querySelectorAll(".os-app-window").forEach(function(w) { w.classList.add("hidden"); });
 
   /* ── LOGIN — écoute click direct sur le bouton ── */
-  function doLogin() {
+  async function doLogin() {
     var errEl    = document.getElementById("login-error");
-    var username = document.getElementById("input-username").value;
+    var email    = document.getElementById("input-username").value;
     var password = document.getElementById("input-password").value;
+    var btn      = document.getElementById("login-btn");
 
     errEl.classList.add("hidden");
 
-    if (!username.trim() || !password.trim()) {
-      errEl.textContent = "Veuillez renseigner votre identifiant et votre mot de passe.";
+    if (!email.trim() || !password.trim()) {
+      errEl.textContent = "Veuillez renseigner votre adresse e-mail et votre mot de passe.";
       errEl.classList.remove("hidden");
       return;
     }
 
-    var user = authenticate(username, password);
-    if (!user) {
-      errEl.textContent = "Identifiant ou mot de passe incorrect.";
+    btn.disabled = true;
+    btn.textContent = "Connexion…";
+
+    try {
+      var user = await authenticate(email, password);
+      osUser = user;
+      document.getElementById("os-login").classList.add("hidden");
+      document.getElementById("os-desktop").classList.remove("hidden");
+      document.getElementById("os-global-dock").classList.remove("hidden");
+      applyAccessRights();
+      document.getElementById("os-username").textContent = osUser.displayName;
+      document.getElementById("os-welcome-name").textContent = "Bonjour, " + osUser.displayName + " 👋";
+      document.getElementById("temps-welcome").textContent = "Bonjour, " + osUser.displayName + " !";
+      document.getElementById("comm-welcome").textContent = "Bonjour, " + osUser.displayName + " !";
+      document.getElementById("cyber-welcome").textContent = "Bonjour, " + osUser.displayName + " !";
+      document.getElementById("input-username").value = "";
+      document.getElementById("input-password").value = "";
+      startClock();
+    } catch (e) {
+      console.error("Connexion Pekahellix", e);
+      if (e && (e.code === "ACCOUNT_DISABLED" || e.message === "ACCOUNT_DISABLED")) {
+        errEl.textContent = "Ce compte est désactivé. Contactez votre administrateur Pekahellix.";
+      } else if (e && e.message === "SUPABASE_NOT_CONFIGURED") {
+        errEl.textContent = "Connexion Supabase non configurée. Complétez le fichier config.js.";
+      } else {
+        errEl.textContent = "Adresse e-mail ou mot de passe incorrect.";
+      }
       errEl.classList.remove("hidden");
       document.getElementById("input-password").value = "";
       document.getElementById("input-password").focus();
-      return;
+    } finally {
+      btn.disabled = false;
+      btn.textContent = "Connexion →";
     }
-
-    osUser = user;
-    document.getElementById("os-login").classList.add("hidden");
-    document.getElementById("os-desktop").classList.remove("hidden");
-    document.getElementById("os-global-dock").classList.remove("hidden");
-    document.getElementById("os-username").textContent     = osUser.displayName;
-    document.getElementById("os-welcome-name").textContent = "Bonjour, " + sanitize(osUser.displayName) + " 👋";
-    document.getElementById("temps-welcome").textContent   = "Bonjour, " + sanitize(osUser.displayName) + " !";
-    document.getElementById("comm-welcome").textContent    = "Bonjour, " + sanitize(osUser.displayName) + " !";
-    document.getElementById("cyber-welcome").textContent   = "Bonjour, " + sanitize(osUser.displayName) + " !";
-    document.getElementById("input-username").value = "";
-    document.getElementById("input-password").value = "";
-    startClock();
   }
 
   /* Clic sur le bouton */
