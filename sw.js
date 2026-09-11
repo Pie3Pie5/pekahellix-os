@@ -1,6 +1,6 @@
-const CACHE = 'pekahellix-v0.5-b.2';
+const CACHE = 'pekahellix-v0.5-b.3';
 const APP_SHELL = [
-  './', './index.html', './style.css', './script.js', './config.js', './logo.png',
+  './', './index.html', './style.css', './script.js?v=0.5-b.3', './config.js', './logo.png',
   './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png'
 ];
 
@@ -34,6 +34,26 @@ self.addEventListener('fetch', event => {
           return response;
         })
         .catch(() => caches.match('./index.html'))
+    );
+    return;
+  }
+
+  const url = new URL(event.request.url);
+  const isCodeAsset = url.pathname.endsWith('/script.js') || url.pathname.endsWith('/style.css') || url.pathname.endsWith('/config.js');
+
+  // Les fichiers de code doivent être rafraîchis depuis le réseau en priorité.
+  // Cela évite qu'une ancienne version de script.js reste bloquée par le cache PWA.
+  if (isCodeAsset) {
+    event.respondWith(
+      fetch(event.request)
+        .then(response => {
+          if (response && response.status === 200) {
+            const copy = response.clone();
+            caches.open(CACHE).then(cache => cache.put(event.request, copy));
+          }
+          return response;
+        })
+        .catch(() => caches.match(event.request))
     );
     return;
   }
