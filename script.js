@@ -1,3 +1,4 @@
+window.PEKAHELLIX_BUILD = "0.5-E.3";
 /* ============================================================
    PEKAHELLIX OS — Gestionnaire unifié des 3 applications
    Apps : Gestion du Temps · Communication · Cybersécurité
@@ -760,84 +761,80 @@ function setActiveDockApp(appId) {
 
 async function validateCurrentAccount() {
   if (!osUser || !supabaseClient) return false;
-  if (navigator && navigator.onLine === false) return true;
+  if (typeof navigator !== "undefined" && navigator.onLine === false) return true;
 
-  // Important : si un contrôle est déjà en cours, les autres actions
-  // (intervalle, retour d'onglet, ouverture d'une app) ATTENDENT le même
-  // résultat. Elles ne doivent jamais considérer le compte comme autorisé
-  // simplement parce qu'un contrôle est déjà lancé.
-  if (accountGuardPromise) return await accountGuardPromise;
+  // V0.5-E.3 : chaque contrôle interroge réellement le profil serveur.
+  // On évite de réutiliser une Promise de contrôle précédente afin qu'une
+  // désactivation récente ne puisse jamais être masquée par un résultat ancien.
+  const checkedUserId = osUser.id;
 
-  accountGuardPromise = (async function() {
-    try {
-      const result = await supabaseClient
-        .from("profiles")
-        .select("id, first_name, last_name, email, role, is_active, access_temps, access_communication, access_cyber")
-        .eq("id", osUser.id)
-        .maybeSingle();
+  try {
+    const result = await supabaseClient
+      .from("profiles")
+      .select("id, first_name, last_name, email, role, is_active, access_temps, access_communication, access_cyber")
+      .eq("id", checkedUserId)
+      .maybeSingle();
 
-      if (result.error) {
-        console.warn("Contrôle du compte Pekahellix", result.error);
+    if (result.error) {
+      console.warn("Contrôle du compte Pekahellix", result.error);
 
-        const status = Number(result.status || 0);
-        const code = String(result.error.code || "").toLowerCase();
-        const message = String(result.error.message || "").toLowerCase();
-        const looksAuthInvalid =
-          status === 401 || status === 403 ||
-          code === "user_banned" || code === "user_not_found" ||
-          code === "session_not_found" || code === "refresh_token_not_found" ||
-          message.includes("jwt") || message.includes("token") || message.includes("banned");
+      const status = Number(result.status || 0);
+      const code = String(result.error.code || "").toLowerCase();
+      const message = String(result.error.message || "").toLowerCase();
+      const looksAuthInvalid =
+        status === 401 || status === 403 ||
+        code === "user_banned" || code === "user_not_found" ||
+        code === "session_not_found" || code === "refresh_token_not_found" ||
+        message.includes("jwt") || message.includes("token") || message.includes("banned");
 
-        if (looksAuthInvalid) {
-          await logout("Votre compte a été désactivé ou votre session n’est plus autorisée. Contactez votre administrateur Pekahellix.");
-          return false;
-        }
-
-        // Une panne réseau transitoire ne doit pas déconnecter un compte valide.
-        return true;
-      }
-
-      const p = result.data;
-      if (!p || p.is_active !== true) {
-        await logout("Votre compte a été désactivé ou supprimé. Contactez votre administrateur Pekahellix.");
+      if (looksAuthInvalid) {
+        await logout("Votre compte a été désactivé ou votre session n’est plus autorisée. Contactez votre administrateur Pekahellix.");
         return false;
       }
 
-      const fullName = [p.first_name, p.last_name].filter(Boolean).join(" ").trim();
-      osUser = {
-        id: p.id,
-        email: p.email,
-        firstName: p.first_name,
-        lastName: p.last_name,
-        displayName: fullName || p.email,
-        role: p.role,
-        isActive: p.is_active,
-        access: {
-          temps: !!p.access_temps,
-          comm: !!p.access_communication,
-          cyber: !!p.access_cyber
-        }
-      };
-      applyAccessRights();
-
-      document.querySelectorAll(".os-app-window:not(.hidden)").forEach(function(win) {
-        const appId = win.id.replace(/^app-/, "");
-        if (!userCanAccess(appId)) {
-          win.classList.add("hidden");
-          setActiveDockApp(null);
-        }
-      });
-      return true;
-    } catch (e) {
-      console.warn("Contrôle du compte Pekahellix interrompu", e);
+      // Une panne réseau transitoire ne déconnecte pas un compte valide.
       return true;
     }
-  })();
 
-  try {
-    return await accountGuardPromise;
-  } finally {
-    accountGuardPromise = null;
+    const p = result.data;
+    if (!p || p.is_active !== true) {
+      console.warn("Compte Pekahellix désactivé détecté", { id: checkedUserId, is_active: p && p.is_active });
+      await logout("Votre compte a été désactivé ou supprimé. Contactez votre administrateur Pekahellix.");
+      return false;
+    }
+
+    // Si une autre action a déconnecté/changé l'utilisateur pendant la requête,
+    // on n'écrase pas l'état courant avec un résultat devenu obsolète.
+    if (!osUser || osUser.id !== checkedUserId) return false;
+
+    const fullName = [p.first_name, p.last_name].filter(Boolean).join(" ").trim();
+    osUser = {
+      id: p.id,
+      email: p.email,
+      firstName: p.first_name,
+      lastName: p.last_name,
+      displayName: fullName || p.email,
+      role: p.role,
+      isActive: p.is_active,
+      access: {
+        temps: !!p.access_temps,
+        comm: !!p.access_communication,
+        cyber: !!p.access_cyber
+      }
+    };
+    applyAccessRights();
+
+    document.querySelectorAll(".os-app-window:not(.hidden)").forEach(function(win) {
+      const appId = win.id.replace(/^app-/, "");
+      if (!userCanAccess(appId)) {
+        win.classList.add("hidden");
+        setActiveDockApp(null);
+      }
+    });
+    return true;
+  } catch (e) {
+    console.warn("Contrôle du compte Pekahellix interrompu", e);
+    return true;
   }
 }
 
