@@ -1,4 +1,4 @@
-window.PEKAHELLIX_BUILD = "0.5-E.5";
+window.PEKAHELLIX_BUILD = "0.5-F.1";
 /* ============================================================
    PEKAHELLIX OS — Gestionnaire unifié des 3 applications
    Apps : Gestion du Temps · Communication · Cybersécurité
@@ -365,6 +365,24 @@ function renderAnswersList(containerId, answers, onSelect) {
 /* ============================================================
    ACTIVATION DE COMPTE — V0.5-C
    ============================================================ */
+function initPasswordVisibilityToggles() {
+  document.querySelectorAll("[data-password-toggle]").forEach(function(button) {
+    button.addEventListener("click", function() {
+      const input = document.getElementById(this.dataset.passwordToggle);
+      if (!input) return;
+      const reveal = input.type === "password";
+      input.type = reveal ? "text" : "password";
+      this.setAttribute("aria-pressed", reveal ? "true" : "false");
+      this.setAttribute("aria-label", reveal ? "Masquer le mot de passe" : "Afficher le mot de passe");
+      this.setAttribute("title", reveal ? "Masquer le mot de passe" : "Afficher le mot de passe");
+      const icon = this.querySelector("span");
+      if (icon) icon.textContent = reveal ? "🙈" : "👁";
+      input.focus({ preventScroll: true });
+      try { input.setSelectionRange(input.value.length, input.value.length); } catch (_) {}
+    });
+  });
+}
+
 function passwordChecks(password) {
   return {
     length: password.length >= 8,
@@ -1624,6 +1642,7 @@ function cyberShowResult() {
    INITIALISATION — TOUS LES LISTENERS DANS DOMContentLoaded
    ============================================================ */
 document.addEventListener("DOMContentLoaded", function() {
+  initPasswordVisibilityToggles();
 
   initSupabase();
 

@@ -1158,3 +1158,19 @@ html, body { height: 100%; font-family: "Poppins", "Segoe UI", Arial, sans-serif
 }
 .login-text-btn:hover { text-decoration: underline; }
 .login-text-btn:focus-visible { outline: 2px solid #2E86C1; outline-offset: 2px; border-radius: 6px; }
+
+
+/* ============================================================
+   V0.5-F.1 — Affichage / masquage des mots de passe
+   ============================================================ */
+.password-input-wrap { position: relative; width: 100%; }
+.password-input-wrap input { width: 100%; padding-right: 48px !important; }
+.password-toggle {
+  position: absolute; top: 50%; right: 8px; transform: translateY(-50%);
+  width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center;
+  border: 0; border-radius: 9px; background: transparent; color: inherit; cursor: pointer;
+  font: inherit; font-size: 18px; line-height: 1; opacity: .72;
+}
+.password-toggle:hover { background: rgba(255,255,255,.10); opacity: 1; }
+.password-toggle:focus-visible { outline: 2px solid #2E86C1; outline-offset: 1px; opacity: 1; }
+.password-toggle[aria-pressed="true"] { opacity: 1; }

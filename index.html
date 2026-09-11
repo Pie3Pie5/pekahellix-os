@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css?v=0.5-f.1" />
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
 </head>
@@ -33,8 +33,14 @@
       </div>
       <div class="login-field">
         <label for="input-password">Mot de passe</label>
-        <input type="password" id="input-password" placeholder="Votre mot de passe"
-          autocomplete="current-password" maxlength="128" />
+        <div class="password-input-wrap">
+          <input type="password" id="input-password" placeholder="Votre mot de passe"
+            autocomplete="current-password" maxlength="128" />
+          <button type="button" class="password-toggle" data-password-toggle="input-password"
+            aria-label="Afficher le mot de passe" aria-pressed="false" title="Afficher le mot de passe">
+            <span aria-hidden="true">👁</span>
+          </button>
+        </div>
       </div>
       <div id="login-error" class="login-error hidden" role="alert" aria-live="polite"></div>
       <button type="button" id="login-btn" class="login-btn">Connexion →</button>
@@ -57,13 +63,25 @@
 
       <div class="login-field">
         <label for="activation-password">Nouveau mot de passe</label>
-        <input type="password" id="activation-password" placeholder="Créez votre mot de passe"
-          autocomplete="new-password" maxlength="128" />
+        <div class="password-input-wrap">
+          <input type="password" id="activation-password" placeholder="Créez votre mot de passe"
+            autocomplete="new-password" maxlength="128" />
+          <button type="button" class="password-toggle" data-password-toggle="activation-password"
+            aria-label="Afficher le mot de passe" aria-pressed="false" title="Afficher le mot de passe">
+            <span aria-hidden="true">👁</span>
+          </button>
+        </div>
       </div>
       <div class="login-field">
         <label for="activation-password-confirm">Confirmer le mot de passe</label>
-        <input type="password" id="activation-password-confirm" placeholder="Confirmez votre mot de passe"
-          autocomplete="new-password" maxlength="128" />
+        <div class="password-input-wrap">
+          <input type="password" id="activation-password-confirm" placeholder="Confirmez votre mot de passe"
+            autocomplete="new-password" maxlength="128" />
+          <button type="button" class="password-toggle" data-password-toggle="activation-password-confirm"
+            aria-label="Afficher le mot de passe" aria-pressed="false" title="Afficher le mot de passe">
+            <span aria-hidden="true">👁</span>
+          </button>
+        </div>
       </div>
 
       <div class="password-rules" aria-label="Règles du mot de passe">
@@ -118,13 +136,25 @@
 
       <div class="login-field">
         <label for="recovery-password">Nouveau mot de passe</label>
-        <input type="password" id="recovery-password" placeholder="Créez votre nouveau mot de passe"
-          autocomplete="new-password" maxlength="128" />
+        <div class="password-input-wrap">
+          <input type="password" id="recovery-password" placeholder="Créez votre nouveau mot de passe"
+            autocomplete="new-password" maxlength="128" />
+          <button type="button" class="password-toggle" data-password-toggle="recovery-password"
+            aria-label="Afficher le mot de passe" aria-pressed="false" title="Afficher le mot de passe">
+            <span aria-hidden="true">👁</span>
+          </button>
+        </div>
       </div>
       <div class="login-field">
         <label for="recovery-password-confirm">Confirmer le mot de passe</label>
-        <input type="password" id="recovery-password-confirm" placeholder="Confirmez votre nouveau mot de passe"
-          autocomplete="new-password" maxlength="128" />
+        <div class="password-input-wrap">
+          <input type="password" id="recovery-password-confirm" placeholder="Confirmez votre nouveau mot de passe"
+            autocomplete="new-password" maxlength="128" />
+          <button type="button" class="password-toggle" data-password-toggle="recovery-password-confirm"
+            aria-label="Afficher le mot de passe" aria-pressed="false" title="Afficher le mot de passe">
+            <span aria-hidden="true">👁</span>
+          </button>
+        </div>
       </div>
 
       <div class="password-rules" aria-label="Règles du mot de passe">
@@ -570,7 +600,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.3"></script>
   <script src="config.js"></script>
-  <script src="script.js?v=0.5-e.5"></script>
+  <script src="script.js?v=0.5-f.1"></script>
 
 <script>
 if ('serviceWorker' in navigator) {
