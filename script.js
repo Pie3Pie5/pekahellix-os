@@ -409,12 +409,20 @@ function applyAccessRights() {
     });
   });
 
-  const hasAny = !!(access.temps || access.comm || access.cyber);
+  const isAdmin = !!(osUser && osUser.role === "admin");
+  [document.getElementById("admin-app-icon"), document.getElementById("admin-dock-item")].forEach(function(el) {
+    if (!el) return;
+    el.classList.toggle("hidden", !isAdmin);
+    el.setAttribute("aria-hidden", isAdmin ? "false" : "true");
+  });
+
+  const hasAny = !!(access.temps || access.comm || access.cyber || isAdmin);
   const empty = document.getElementById("os-no-access");
   if (empty) empty.classList.toggle("hidden", hasAny);
 }
 
 function userCanAccess(appId) {
+  if (appId === "admin") return !!(osUser && osUser.isActive && osUser.role === "admin");
   return !!(osUser && osUser.isActive && osUser.access && osUser.access[appId]);
 }
 
@@ -449,6 +457,7 @@ function openApp(appId) {
   if (win) {
     win.classList.remove("hidden");
     setActiveDockApp(appId);
+    if (appId === "admin") adminLoadUsers();
   }
 }
 
@@ -473,6 +482,152 @@ async function logout() {
   tempsState = { index:0, scores:[0,0,0], engagements:[null,null,null] };
   commState  = { profil:null, index:0, scores:[0,0], npsScore:null, activePlan:"6m" };
   cyberState = { questions:[], index:0, score:0, answered:false, responses:[] };
+}
+
+/* ============================================================
+   ADMINISTRATION — V0.5-B
+   Les actions sensibles passent par RPC / Edge Function Supabase.
+   Aucune clé service_role n'est utilisée dans le navigateur.
+   ============================================================ */
+function adminSetMessage(message, isError) {
+  const el = document.getElementById("admin-message");
+  if (!el) return;
+  el.textContent = message || "";
+  el.classList.toggle("hidden", !message);
+  el.classList.toggle("is-error", !!isError);
+}
+
+function adminEscape(value) {
+  return String(value == null ? "" : value)
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+    .replace(/\"/g,"&quot;").replace(/'/g,"&#039;");
+}
+
+async function adminLoadUsers() {
+  if (!userCanAccess("admin") || !supabaseClient) return;
+  const loading = document.getElementById("admin-users-loading");
+  const list = document.getElementById("admin-users-list");
+  if (!list) return;
+  loading && loading.classList.remove("hidden");
+  adminSetMessage("");
+
+  const result = await supabaseClient.rpc("admin_list_profiles");
+  loading && loading.classList.add("hidden");
+  if (result.error) {
+    console.error("admin_list_profiles", result.error);
+    list.innerHTML = "";
+    adminSetMessage("Impossible de charger les utilisateurs. Vérifiez que le script SQL V0.5-B a bien été exécuté dans Supabase.", true);
+    return;
+  }
+
+  const users = result.data || [];
+  const count = document.getElementById("admin-user-count");
+  if (count) count.textContent = users.length + " compte" + (users.length > 1 ? "s" : "");
+  list.innerHTML = users.map(adminRenderUser).join("") || '<p class="admin-help">Aucun utilisateur.</p>';
+}
+
+function adminRenderUser(u) {
+  const role = u.role || "user";
+  const lockedRole = role === "admin" || role === "test";
+  const isSelf = !!(osUser && u.id === osUser.id);
+  const roleBadge = '<span class="admin-badge ' + adminEscape(role) + '">' + adminEscape(role) + '</span>';
+  const inactive = u.is_active ? "" : '<span class="admin-badge inactive">désactivé</span>';
+  const disabledRights = lockedRole ? " disabled" : "";
+  const disabledSelfStatus = isSelf ? " disabled" : "";
+  const deleteDisabled = isSelf || role === "admin" ? " disabled" : "";
+  const checked = v => v ? " checked" : "";
+
+  return '<article class="admin-user-row" data-user-id="' + adminEscape(u.id) + '">' +
+    '<div class="admin-user-identity"><strong>' + adminEscape((u.first_name || "") + " " + (u.last_name || "")) + '</strong>' +
+      '<span>' + adminEscape(u.email) + '</span><div class="admin-badges">' + roleBadge + inactive + '</div></div>' +
+    '<div class="admin-rights">' +
+      '<label><input class="admin-right admin-right-temps" type="checkbox"' + checked(u.access_temps) + disabledRights + '> Temps</label>' +
+      '<label><input class="admin-right admin-right-comm" type="checkbox"' + checked(u.access_communication) + disabledRights + '> Communication</label>' +
+      '<label><input class="admin-right admin-right-cyber" type="checkbox"' + checked(u.access_cyber) + disabledRights + '> Cyber</label>' +
+      '<label class="admin-status-toggle"><input class="admin-active" type="checkbox"' + checked(u.is_active) + disabledSelfStatus + '> Actif</label>' +
+    '</div>' +
+    '<div class="admin-user-actions">' +
+      '<button type="button" class="admin-mini-btn admin-save"' + (lockedRole ? " disabled" : "") + '>Enregistrer</button>' +
+      '<button type="button" class="admin-mini-btn danger admin-delete"' + deleteDisabled + '>Supprimer</button>' +
+    '</div></article>';
+}
+
+async function adminSaveRow(row) {
+  if (!row || !userCanAccess("admin")) return;
+  const targetId = row.dataset.userId;
+  const params = {
+    p_target_id: targetId,
+    p_is_active: !!row.querySelector(".admin-active").checked,
+    p_access_temps: !!row.querySelector(".admin-right-temps").checked,
+    p_access_communication: !!row.querySelector(".admin-right-comm").checked,
+    p_access_cyber: !!row.querySelector(".admin-right-cyber").checked
+  };
+  const result = await supabaseClient.rpc("admin_update_user_access", params);
+  if (result.error) {
+    console.error("admin_update_user_access", result.error);
+    adminSetMessage("Modification impossible : " + result.error.message, true);
+    return;
+  }
+  adminSetMessage("Droits utilisateur enregistrés.");
+  await adminLoadUsers();
+}
+
+async function adminCreateUser() {
+  if (!userCanAccess("admin")) return;
+  const firstName = document.getElementById("admin-new-firstname").value.trim();
+  const lastName = document.getElementById("admin-new-lastname").value.trim();
+  const email = document.getElementById("admin-new-email").value.trim().toLowerCase();
+  const access = {
+    temps: document.getElementById("admin-new-temps").checked,
+    communication: document.getElementById("admin-new-comm").checked,
+    cyber: document.getElementById("admin-new-cyber").checked
+  };
+  if (!firstName || !lastName || !email) {
+    adminSetMessage("Prénom, nom et adresse e-mail sont obligatoires.", true);
+    return;
+  }
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+    adminSetMessage("L’adresse e-mail n’est pas valide.", true);
+    return;
+  }
+  const btn = document.getElementById("admin-create-user");
+  btn.disabled = true; btn.textContent = "Création…";
+  adminSetMessage("");
+  try {
+    const result = await supabaseClient.functions.invoke("admin-users", {
+      body: { action:"invite", firstName:firstName, lastName:lastName, email:email, access:access }
+    });
+    if (result.error) throw result.error;
+    if (result.data && result.data.error) throw new Error(result.data.error);
+    ["admin-new-firstname","admin-new-lastname","admin-new-email"].forEach(id => document.getElementById(id).value = "");
+    ["admin-new-temps","admin-new-comm","admin-new-cyber"].forEach(id => document.getElementById(id).checked = false);
+    adminSetMessage("Invitation envoyée à " + email + ".");
+    await adminLoadUsers();
+  } catch (e) {
+    console.error("admin-users invite", e);
+    adminSetMessage("Création impossible. Vérifiez que l’Edge Function « admin-users » est déployée. " + (e.message || ""), true);
+  } finally {
+    btn.disabled = false; btn.textContent = "Créer et inviter";
+  }
+}
+
+async function adminDeleteUser(row) {
+  if (!row || !userCanAccess("admin")) return;
+  const id = row.dataset.userId;
+  const emailEl = row.querySelector(".admin-user-identity span");
+  const email = emailEl ? emailEl.textContent : "cet utilisateur";
+  if (!window.confirm("Supprimer définitivement le compte " + email + " ?")) return;
+  adminSetMessage("");
+  try {
+    const result = await supabaseClient.functions.invoke("admin-users", { body:{ action:"delete", userId:id } });
+    if (result.error) throw result.error;
+    if (result.data && result.data.error) throw new Error(result.data.error);
+    adminSetMessage("Compte supprimé.");
+    await adminLoadUsers();
+  } catch (e) {
+    console.error("admin-users delete", e);
+    adminSetMessage("Suppression impossible. " + (e.message || ""), true);
+  }
 }
 
 /* ============================================================
@@ -1035,6 +1190,16 @@ document.addEventListener("DOMContentLoaded", function() {
 
   document.querySelectorAll(".os-dock-item").forEach(function(item) {
     item.addEventListener("click", function() { openApp(this.dataset.app); });
+  });
+
+  /* ── ADMINISTRATION ── */
+  document.getElementById("admin-refresh").addEventListener("click", adminLoadUsers);
+  document.getElementById("admin-create-user").addEventListener("click", adminCreateUser);
+  document.getElementById("admin-users-list").addEventListener("click", function(e) {
+    const row = e.target.closest(".admin-user-row");
+    if (!row) return;
+    if (e.target.closest(".admin-save")) adminSaveRow(row);
+    if (e.target.closest(".admin-delete")) adminDeleteUser(row);
   });
 
   document.querySelectorAll(".app-window-close").forEach(function(btn) {

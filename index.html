@@ -92,6 +92,14 @@
           <span class="app-icon-label">Cybersécurité</span>
           <span class="app-icon-desc">Quiz · Bonnes pratiques</span>
         </button>
+
+        <button type="button" id="admin-app-icon" class="os-app-icon hidden" data-app="admin" aria-label="Ouvrir Administration">
+          <div class="app-icon-visual app-admin">
+            <span class="app-icon-emoji">⚙️</span>
+          </div>
+          <span class="app-icon-label">Administration</span>
+          <span class="app-icon-desc">Utilisateurs · Accès · Comptes</span>
+        </button>
       </div>
 
       <div id="os-no-access" class="os-no-access hidden" role="status">
@@ -391,6 +399,56 @@
   </div>
 
 
+  <!-- ═══════════════════════════════════════
+       APP : ADMINISTRATION (V0.5-B)
+  ═══════════════════════════════════════ -->
+  <div id="app-admin" class="os-app-window hidden admin-window">
+    <div class="app-window-bar app-bar-admin">
+      <div class="app-window-bar-left">
+        <span class="app-window-icon">⚙️</span>
+        <span class="app-window-title">Administration Pekahellix</span>
+      </div>
+      <button type="button" class="app-window-close" data-close="admin">Retour Accueil</button>
+    </div>
+    <div class="app-window-content admin-content">
+      <div class="admin-toolbar">
+        <div>
+          <h2>Gestion des utilisateurs</h2>
+          <p>Créez les comptes et pilotez les accès aux applications.</p>
+        </div>
+        <button type="button" id="admin-refresh" class="app-btn app-btn-secondary">↻ Actualiser</button>
+      </div>
+
+      <div id="admin-message" class="admin-message hidden" role="status" aria-live="polite"></div>
+
+      <section class="admin-card">
+        <h3>Créer un utilisateur</h3>
+        <div class="admin-form-grid">
+          <label>Prénom<input id="admin-new-firstname" type="text" maxlength="80" autocomplete="off"></label>
+          <label>Nom<input id="admin-new-lastname" type="text" maxlength="80" autocomplete="off"></label>
+          <label class="admin-span-2">Adresse e-mail<input id="admin-new-email" type="email" maxlength="254" inputmode="email" autocomplete="off" placeholder="nom@entreprise.fr"></label>
+        </div>
+        <fieldset class="admin-access-fieldset">
+          <legend>Applications autorisées</legend>
+          <label><input id="admin-new-temps" type="checkbox"> Gestion du Temps</label>
+          <label><input id="admin-new-comm" type="checkbox"> Communication</label>
+          <label><input id="admin-new-cyber" type="checkbox"> Cybersécurité</label>
+        </fieldset>
+        <p class="admin-help">L’utilisateur recevra une invitation par e-mail pour définir son accès. L’administrateur ne connaît jamais son mot de passe.</p>
+        <button type="button" id="admin-create-user" class="app-btn app-btn-primary">Créer et inviter</button>
+      </section>
+
+      <section class="admin-card">
+        <div class="admin-section-head">
+          <h3>Utilisateurs existants</h3>
+          <span id="admin-user-count" class="admin-count"></span>
+        </div>
+        <div id="admin-users-loading" class="admin-loading hidden">Chargement…</div>
+        <div id="admin-users-list" class="admin-users-list"></div>
+      </section>
+    </div>
+  </div>
+
   <!-- Navigation globale : volontairement hors du bureau et des fenêtres
        pour rester au premier plan pendant l'utilisation des modules. -->
   <nav id="os-global-dock" class="os-dock hidden" aria-label="Navigation des outils">
@@ -402,6 +460,9 @@
     </button>
     <button type="button" class="os-dock-item" data-app="cyber" aria-label="Ouvrir Cybersécurité">
       <span class="dock-icon" aria-hidden="true">🔐</span><span class="dock-label">Cyber</span>
+    </button>
+    <button type="button" id="admin-dock-item" class="os-dock-item hidden" data-app="admin" aria-label="Ouvrir Administration">
+      <span class="dock-icon" aria-hidden="true">⚙️</span><span class="dock-label">Admin</span>
     </button>
   </nav>
 
