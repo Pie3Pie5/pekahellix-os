@@ -6,7 +6,7 @@
 "use strict";
 
 /* ============================================================
-   SUPABASE — AUTHENTIFICATION V0.5-E
+   SUPABASE — AUTHENTIFICATION V0.5-E.1
    ============================================================ */
 let supabaseClient = null;
 
@@ -772,6 +772,26 @@ async function validateCurrentAccount() {
 
     if (result.error) {
       console.warn("Contrôle du compte Pekahellix", result.error);
+
+      // Un compte banni/supprimé peut rendre le JWT inutilisable avant que
+      // le profil puisse être relu. Dans ce cas, ne jamais laisser l'application
+      // continuer silencieusement avec une session locale devenue invalide.
+      const status = Number(result.status || 0);
+      const code = String(result.error.code || "").toLowerCase();
+      const message = String(result.error.message || "").toLowerCase();
+      const looksAuthInvalid =
+        status === 401 || status === 403 ||
+        code === "user_banned" || code === "user_not_found" ||
+        code === "session_not_found" || code === "refresh_token_not_found" ||
+        message.includes("jwt") || message.includes("token") || message.includes("banned");
+
+      if (looksAuthInvalid) {
+        await logout("Votre compte a été désactivé ou votre session n’est plus autorisée. Contactez votre administrateur Pekahellix.");
+        return false;
+      }
+
+      // En cas de simple panne réseau, on conserve la session locale afin de
+      // ne pas déconnecter abusivement un utilisateur autorisé.
       return true;
     }
 
@@ -1612,8 +1632,10 @@ document.addEventListener("DOMContentLoaded", function() {
       startAccountGuard();
     } catch (e) {
       console.error("Connexion Pekahellix", e);
-      if (e && (e.code === "ACCOUNT_DISABLED" || e.message === "ACCOUNT_DISABLED")) {
-        errEl.textContent = "Ce compte est désactivé. Contactez votre administrateur Pekahellix.";
+      const authCode = e && e.code ? String(e.code).toLowerCase() : "";
+      const authMessage = e && e.message ? String(e.message).toLowerCase() : "";
+      if (e && (e.code === "ACCOUNT_DISABLED" || e.message === "ACCOUNT_DISABLED" || authCode === "user_banned" || authMessage.includes("user banned"))) {
+        errEl.textContent = "Votre compte a été désactivé. Contactez votre administrateur Pekahellix.";
       } else if (e && e.message === "SUPABASE_NOT_CONFIGURED") {
         errEl.textContent = "Connexion Supabase non configurée. Complétez le fichier config.js.";
       } else {
@@ -1665,7 +1687,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
 
   /* ── BUREAU ── */
-  document.getElementById("btn-logout-os").addEventListener("click", logout);
+  document.getElementById("btn-logout-os").addEventListener("click", function() { logout(); });
 
   document.querySelectorAll(".os-app-icon").forEach(function(btn) {
     btn.addEventListener("click", function() { openApp(this.dataset.app); });
