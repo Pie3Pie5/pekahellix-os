@@ -572,6 +572,43 @@ async function adminSaveRow(row) {
   await adminLoadUsers();
 }
 
+async function callAdminUsers(payload) {
+  const cfg = window.PEKAHELLIX_CONFIG || {};
+  const sessionResult = await supabaseClient.auth.getSession();
+  const session = sessionResult && sessionResult.data ? sessionResult.data.session : null;
+  if (!session || !session.access_token) {
+    throw new Error("Session expirée. Déconnectez-vous puis reconnectez-vous.");
+  }
+
+  const endpoint = String(cfg.supabaseUrl || "").replace(/\/$/, "") + "/functions/v1/admin-users";
+  let response;
+  try {
+    response = await fetch(endpoint, {
+      method: "POST",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + session.access_token,
+        "apikey": cfg.supabasePublishableKey
+      },
+      body: JSON.stringify(payload)
+    });
+  } catch (networkError) {
+    console.error("admin-users network error", networkError);
+    throw new Error("Impossible de joindre admin-users (réseau/CORS). Vérifiez les Invocations Supabase.");
+  }
+
+  let data = null;
+  const raw = await response.text();
+  try { data = raw ? JSON.parse(raw) : null; } catch (_) { data = { error: raw || "Réponse serveur illisible" }; }
+
+  if (!response.ok) {
+    throw new Error((data && data.error) ? data.error : ("Erreur HTTP " + response.status));
+  }
+  if (data && data.error) throw new Error(data.error);
+  return data;
+}
+
 async function adminCreateUser() {
   if (!userCanAccess("admin")) return;
   const firstName = document.getElementById("admin-new-firstname").value.trim();
@@ -594,18 +631,14 @@ async function adminCreateUser() {
   btn.disabled = true; btn.textContent = "Création…";
   adminSetMessage("");
   try {
-    const result = await supabaseClient.functions.invoke("admin-users", {
-      body: { action:"invite", firstName:firstName, lastName:lastName, email:email, access:access }
-    });
-    if (result.error) throw result.error;
-    if (result.data && result.data.error) throw new Error(result.data.error);
+    await callAdminUsers({ action:"invite", firstName:firstName, lastName:lastName, email:email, access:access });
     ["admin-new-firstname","admin-new-lastname","admin-new-email"].forEach(id => document.getElementById(id).value = "");
     ["admin-new-temps","admin-new-comm","admin-new-cyber"].forEach(id => document.getElementById(id).checked = false);
     adminSetMessage("Invitation envoyée à " + email + ".");
     await adminLoadUsers();
   } catch (e) {
     console.error("admin-users invite", e);
-    adminSetMessage("Création impossible. Vérifiez que l’Edge Function « admin-users » est déployée. " + (e.message || ""), true);
+    adminSetMessage("Création impossible : " + (e.message || "Erreur inconnue"), true);
   } finally {
     btn.disabled = false; btn.textContent = "Créer et inviter";
   }
@@ -619,9 +652,7 @@ async function adminDeleteUser(row) {
   if (!window.confirm("Supprimer définitivement le compte " + email + " ?")) return;
   adminSetMessage("");
   try {
-    const result = await supabaseClient.functions.invoke("admin-users", { body:{ action:"delete", userId:id } });
-    if (result.error) throw result.error;
-    if (result.data && result.data.error) throw new Error(result.data.error);
+    await callAdminUsers({ action:"delete", userId:id });
     adminSetMessage("Compte supprimé.");
     await adminLoadUsers();
   } catch (e) {
