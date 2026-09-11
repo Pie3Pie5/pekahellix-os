@@ -630,10 +630,20 @@ async function saveRecoveredPassword() {
     history.replaceState({}, document.title, window.location.pathname);
   } catch (e) {
     console.error("Nouveau mot de passe Pekahellix", e);
+    const errMsg = String((e && e.message) || "").toLowerCase();
+    const samePassword =
+      errMsg.includes("different from the old") ||
+      errMsg.includes("different from old") ||
+      errMsg.includes("same password") ||
+      errMsg.includes("password should be different") ||
+      errMsg.includes("new password should be different");
+
     if (e && e.message === "RECOVERY_SESSION_MISSING") {
       msg.textContent = "Le lien de réinitialisation est invalide ou a expiré. Demandez un nouveau lien depuis l’écran de connexion.";
+    } else if (samePassword) {
+      msg.textContent = "Le nouveau mot de passe doit être différent de votre mot de passe actuel.";
     } else {
-      msg.textContent = "Impossible d’enregistrer le nouveau mot de passe. Le lien a peut-être expiré ; demandez-en un nouveau.";
+      msg.textContent = "Impossible d’enregistrer le nouveau mot de passe. Vérifiez le mot de passe choisi ou demandez un nouveau lien si celui-ci a expiré.";
     }
     msg.classList.remove("hidden");
   } finally {
