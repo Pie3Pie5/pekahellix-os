@@ -190,6 +190,10 @@ html, body { height: 100%; font-family: "Poppins", "Segoe UI", Arial, sans-serif
 }
 .os-dock-item:hover { background: rgba(255,255,255,0.2); transform: translateY(-6px) scale(1.1); }
 
+/* Desktop : le dock reste compact et n'affiche que les icônes.
+   Les libellés restent disponibles via aria-label et sont affichés sur mobile. */
+.dock-label { display: none; }
+
 /* ============================================================
    FENÊTRES APPLICATIONS
    ============================================================ */
@@ -886,7 +890,7 @@ html, body { height: 100%; font-family: "Poppins", "Segoe UI", Arial, sans-serif
   .os-dock-item:hover { background: rgba(255,255,255,0.1); transform: none; }
   .os-dock-item:active { background: rgba(255,255,255,0.16); transform: scale(0.97); }
   .dock-icon { font-size: 1.3rem; line-height: 1; }
-  .dock-label { font-size: 0.62rem; font-weight: 600; color: rgba(255,255,255,0.72); }
+  .dock-label { display: block; font-size: 0.62rem; font-weight: 600; color: rgba(255,255,255,0.72); }
 
   .os-app-window { height: 100dvh; }
   .app-window-bar {
