@@ -1,4 +1,4 @@
-const CACHE = 'pekahellix-v0.5-e.1';
+const CACHE = 'pekahellix-v0.5-e.2';
 const APP_SHELL = [
   './', './index.html', './style.css', './script.js?v=0.5-e.1', './config.js', './logo.png',
   './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png'

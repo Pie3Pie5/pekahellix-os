@@ -6,7 +6,7 @@
 "use strict";
 
 /* ============================================================
-   SUPABASE — AUTHENTIFICATION V0.5-E.1
+   SUPABASE — AUTHENTIFICATION V0.5-E.2
    ============================================================ */
 let supabaseClient = null;
 
@@ -181,7 +181,7 @@ const CYBER_LETTERS   = ["a","b","c","d"];
    ============================================================ */
 let osUser        = null;
 let accountGuardInterval = null;
-let accountGuardRunning = false;
+let accountGuardPromise = null;
 const ACCOUNT_GUARD_MS = 15000;
 let clockInterval = null;
 
@@ -759,80 +759,91 @@ function setActiveDockApp(appId) {
 }
 
 async function validateCurrentAccount() {
-  if (!osUser || !supabaseClient || accountGuardRunning) return !!osUser;
+  if (!osUser || !supabaseClient) return false;
   if (navigator && navigator.onLine === false) return true;
 
-  accountGuardRunning = true;
-  try {
-    const result = await supabaseClient
-      .from("profiles")
-      .select("id, first_name, last_name, email, role, is_active, access_temps, access_communication, access_cyber")
-      .eq("id", osUser.id)
-      .maybeSingle();
+  // Important : si un contrôle est déjà en cours, les autres actions
+  // (intervalle, retour d'onglet, ouverture d'une app) ATTENDENT le même
+  // résultat. Elles ne doivent jamais considérer le compte comme autorisé
+  // simplement parce qu'un contrôle est déjà lancé.
+  if (accountGuardPromise) return await accountGuardPromise;
 
-    if (result.error) {
-      console.warn("Contrôle du compte Pekahellix", result.error);
+  accountGuardPromise = (async function() {
+    try {
+      const result = await supabaseClient
+        .from("profiles")
+        .select("id, first_name, last_name, email, role, is_active, access_temps, access_communication, access_cyber")
+        .eq("id", osUser.id)
+        .maybeSingle();
 
-      // Un compte banni/supprimé peut rendre le JWT inutilisable avant que
-      // le profil puisse être relu. Dans ce cas, ne jamais laisser l'application
-      // continuer silencieusement avec une session locale devenue invalide.
-      const status = Number(result.status || 0);
-      const code = String(result.error.code || "").toLowerCase();
-      const message = String(result.error.message || "").toLowerCase();
-      const looksAuthInvalid =
-        status === 401 || status === 403 ||
-        code === "user_banned" || code === "user_not_found" ||
-        code === "session_not_found" || code === "refresh_token_not_found" ||
-        message.includes("jwt") || message.includes("token") || message.includes("banned");
+      if (result.error) {
+        console.warn("Contrôle du compte Pekahellix", result.error);
 
-      if (looksAuthInvalid) {
-        await logout("Votre compte a été désactivé ou votre session n’est plus autorisée. Contactez votre administrateur Pekahellix.");
+        const status = Number(result.status || 0);
+        const code = String(result.error.code || "").toLowerCase();
+        const message = String(result.error.message || "").toLowerCase();
+        const looksAuthInvalid =
+          status === 401 || status === 403 ||
+          code === "user_banned" || code === "user_not_found" ||
+          code === "session_not_found" || code === "refresh_token_not_found" ||
+          message.includes("jwt") || message.includes("token") || message.includes("banned");
+
+        if (looksAuthInvalid) {
+          await logout("Votre compte a été désactivé ou votre session n’est plus autorisée. Contactez votre administrateur Pekahellix.");
+          return false;
+        }
+
+        // Une panne réseau transitoire ne doit pas déconnecter un compte valide.
+        return true;
+      }
+
+      const p = result.data;
+      if (!p || p.is_active !== true) {
+        await logout("Votre compte a été désactivé ou supprimé. Contactez votre administrateur Pekahellix.");
         return false;
       }
 
-      // En cas de simple panne réseau, on conserve la session locale afin de
-      // ne pas déconnecter abusivement un utilisateur autorisé.
+      const fullName = [p.first_name, p.last_name].filter(Boolean).join(" ").trim();
+      osUser = {
+        id: p.id,
+        email: p.email,
+        firstName: p.first_name,
+        lastName: p.last_name,
+        displayName: fullName || p.email,
+        role: p.role,
+        isActive: p.is_active,
+        access: {
+          temps: !!p.access_temps,
+          comm: !!p.access_communication,
+          cyber: !!p.access_cyber
+        }
+      };
+      applyAccessRights();
+
+      document.querySelectorAll(".os-app-window:not(.hidden)").forEach(function(win) {
+        const appId = win.id.replace(/^app-/, "");
+        if (!userCanAccess(appId)) {
+          win.classList.add("hidden");
+          setActiveDockApp(null);
+        }
+      });
+      return true;
+    } catch (e) {
+      console.warn("Contrôle du compte Pekahellix interrompu", e);
       return true;
     }
+  })();
 
-    const p = result.data;
-    if (!p || !p.is_active) {
-      await logout("Votre compte a été désactivé ou supprimé. Contactez votre administrateur Pekahellix.");
-      return false;
-    }
-
-    const fullName = [p.first_name, p.last_name].filter(Boolean).join(" ").trim();
-    osUser = {
-      id: p.id,
-      email: p.email,
-      firstName: p.first_name,
-      lastName: p.last_name,
-      displayName: fullName || p.email,
-      role: p.role,
-      isActive: p.is_active,
-      access: {
-        temps: !!p.access_temps,
-        comm: !!p.access_communication,
-        cyber: !!p.access_cyber
-      }
-    };
-    applyAccessRights();
-
-    document.querySelectorAll(".os-app-window:not(.hidden)").forEach(function(win) {
-      const appId = win.id.replace(/^app-/, "");
-      if (!userCanAccess(appId)) {
-        win.classList.add("hidden");
-        setActiveDockApp(null);
-      }
-    });
-    return true;
+  try {
+    return await accountGuardPromise;
   } finally {
-    accountGuardRunning = false;
+    accountGuardPromise = null;
   }
 }
 
 function startAccountGuard() {
   stopAccountGuard();
+  validateCurrentAccount();
   accountGuardInterval = setInterval(function() {
     if (osUser && document.visibilityState !== "hidden") validateCurrentAccount();
   }, ACCOUNT_GUARD_MS);
