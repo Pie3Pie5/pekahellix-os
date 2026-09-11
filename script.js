@@ -763,24 +763,24 @@ async function validateCurrentAccount() {
   if (!osUser || !supabaseClient) return false;
   if (typeof navigator !== "undefined" && navigator.onLine === false) return true;
 
-  // V0.5-E.3 : chaque contrôle interroge réellement le profil serveur.
-  // On évite de réutiliser une Promise de contrôle précédente afin qu'une
-  // désactivation récente ne puisse jamais être masquée par un résultat ancien.
   const checkedUserId = osUser.id;
 
   try {
-    const result = await supabaseClient
+    // Étape 1 : contrôle minimal et prioritaire du statut du compte.
+    // Cette requête volontairement courte évite qu'un autre champ du profil
+    // ou un rafraîchissement de droits masque une désactivation.
+    const statusResult = await supabaseClient
       .from("profiles")
-      .select("id, first_name, last_name, email, role, is_active, access_temps, access_communication, access_cyber")
+      .select("is_active")
       .eq("id", checkedUserId)
       .maybeSingle();
 
-    if (result.error) {
-      console.warn("Contrôle du compte Pekahellix", result.error);
+    if (statusResult.error) {
+      console.warn("Contrôle du statut Pekahellix", statusResult.error);
 
-      const status = Number(result.status || 0);
-      const code = String(result.error.code || "").toLowerCase();
-      const message = String(result.error.message || "").toLowerCase();
+      const status = Number(statusResult.status || 0);
+      const code = String(statusResult.error.code || "").toLowerCase();
+      const message = String(statusResult.error.message || "").toLowerCase();
       const looksAuthInvalid =
         status === 401 || status === 403 ||
         code === "user_banned" || code === "user_not_found" ||
@@ -788,23 +788,49 @@ async function validateCurrentAccount() {
         message.includes("jwt") || message.includes("token") || message.includes("banned");
 
       if (looksAuthInvalid) {
-        await logout("Votre compte a été désactivé ou votre session n’est plus autorisée. Contactez votre administrateur Pekahellix.");
+        forceLocalLogout("Votre compte a été désactivé ou votre session n’est plus autorisée. Contactez votre administrateur Pekahellix.");
+        // Nettoyage Supabase en second plan : l'interface est déjà fermée localement.
+        logoutSupabaseLocal();
         return false;
       }
 
-      // Une panne réseau transitoire ne déconnecte pas un compte valide.
+      // En cas de panne réseau réellement transitoire, on conserve la session locale.
       return true;
     }
 
-    const p = result.data;
-    if (!p || p.is_active !== true) {
-      console.warn("Compte Pekahellix désactivé détecté", { id: checkedUserId, is_active: p && p.is_active });
-      await logout("Votre compte a été désactivé ou supprimé. Contactez votre administrateur Pekahellix.");
+    const statusProfile = statusResult.data;
+    if (!statusProfile || statusProfile.is_active !== true) {
+      console.warn("Compte Pekahellix désactivé détecté", {
+        id: checkedUserId,
+        is_active: statusProfile && statusProfile.is_active
+      });
+      forceLocalLogout("Votre compte a été désactivé ou supprimé. Contactez votre administrateur Pekahellix.");
+      logoutSupabaseLocal();
       return false;
     }
 
-    // Si une autre action a déconnecté/changé l'utilisateur pendant la requête,
-    // on n'écrase pas l'état courant avec un résultat devenu obsolète.
+    // Une autre action a pu déconnecter l'utilisateur pendant la requête.
+    if (!osUser || osUser.id !== checkedUserId) return false;
+
+    // Étape 2 : le compte est actif. On actualise ensuite les droits et le profil.
+    const profileResult = await supabaseClient
+      .from("profiles")
+      .select("id, first_name, last_name, email, role, is_active, access_temps, access_communication, access_cyber")
+      .eq("id", checkedUserId)
+      .maybeSingle();
+
+    if (profileResult.error) {
+      console.warn("Actualisation du profil Pekahellix", profileResult.error);
+      return true;
+    }
+
+    const p = profileResult.data;
+    if (!p || p.is_active !== true) {
+      forceLocalLogout("Votre compte a été désactivé ou supprimé. Contactez votre administrateur Pekahellix.");
+      logoutSupabaseLocal();
+      return false;
+    }
+
     if (!osUser || osUser.id !== checkedUserId) return false;
 
     const fullName = [p.first_name, p.last_name].filter(Boolean).join(" ").trim();
@@ -871,27 +897,52 @@ function closeApp(appId) {
   setActiveDockApp(null);
 }
 
-async function logout(message) {
+function forceLocalLogout(message) {
   stopAccountGuard();
-  if (supabaseClient) {
-    try { await supabaseClient.auth.signOut(); } catch (e) { console.warn("Déconnexion Supabase incomplète", e); }
-  }
   osUser = null;
   if (clockInterval) { clearInterval(clockInterval); clockInterval = null; }
-  document.getElementById("os-desktop").classList.add("hidden");
+
+  const desktop = document.getElementById("os-desktop");
+  if (desktop) desktop.classList.add("hidden");
   document.querySelectorAll(".os-app-window").forEach(function(w) { w.classList.add("hidden"); });
-  document.getElementById("os-global-dock").classList.add("hidden");
-  document.getElementById("os-login").classList.remove("hidden");
-  document.getElementById("input-username").value = "";
-  document.getElementById("input-password").value = "";
+
+  const dock = document.getElementById("os-global-dock");
+  if (dock) dock.classList.add("hidden");
+
+  const login = document.getElementById("os-login");
+  if (login) login.classList.remove("hidden");
+
+  const username = document.getElementById("input-username");
+  const password = document.getElementById("input-password");
+  if (username) username.value = "";
+  if (password) password.value = "";
+
   const loginMsg = document.getElementById("login-error");
   if (loginMsg && message) {
     loginMsg.textContent = message;
     loginMsg.classList.remove("success", "hidden");
   }
+
   tempsState = { index:0, scores:[0,0,0], engagements:[null,null,null] };
   commState  = { profil:null, index:0, scores:[0,0], npsScore:null, activePlan:"6m" };
   cyberState = { questions:[], index:0, score:0, answered:false, responses:[] };
+}
+
+async function logoutSupabaseLocal() {
+  if (!supabaseClient) return;
+  try {
+    const result = await supabaseClient.auth.signOut({ scope: "local" });
+    if (result && result.error) console.warn("Déconnexion Supabase locale incomplète", result.error);
+  } catch (e) {
+    console.warn("Déconnexion Supabase locale incomplète", e);
+  }
+}
+
+async function logout(message) {
+  // Ferme toujours Pekahellix immédiatement, même si Supabase ne peut plus
+  // rafraîchir/révoquer une session déjà bannie.
+  forceLocalLogout(message);
+  await logoutSupabaseLocal();
 }
 
 /* ============================================================
