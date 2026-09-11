@@ -1,0 +1,3 @@
+Correctif package V0.5-E.4
+- PEKAHELLIX_BUILD = 0.5-E.4
+- sw.js précharge script.js?v=0.5-e.4
