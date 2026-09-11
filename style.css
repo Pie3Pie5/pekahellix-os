@@ -1140,3 +1140,21 @@ html, body { height: 100%; font-family: "Poppins", "Segoe UI", Arial, sans-serif
   background: rgba(30, 150, 80, .18);
   border-color: rgba(70, 210, 120, .35);
 }
+
+/* V0.5-D — Mot de passe oublié */
+.login-text-btn {
+  display: block;
+  width: 100%;
+  margin: 12px 0 0;
+  padding: 8px 6px;
+  border: 0;
+  background: transparent;
+  color: #2E86C1;
+  font: inherit;
+  font-size: .84rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+}
+.login-text-btn:hover { text-decoration: underline; }
+.login-text-btn:focus-visible { outline: 2px solid #2E86C1; outline-offset: 2px; border-radius: 6px; }

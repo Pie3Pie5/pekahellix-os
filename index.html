@@ -38,6 +38,7 @@
       </div>
       <div id="login-error" class="login-error hidden" role="alert" aria-live="polite"></div>
       <button type="button" id="login-btn" class="login-btn">Connexion →</button>
+      <button type="button" id="forgot-password-link" class="login-text-btn">Mot de passe oublié ?</button>
 
       <p class="login-footer">Design by <strong>Vibe Code</strong></p>
     </div>
@@ -79,6 +80,67 @@
       <div id="activation-message" class="login-error hidden" role="alert" aria-live="polite"></div>
       <button type="button" id="activation-btn" class="login-btn">Activer mon compte →</button>
       <p class="activation-help">Ce lien d’invitation est personnel. Si le lien a expiré, contactez votre administrateur Pekahellix.</p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       ÉCRAN : DEMANDE DE RÉINITIALISATION (V0.5-D)
+  ═══════════════════════════════════════ -->
+  <div id="os-forgot-password" class="os-login hidden">
+    <div class="login-bg"></div>
+    <div class="login-panel">
+      <img src="logo.png" alt="Pekahellix" class="login-logo" />
+      <h1 class="login-title">Mot de passe <span>oublié</span></h1>
+      <p class="login-subtitle">Saisissez votre adresse e-mail. Si un compte Pekahellix lui est associé, vous recevrez un lien sécurisé.</p>
+
+      <div class="login-field">
+        <label for="forgot-email">Adresse e-mail</label>
+        <input type="email" id="forgot-email" placeholder="nom@entreprise.fr"
+          autocomplete="email" maxlength="254" inputmode="email" />
+      </div>
+
+      <div id="forgot-message" class="login-error hidden" role="alert" aria-live="polite"></div>
+      <button type="button" id="forgot-submit" class="login-btn">Envoyer le lien →</button>
+      <button type="button" id="forgot-back" class="login-text-btn">← Retour à la connexion</button>
+      <p class="activation-help">Pour votre sécurité, Pekahellix ne confirme pas si une adresse e-mail existe ou non.</p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       ÉCRAN : NOUVEAU MOT DE PASSE (V0.5-D)
+  ═══════════════════════════════════════ -->
+  <div id="os-password-recovery" class="os-login hidden">
+    <div class="login-bg"></div>
+    <div class="login-panel activation-panel">
+      <img src="logo.png" alt="Pekahellix" class="login-logo" />
+      <h1 class="login-title">Nouveau <span>mot de passe</span></h1>
+      <p class="login-subtitle">Créez un nouveau mot de passe pour votre compte Pekahellix.</p>
+
+      <div class="login-field">
+        <label for="recovery-password">Nouveau mot de passe</label>
+        <input type="password" id="recovery-password" placeholder="Créez votre nouveau mot de passe"
+          autocomplete="new-password" maxlength="128" />
+      </div>
+      <div class="login-field">
+        <label for="recovery-password-confirm">Confirmer le mot de passe</label>
+        <input type="password" id="recovery-password-confirm" placeholder="Confirmez votre nouveau mot de passe"
+          autocomplete="new-password" maxlength="128" />
+      </div>
+
+      <div class="password-rules" aria-label="Règles du mot de passe">
+        <p>Votre mot de passe doit contenir :</p>
+        <ul>
+          <li data-recovery-rule="length">8 caractères minimum</li>
+          <li data-recovery-rule="upper">1 majuscule</li>
+          <li data-recovery-rule="lower">1 minuscule</li>
+          <li data-recovery-rule="number">1 chiffre</li>
+          <li data-recovery-rule="special">1 caractère spécial</li>
+        </ul>
+      </div>
+
+      <div id="recovery-message" class="login-error hidden" role="alert" aria-live="polite"></div>
+      <button type="button" id="recovery-submit" class="login-btn">Enregistrer le nouveau mot de passe →</button>
+      <p class="activation-help">Si ce lien a expiré, revenez à la connexion et demandez un nouveau lien de réinitialisation.</p>
     </div>
   </div>
 
@@ -507,7 +569,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.3"></script>
   <script src="config.js"></script>
-  <script src="script.js?v=0.5-c"></script>
+  <script src="script.js?v=0.5-d"></script>
 
 <script>
 if ('serviceWorker' in navigator) {

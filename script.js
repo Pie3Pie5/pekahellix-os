@@ -6,7 +6,7 @@
 "use strict";
 
 /* ============================================================
-   SUPABASE — AUTHENTIFICATION V0.5-C
+   SUPABASE — AUTHENTIFICATION V0.5-D
    ============================================================ */
 let supabaseClient = null;
 
@@ -16,6 +16,9 @@ const pekahellixAuthHash = new URLSearchParams(window.location.hash.replace(/^#/
 const pekahellixInviteFlow =
   pekahellixAuthReturn.get("type") === "invite" ||
   pekahellixAuthHash.get("type") === "invite";
+const pekahellixRecoveryFlow =
+  pekahellixAuthReturn.get("type") === "recovery" ||
+  pekahellixAuthHash.get("type") === "recovery";
 
 function initSupabase() {
   const cfg = window.PEKAHELLIX_CONFIG || {};
@@ -466,6 +469,179 @@ async function activateInvitedAccount() {
     btn.textContent = "Activer mon compte →";
   }
 }
+
+/* ============================================================
+   MOT DE PASSE OUBLIÉ / RÉCUPÉRATION — V0.5-D
+   ============================================================ */
+function getPekahellixRedirectUrl() {
+  return new URL("./", window.location.href).href.split("#")[0].split("?")[0];
+}
+
+function hideAuthScreens() {
+  ["os-login", "os-activation", "os-forgot-password", "os-password-recovery"].forEach(function(id) {
+    const el = document.getElementById(id);
+    if (el) el.classList.add("hidden");
+  });
+}
+
+function showForgotPasswordScreen() {
+  hideAuthScreens();
+  const desktop = document.getElementById("os-desktop");
+  const dock = document.getElementById("os-global-dock");
+  if (desktop) desktop.classList.add("hidden");
+  if (dock) dock.classList.add("hidden");
+  const email = document.getElementById("input-username");
+  const forgotEmail = document.getElementById("forgot-email");
+  if (forgotEmail && email && email.value.trim()) forgotEmail.value = email.value.trim();
+  const msg = document.getElementById("forgot-message");
+  if (msg) { msg.classList.add("hidden"); msg.classList.remove("success"); }
+  const panel = document.getElementById("os-forgot-password");
+  if (panel) panel.classList.remove("hidden");
+  if (forgotEmail) forgotEmail.focus();
+}
+
+function showLoginFromForgot() {
+  hideAuthScreens();
+  const login = document.getElementById("os-login");
+  if (login) login.classList.remove("hidden");
+  const email = document.getElementById("forgot-email");
+  const loginEmail = document.getElementById("input-username");
+  if (email && loginEmail && email.value.trim()) loginEmail.value = email.value.trim();
+}
+
+async function requestPasswordReset() {
+  const emailEl = document.getElementById("forgot-email");
+  const msg = document.getElementById("forgot-message");
+  const btn = document.getElementById("forgot-submit");
+  const email = emailEl ? emailEl.value.trim().toLowerCase() : "";
+
+  msg.classList.add("hidden");
+  msg.classList.remove("success");
+
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    msg.textContent = "Veuillez saisir une adresse e-mail valide.";
+    msg.classList.remove("hidden");
+    return;
+  }
+  if (!supabaseClient) {
+    msg.textContent = "Connexion Supabase indisponible.";
+    msg.classList.remove("hidden");
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = "Envoi…";
+  try {
+    const result = await supabaseClient.auth.resetPasswordForEmail(email, {
+      redirectTo: getPekahellixRedirectUrl()
+    });
+    if (result.error) throw result.error;
+
+    // Message volontairement neutre pour éviter de révéler l'existence d'un compte.
+    msg.textContent = "Si cette adresse est associée à un compte Pekahellix, un e-mail de réinitialisation vient d’être envoyé.";
+    msg.classList.add("success");
+    msg.classList.remove("hidden");
+  } catch (e) {
+    console.error("Réinitialisation Pekahellix", e);
+    // Même message côté utilisateur : pas d'énumération des comptes.
+    msg.textContent = "Si cette adresse est associée à un compte Pekahellix, un e-mail de réinitialisation va vous être envoyé. Réessayez dans quelques instants si nécessaire.";
+    msg.classList.add("success");
+    msg.classList.remove("hidden");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Envoyer le lien →";
+  }
+}
+
+function updateRecoveryPasswordRules(password) {
+  const checks = passwordChecks(password);
+  Object.keys(checks).forEach(function(key) {
+    const el = document.querySelector('#os-password-recovery [data-recovery-rule="' + key + '"]');
+    if (el) el.classList.toggle("valid", checks[key]);
+  });
+}
+
+function showPasswordRecoveryScreen() {
+  hideAuthScreens();
+  const desktop = document.getElementById("os-desktop");
+  const dock = document.getElementById("os-global-dock");
+  if (desktop) desktop.classList.add("hidden");
+  if (dock) dock.classList.add("hidden");
+  document.querySelectorAll(".os-app-window").forEach(function(w) { w.classList.add("hidden"); });
+  const msg = document.getElementById("recovery-message");
+  if (msg) { msg.classList.add("hidden"); msg.classList.remove("success"); }
+  const panel = document.getElementById("os-password-recovery");
+  if (panel) panel.classList.remove("hidden");
+}
+
+async function saveRecoveredPassword() {
+  const msg = document.getElementById("recovery-message");
+  const btn = document.getElementById("recovery-submit");
+  const password = document.getElementById("recovery-password").value;
+  const confirm = document.getElementById("recovery-password-confirm").value;
+
+  msg.classList.add("hidden");
+  msg.classList.remove("success");
+
+  if (!passwordIsValid(password)) {
+    msg.textContent = "Le mot de passe ne respecte pas encore toutes les règles.";
+    msg.classList.remove("hidden");
+    return;
+  }
+  if (password !== confirm) {
+    msg.textContent = "Les deux mots de passe ne sont pas identiques.";
+    msg.classList.remove("hidden");
+    return;
+  }
+  if (!supabaseClient) {
+    msg.textContent = "Connexion Supabase indisponible.";
+    msg.classList.remove("hidden");
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = "Enregistrement…";
+  try {
+    let sessionResult = await supabaseClient.auth.getSession();
+    let session = sessionResult && sessionResult.data ? sessionResult.data.session : null;
+    if (!session) {
+      await new Promise(function(resolve) { setTimeout(resolve, 500); });
+      sessionResult = await supabaseClient.auth.getSession();
+      session = sessionResult && sessionResult.data ? sessionResult.data.session : null;
+    }
+    if (!session) throw new Error("RECOVERY_SESSION_MISSING");
+
+    const result = await supabaseClient.auth.updateUser({ password: password });
+    if (result.error) throw result.error;
+
+    await supabaseClient.auth.signOut();
+    document.getElementById("recovery-password").value = "";
+    document.getElementById("recovery-password-confirm").value = "";
+    updateRecoveryPasswordRules("");
+    hideAuthScreens();
+    const login = document.getElementById("os-login");
+    if (login) login.classList.remove("hidden");
+    const loginMsg = document.getElementById("login-error");
+    if (loginMsg) {
+      loginMsg.textContent = "Mot de passe modifié avec succès. Vous pouvez maintenant vous reconnecter.";
+      loginMsg.classList.add("success");
+      loginMsg.classList.remove("hidden");
+    }
+    history.replaceState({}, document.title, window.location.pathname);
+  } catch (e) {
+    console.error("Nouveau mot de passe Pekahellix", e);
+    if (e && e.message === "RECOVERY_SESSION_MISSING") {
+      msg.textContent = "Le lien de réinitialisation est invalide ou a expiré. Demandez un nouveau lien depuis l’écran de connexion.";
+    } else {
+      msg.textContent = "Impossible d’enregistrer le nouveau mot de passe. Le lien a peut-être expiré ; demandez-en un nouveau.";
+    }
+    msg.classList.remove("hidden");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Enregistrer le nouveau mot de passe →";
+  }
+}
+
 
 /* ============================================================
    OS — FONCTIONS PRINCIPALES
@@ -1268,9 +1444,18 @@ document.addEventListener("DOMContentLoaded", function() {
   document.querySelectorAll(".os-app-window").forEach(function(w) { w.classList.add("hidden"); });
   if (pekahellixInviteFlow) {
     showActivationScreen();
+  } else if (pekahellixRecoveryFlow) {
+    showPasswordRecoveryScreen();
   } else {
-    document.getElementById("os-activation").classList.add("hidden");
+    hideAuthScreens();
     document.getElementById("os-login").classList.remove("hidden");
+  }
+
+  // Supabase émet PASSWORD_RECOVERY lorsqu'un lien de récupération est consommé.
+  if (supabaseClient) {
+    supabaseClient.auth.onAuthStateChange(function(event) {
+      if (event === "PASSWORD_RECOVERY") showPasswordRecoveryScreen();
+    });
   }
 
   /* ── LOGIN — écoute click direct sur le bouton ── */
@@ -1333,6 +1518,21 @@ document.addEventListener("DOMContentLoaded", function() {
     if (e.key === "Enter") activateInvitedAccount();
   });
   document.getElementById("activation-btn").addEventListener("click", activateInvitedAccount);
+
+  /* Mot de passe oublié / récupération */
+  document.getElementById("forgot-password-link").addEventListener("click", showForgotPasswordScreen);
+  document.getElementById("forgot-back").addEventListener("click", showLoginFromForgot);
+  document.getElementById("forgot-submit").addEventListener("click", requestPasswordReset);
+  document.getElementById("forgot-email").addEventListener("keydown", function(e) {
+    if (e.key === "Enter") requestPasswordReset();
+  });
+  document.getElementById("recovery-password").addEventListener("input", function() {
+    updateRecoveryPasswordRules(this.value);
+  });
+  document.getElementById("recovery-password-confirm").addEventListener("keydown", function(e) {
+    if (e.key === "Enter") saveRecoveredPassword();
+  });
+  document.getElementById("recovery-submit").addEventListener("click", saveRecoveredPassword);
 
   /* Clic sur le bouton */
   document.getElementById("login-btn").addEventListener("click", doLogin);
