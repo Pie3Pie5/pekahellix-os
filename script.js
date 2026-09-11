@@ -1,4 +1,4 @@
-window.PEKAHELLIX_BUILD = "0.5-F.2";
+window.PEKAHELLIX_BUILD = "0.5-F.3";
 /* ============================================================
    PEKAHELLIX OS — Gestionnaire unifié des 3 applications
    Apps : Gestion du Temps · Communication · Cybersécurité
@@ -755,17 +755,18 @@ function userCanAccess(appId) {
 
 function startClock() {
   const clockEl = document.getElementById("os-clock");
+  if (!clockEl) return;
+
   function tick() {
-    const now    = new Date();
-    const h      = String(now.getHours()).padStart(2,"0");
-    const m      = String(now.getMinutes()).padStart(2,"0");
-    const s      = String(now.getSeconds()).padStart(2,"0");
-    const days   = ["Dim","Lun","Mar","Mer","Jeu","Ven","Sam"];
+    const now = new Date();
+    const days = ["Dim","Lun","Mar","Mer","Jeu","Ven","Sam"];
     const months = ["jan","fév","mar","avr","mai","jun","jul","aoû","sep","oct","nov","déc"];
-    clockEl.textContent = days[now.getDay()] + " " + now.getDate() + " " + months[now.getMonth()] + " — " + h + ":" + m + ":" + s;
+    clockEl.textContent = days[now.getDay()] + " " + now.getDate() + " " + months[now.getMonth()];
   }
+
   tick();
-  clockInterval = setInterval(tick, 1000);
+  // Une actualisation par minute suffit pour détecter un changement de date.
+  clockInterval = setInterval(tick, 60000);
 }
 
 function setActiveDockApp(appId) {

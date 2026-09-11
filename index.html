@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=0.5-f.2" />
+  <link rel="stylesheet" href="style.css?v=0.5-f.3" />
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
 </head>
@@ -181,15 +181,19 @@
 
     <div class="os-topbar">
       <div class="os-topbar-left">
-        <img src="logo.png" alt="Pekahellix" class="topbar-logo" />
-        <span class="topbar-brand">Pekahellix <strong>OS</strong></span>
+        <img src="logo-header.png" alt="Pekahellix — 3 piliers pour accompagner votre proximité" class="topbar-logo" />
       </div>
       <div class="os-topbar-center">
         <span id="os-clock" class="os-clock"></span>
       </div>
       <div class="os-topbar-right">
         <span id="os-username" class="os-username"></span>
-        <button type="button" id="btn-logout-os" class="os-logout-btn" title="Se déconnecter" aria-label="Se déconnecter">⏻</button>
+        <button type="button" id="btn-logout-os" class="os-logout-btn" title="Se déconnecter" aria-label="Se déconnecter">
+          <svg class="os-logout-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M12 2v10" />
+            <path d="M6.35 5.35a8 8 0 1 0 11.3 0" />
+          </svg>
+        </button>
       </div>
     </div>
 
@@ -600,7 +604,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.3"></script>
   <script src="config.js"></script>
-  <script src="script.js?v=0.5-f.2"></script>
+  <script src="script.js?v=0.5-f.3"></script>
 
 <script>
 if ('serviceWorker' in navigator) {
