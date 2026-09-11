@@ -1,6 +1,6 @@
-const CACHE = 'pekahellix-v0.5-e.4';
+const CACHE = 'pekahellix-v0.5-e.5';
 const APP_SHELL = [
-  './', './index.html', './style.css', './script.js?v=0.5-e.4', './config.js', './logo.png',
+  './', './index.html', './style.css', './script.js?v=0.5-e.5', './config.js', './logo.png',
   './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png'
 ];
 
@@ -23,6 +23,13 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
 
+  const url = new URL(event.request.url);
+
+  // IMPORTANT : le Service Worker ne doit jamais intercepter ni mettre en cache
+  // les requêtes API externes (Supabase, CDN, etc.). Sinon une ancienne réponse
+  // de profil peut être resservie alors que le compte a été désactivé.
+  if (url.origin !== self.location.origin) return;
+
   // Pour les pages HTML, privilégier le réseau afin que les mises à jour
   // GitHub Pages apparaissent rapidement, avec repli hors ligne sur le cache.
   if (event.request.mode === 'navigate') {
@@ -38,7 +45,6 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  const url = new URL(event.request.url);
   const isCodeAsset = url.pathname.endsWith('/script.js') || url.pathname.endsWith('/style.css') || url.pathname.endsWith('/config.js');
 
   // Les fichiers de code doivent être rafraîchis depuis le réseau en priorité.
