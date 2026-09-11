@@ -6,7 +6,7 @@
 "use strict";
 
 /* ============================================================
-   SUPABASE — AUTHENTIFICATION V0.5-D
+   SUPABASE — AUTHENTIFICATION V0.5-E
    ============================================================ */
 let supabaseClient = null;
 
@@ -180,6 +180,9 @@ const CYBER_LETTERS   = ["a","b","c","d"];
    ÉTAT GLOBAL
    ============================================================ */
 let osUser        = null;
+let accountGuardInterval = null;
+let accountGuardRunning = false;
+const ACCOUNT_GUARD_MS = 15000;
 let clockInterval = null;
 
 let tempsState = { index:0, scores:[0,0,0], engagements:[null,null,null] };
@@ -755,8 +758,76 @@ function setActiveDockApp(appId) {
   });
 }
 
-function openApp(appId) {
-  if (!userCanAccess(appId)) return;
+async function validateCurrentAccount() {
+  if (!osUser || !supabaseClient || accountGuardRunning) return !!osUser;
+  if (navigator && navigator.onLine === false) return true;
+
+  accountGuardRunning = true;
+  try {
+    const result = await supabaseClient
+      .from("profiles")
+      .select("id, first_name, last_name, email, role, is_active, access_temps, access_communication, access_cyber")
+      .eq("id", osUser.id)
+      .maybeSingle();
+
+    if (result.error) {
+      console.warn("Contrôle du compte Pekahellix", result.error);
+      return true;
+    }
+
+    const p = result.data;
+    if (!p || !p.is_active) {
+      await logout("Votre compte a été désactivé ou supprimé. Contactez votre administrateur Pekahellix.");
+      return false;
+    }
+
+    const fullName = [p.first_name, p.last_name].filter(Boolean).join(" ").trim();
+    osUser = {
+      id: p.id,
+      email: p.email,
+      firstName: p.first_name,
+      lastName: p.last_name,
+      displayName: fullName || p.email,
+      role: p.role,
+      isActive: p.is_active,
+      access: {
+        temps: !!p.access_temps,
+        comm: !!p.access_communication,
+        cyber: !!p.access_cyber
+      }
+    };
+    applyAccessRights();
+
+    document.querySelectorAll(".os-app-window:not(.hidden)").forEach(function(win) {
+      const appId = win.id.replace(/^app-/, "");
+      if (!userCanAccess(appId)) {
+        win.classList.add("hidden");
+        setActiveDockApp(null);
+      }
+    });
+    return true;
+  } finally {
+    accountGuardRunning = false;
+  }
+}
+
+function startAccountGuard() {
+  stopAccountGuard();
+  accountGuardInterval = setInterval(function() {
+    if (osUser && document.visibilityState !== "hidden") validateCurrentAccount();
+  }, ACCOUNT_GUARD_MS);
+}
+
+function stopAccountGuard() {
+  if (accountGuardInterval) {
+    clearInterval(accountGuardInterval);
+    accountGuardInterval = null;
+  }
+}
+
+async function openApp(appId) {
+  const stillAllowed = await validateCurrentAccount();
+  if (!stillAllowed || !userCanAccess(appId)) return;
   document.querySelectorAll(".os-app-window").forEach(function(w) { w.classList.add("hidden"); });
   const win = document.getElementById("app-" + appId);
   if (win) {
@@ -772,7 +843,8 @@ function closeApp(appId) {
   setActiveDockApp(null);
 }
 
-async function logout() {
+async function logout(message) {
+  stopAccountGuard();
   if (supabaseClient) {
     try { await supabaseClient.auth.signOut(); } catch (e) { console.warn("Déconnexion Supabase incomplète", e); }
   }
@@ -784,6 +856,11 @@ async function logout() {
   document.getElementById("os-login").classList.remove("hidden");
   document.getElementById("input-username").value = "";
   document.getElementById("input-password").value = "";
+  const loginMsg = document.getElementById("login-error");
+  if (loginMsg && message) {
+    loginMsg.textContent = message;
+    loginMsg.classList.remove("success", "hidden");
+  }
   tempsState = { index:0, scores:[0,0,0], engagements:[null,null,null] };
   commState  = { profil:null, index:0, scores:[0,0], npsScore:null, activePlan:"6m" };
   cyberState = { questions:[], index:0, score:0, answered:false, responses:[] };
@@ -838,11 +915,11 @@ function adminRenderUser(u) {
   const roleBadge = '<span class="admin-badge ' + adminEscape(role) + '">' + adminEscape(role) + '</span>';
   const inactive = u.is_active ? "" : '<span class="admin-badge inactive">désactivé</span>';
   const disabledRights = lockedRole ? " disabled" : "";
-  const disabledSelfStatus = isSelf ? " disabled" : "";
-  const deleteDisabled = isSelf || role === "admin" ? " disabled" : "";
+  const disabledSelfStatus = (isSelf || lockedRole) ? " disabled" : "";
+  const deleteDisabled = (isSelf || lockedRole) ? " disabled" : "";
   const checked = v => v ? " checked" : "";
 
-  return '<article class="admin-user-row" data-user-id="' + adminEscape(u.id) + '">' +
+  return '<article class="admin-user-row" data-user-id="' + adminEscape(u.id) + '" data-was-active="' + (u.is_active ? '1' : '0') + '">' +
     '<div class="admin-user-identity"><strong>' + adminEscape((u.first_name || "") + " " + (u.last_name || "")) + '</strong>' +
       '<span>' + adminEscape(u.email) + '</span><div class="admin-badges">' + roleBadge + inactive + '</div></div>' +
     '<div class="admin-rights">' +
@@ -860,21 +937,38 @@ function adminRenderUser(u) {
 async function adminSaveRow(row) {
   if (!row || !userCanAccess("admin")) return;
   const targetId = row.dataset.userId;
+  const isActive = !!row.querySelector(".admin-active").checked;
+  const wasActive = row.dataset.wasActive === "1";
+
+  if (wasActive && !isActive) {
+    const emailEl = row.querySelector(".admin-user-identity span");
+    const email = emailEl ? emailEl.textContent : "cet utilisateur";
+    if (!window.confirm("Désactiver le compte " + email + " ? L’utilisateur ne pourra plus se connecter et ses prochaines vérifications de session bloqueront l’accès.")) {
+      row.querySelector(".admin-active").checked = true;
+      return;
+    }
+  }
+
   const params = {
     p_target_id: targetId,
-    p_is_active: !!row.querySelector(".admin-active").checked,
+    p_is_active: isActive,
     p_access_temps: !!row.querySelector(".admin-right-temps").checked,
     p_access_communication: !!row.querySelector(".admin-right-comm").checked,
     p_access_cyber: !!row.querySelector(".admin-right-cyber").checked
   };
-  const result = await supabaseClient.rpc("admin_update_user_access", params);
-  if (result.error) {
-    console.error("admin_update_user_access", result.error);
-    adminSetMessage("Modification impossible : " + result.error.message, true);
-    return;
+
+  try {
+    // Synchronise le statut avec Supabase Auth : ban à la désactivation, unban à la réactivation.
+    await callAdminUsers({ action:"set-active", userId:targetId, isActive:isActive });
+    const result = await supabaseClient.rpc("admin_update_user_access", params);
+    if (result.error) throw result.error;
+    adminSetMessage(isActive ? "Droits utilisateur enregistrés et compte actif." : "Compte désactivé et accès révoqué.");
+    await adminLoadUsers();
+  } catch (e) {
+    console.error("admin_update_user_access", e);
+    adminSetMessage("Modification impossible : " + (e.message || "Erreur inconnue"), true);
+    await adminLoadUsers();
   }
-  adminSetMessage("Droits utilisateur enregistrés.");
-  await adminLoadUsers();
 }
 
 async function callAdminUsers(payload) {
@@ -954,11 +1048,16 @@ async function adminDeleteUser(row) {
   const id = row.dataset.userId;
   const emailEl = row.querySelector(".admin-user-identity span");
   const email = emailEl ? emailEl.textContent : "cet utilisateur";
-  if (!window.confirm("Supprimer définitivement le compte " + email + " ?")) return;
+  if (!window.confirm("Supprimer définitivement le compte " + email + " ? Cette action est irréversible.")) return;
+  const typed = window.prompt('Pour confirmer la suppression définitive, saisissez SUPPRIMER');
+  if (typed !== "SUPPRIMER") {
+    adminSetMessage("Suppression annulée.");
+    return;
+  }
   adminSetMessage("");
   try {
     await callAdminUsers({ action:"delete", userId:id });
-    adminSetMessage("Compte supprimé.");
+    adminSetMessage("Compte supprimé définitivement.");
     await adminLoadUsers();
   } catch (e) {
     console.error("admin-users delete", e);
@@ -1468,6 +1567,14 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   }
 
+  // Vérifie rapidement les désactivations/suppressions lorsque l’utilisateur revient dans l’app.
+  document.addEventListener("visibilitychange", function() {
+    if (document.visibilityState === "visible" && osUser) validateCurrentAccount();
+  });
+  window.addEventListener("online", function() {
+    if (osUser) validateCurrentAccount();
+  });
+
   /* ── LOGIN — écoute click direct sur le bouton ── */
   async function doLogin() {
     var errEl    = document.getElementById("login-error");
@@ -1502,6 +1609,7 @@ document.addEventListener("DOMContentLoaded", function() {
       document.getElementById("input-username").value = "";
       document.getElementById("input-password").value = "";
       startClock();
+      startAccountGuard();
     } catch (e) {
       console.error("Connexion Pekahellix", e);
       if (e && (e.code === "ACCOUNT_DISABLED" || e.message === "ACCOUNT_DISABLED")) {

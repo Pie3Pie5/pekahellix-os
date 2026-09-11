@@ -501,7 +501,7 @@
 
 
   <!-- ═══════════════════════════════════════
-       APP : ADMINISTRATION (V0.5-B)
+       APP : ADMINISTRATION (V0.5-E)
   ═══════════════════════════════════════ -->
   <div id="app-admin" class="os-app-window hidden admin-window">
     <div class="app-window-bar app-bar-admin">
@@ -515,7 +515,7 @@
       <div class="admin-toolbar">
         <div>
           <h2>Gestion des utilisateurs</h2>
-          <p>Créez les comptes et pilotez les accès aux applications.</p>
+          <p>Créez les comptes, pilotez les accès, désactivez ou supprimez les utilisateurs.</p>
         </div>
         <button type="button" id="admin-refresh" class="app-btn app-btn-secondary">↻ Actualiser</button>
       </div>
@@ -545,6 +545,7 @@
           <span id="admin-user-count" class="admin-count"></span>
         </div>
         <div id="admin-users-loading" class="admin-loading hidden">Chargement…</div>
+        <p class="admin-help">Désactiver un compte bloque les nouvelles connexions et Pekahellix recontrôle régulièrement les sessions actives. Les comptes admin et test restent protégés.</p>
         <div id="admin-users-list" class="admin-users-list"></div>
       </section>
     </div>
@@ -569,7 +570,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.3"></script>
   <script src="config.js"></script>
-  <script src="script.js?v=0.5-d.1"></script>
+  <script src="script.js?v=0.5-e"></script>
 
 <script>
 if ('serviceWorker' in navigator) {
