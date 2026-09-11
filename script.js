@@ -6,9 +6,16 @@
 "use strict";
 
 /* ============================================================
-   SUPABASE — AUTHENTIFICATION V0.5-A
+   SUPABASE — AUTHENTIFICATION V0.5-C
    ============================================================ */
 let supabaseClient = null;
+
+// Capturé avant que Supabase ne nettoie éventuellement l’URL de retour.
+const pekahellixAuthReturn = new URLSearchParams(window.location.search);
+const pekahellixAuthHash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+const pekahellixInviteFlow =
+  pekahellixAuthReturn.get("type") === "invite" ||
+  pekahellixAuthHash.get("type") === "invite";
 
 function initSupabase() {
   const cfg = window.PEKAHELLIX_CONFIG || {};
@@ -346,6 +353,118 @@ function renderAnswersList(containerId, answers, onSelect) {
 
   el.addEventListener("click", clickHandler);
   el.addEventListener("keydown", keyHandler);
+}
+
+/* ============================================================
+   ACTIVATION DE COMPTE — V0.5-C
+   ============================================================ */
+function passwordChecks(password) {
+  return {
+    length: password.length >= 8,
+    upper: /[A-Z]/.test(password),
+    lower: /[a-z]/.test(password),
+    number: /[0-9]/.test(password),
+    special: /[^A-Za-z0-9]/.test(password)
+  };
+}
+
+function passwordIsValid(password) {
+  const checks = passwordChecks(password);
+  return Object.keys(checks).every(function(key) { return checks[key]; });
+}
+
+function updatePasswordRules(password) {
+  const checks = passwordChecks(password);
+  Object.keys(checks).forEach(function(key) {
+    const el = document.querySelector('#os-activation [data-rule="' + key + '"]');
+    if (el) el.classList.toggle("valid", checks[key]);
+  });
+}
+
+function showActivationScreen() {
+  const login = document.getElementById("os-login");
+  const activation = document.getElementById("os-activation");
+  const desktop = document.getElementById("os-desktop");
+  if (login) login.classList.add("hidden");
+  if (desktop) desktop.classList.add("hidden");
+  document.querySelectorAll(".os-app-window").forEach(function(w) { w.classList.add("hidden"); });
+  const dock = document.getElementById("os-global-dock");
+  if (dock) dock.classList.add("hidden");
+  if (activation) activation.classList.remove("hidden");
+}
+
+function showLoginAfterActivation(message) {
+  const activation = document.getElementById("os-activation");
+  const login = document.getElementById("os-login");
+  if (activation) activation.classList.add("hidden");
+  if (login) login.classList.remove("hidden");
+  const err = document.getElementById("login-error");
+  if (err) {
+    err.textContent = message || "Votre compte est activé. Vous pouvez maintenant vous connecter.";
+    err.classList.remove("hidden");
+    err.classList.add("success");
+  }
+  history.replaceState({}, document.title, window.location.pathname);
+}
+
+async function activateInvitedAccount() {
+  const msg = document.getElementById("activation-message");
+  const btn = document.getElementById("activation-btn");
+  const password = document.getElementById("activation-password").value;
+  const confirm = document.getElementById("activation-password-confirm").value;
+
+  msg.classList.add("hidden");
+  msg.classList.remove("success");
+
+  if (!passwordIsValid(password)) {
+    msg.textContent = "Le mot de passe ne respecte pas encore toutes les règles.";
+    msg.classList.remove("hidden");
+    return;
+  }
+  if (password !== confirm) {
+    msg.textContent = "Les deux mots de passe ne sont pas identiques.";
+    msg.classList.remove("hidden");
+    return;
+  }
+  if (!supabaseClient) {
+    msg.textContent = "Connexion Supabase indisponible.";
+    msg.classList.remove("hidden");
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = "Activation…";
+
+  try {
+    // detectSessionInUrl peut avoir besoin d’un bref instant pour convertir le lien d’invitation en session.
+    let sessionResult = await supabaseClient.auth.getSession();
+    let session = sessionResult && sessionResult.data ? sessionResult.data.session : null;
+    if (!session) {
+      await new Promise(function(resolve) { setTimeout(resolve, 500); });
+      sessionResult = await supabaseClient.auth.getSession();
+      session = sessionResult && sessionResult.data ? sessionResult.data.session : null;
+    }
+    if (!session) throw new Error("INVITE_SESSION_MISSING");
+
+    const result = await supabaseClient.auth.updateUser({ password: password });
+    if (result.error) throw result.error;
+
+    await supabaseClient.auth.signOut();
+    document.getElementById("activation-password").value = "";
+    document.getElementById("activation-password-confirm").value = "";
+    showLoginAfterActivation("Compte activé avec succès. Connectez-vous avec votre nouveau mot de passe.");
+  } catch (e) {
+    console.error("Activation Pekahellix", e);
+    if (e && e.message === "INVITE_SESSION_MISSING") {
+      msg.textContent = "Le lien d’invitation est invalide ou a expiré. Demandez une nouvelle invitation à votre administrateur.";
+    } else {
+      msg.textContent = "Impossible d’activer le compte. Le lien a peut-être expiré ; demandez une nouvelle invitation.";
+    }
+    msg.classList.remove("hidden");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Activer mon compte →";
+  }
 }
 
 /* ============================================================
@@ -1145,9 +1264,14 @@ document.addEventListener("DOMContentLoaded", function() {
   initSupabase();
 
   /* ── ÉTAT INITIAL ── */
-  document.getElementById("os-login").classList.remove("hidden");
   document.getElementById("os-desktop").classList.add("hidden");
   document.querySelectorAll(".os-app-window").forEach(function(w) { w.classList.add("hidden"); });
+  if (pekahellixInviteFlow) {
+    showActivationScreen();
+  } else {
+    document.getElementById("os-activation").classList.add("hidden");
+    document.getElementById("os-login").classList.remove("hidden");
+  }
 
   /* ── LOGIN — écoute click direct sur le bouton ── */
   async function doLogin() {
@@ -1157,6 +1281,7 @@ document.addEventListener("DOMContentLoaded", function() {
     var btn      = document.getElementById("login-btn");
 
     errEl.classList.add("hidden");
+    errEl.classList.remove("success");
 
     if (!email.trim() || !password.trim()) {
       errEl.textContent = "Veuillez renseigner votre adresse e-mail et votre mot de passe.";
@@ -1199,6 +1324,15 @@ document.addEventListener("DOMContentLoaded", function() {
       btn.textContent = "Connexion →";
     }
   }
+
+  /* Activation d’un compte invité */
+  document.getElementById("activation-password").addEventListener("input", function() {
+    updatePasswordRules(this.value);
+  });
+  document.getElementById("activation-password-confirm").addEventListener("keydown", function(e) {
+    if (e.key === "Enter") activateInvitedAccount();
+  });
+  document.getElementById("activation-btn").addEventListener("click", activateInvitedAccount);
 
   /* Clic sur le bouton */
   document.getElementById("login-btn").addEventListener("click", doLogin);

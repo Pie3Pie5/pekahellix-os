@@ -1114,3 +1114,29 @@ html, body { height: 100%; font-family: "Poppins", "Segoe UI", Arial, sans-serif
   .admin-user-actions { flex-direction:row; flex-wrap:wrap; min-width:0; }
   .admin-mini-btn { flex:1; min-width:120px; }
 }
+
+
+/* ============================================================
+   V0.5-C — ACTIVATION DU COMPTE
+   ============================================================ */
+.activation-panel { max-width: 470px; }
+.password-rules {
+  margin: 4px 0 16px;
+  padding: 14px 16px;
+  border: 1px solid rgba(255,255,255,.14);
+  border-radius: 14px;
+  background: rgba(255,255,255,.06);
+  text-align: left;
+}
+.password-rules p { margin: 0 0 8px; font-size: .88rem; opacity: .86; }
+.password-rules ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 5px; }
+.password-rules li { font-size: .84rem; opacity: .74; }
+.password-rules li::before { content: "○"; margin-right: 8px; }
+.password-rules li.valid { opacity: 1; font-weight: 600; }
+.password-rules li.valid::before { content: "✓"; }
+.activation-help { margin: 14px 0 0; font-size: .78rem; line-height: 1.45; opacity: .68; text-align: center; }
+.login-error.success {
+  color: #d9ffe5;
+  background: rgba(30, 150, 80, .18);
+  border-color: rgba(70, 210, 120, .35);
+}
