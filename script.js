@@ -1,4 +1,4 @@
-window.PEKAHELLIX_BUILD = "0.5-F.10";
+window.PEKAHELLIX_BUILD = "0.5-G.2";
 /* ============================================================
    PEKAHELLIX OS — Gestionnaire unifié des 3 applications
    Apps : Gestion du Temps · Communication · Cybersécurité
@@ -44,11 +44,11 @@ const TEMPS_QUESTIONS = [
   { axe:0, text:"Lorsque vous commencez votre journée, comment choisissez-vous la première tâche à traiter ?", answers:[{text:"Je traite ce qui arrive en premier (e-mails, appels, demandes urgentes).",score:1},{text:"Je choisis instinctivement ce qui me semble important.",score:2},{text:"Je consulte ma liste de tâches et je priorise selon l'urgence et l'importance.",score:3},{text:"J'ai planifié la veille ma tâche la plus importante (MIT) et je commence par elle.",score:4}]},
   { axe:0, text:"Utilisez-vous la Matrice d'Eisenhower (Urgent/Important) pour classer vos tâches ?", answers:[{text:"Je ne connais pas cet outil.",score:1},{text:"J'en ai entendu parler mais je ne l'utilise pas.",score:2},{text:"Je l'utilise occasionnellement pour les décisions importantes.",score:3},{text:"Je l'applique systématiquement chaque semaine pour planifier mon activité.",score:4}]},
   { axe:0, text:"Combien de fois par jour êtes-vous interrompu par des tâches non planifiées ?", answers:[{text:"Constamment — je ne contrôle pas mon agenda.",score:1},{text:"Souvent — plusieurs fois par heure.",score:2},{text:"Parfois — j'essaie de protéger des plages de travail concentré.",score:3},{text:"Rarement — j'ai des plages de « deep work » bloquées et respectées.",score:4}]},
-  { axe:0, text:"En fin de journée, quel est votre sentiment sur les tâches accomplies ?", answers:[{text:"J'ai été très occupé mais je n'ai pas avancé sur ce qui compte vraiment.",score:1},{text:"J'ai traité beaucoup d'urgences mais peu de projets stratégiques.",score:2},{text:"J'ai accompli la plupart de mes priorités du jour.",score:3},{text:"J'ai accompli mes 3 tâches prioritaires et j'ai planifié le lendemain.",score:4}]},
+  { axe:0, text:"En fin de journée, la plupart du temps, quel est votre sentiment sur les tâches accomplies ?", answers:[{text:"J'ai été très occupé mais je n'ai pas avancé sur ce qui compte vraiment.",score:1},{text:"J'ai traité beaucoup d'urgences mais peu de projets stratégiques.",score:2},{text:"J'ai accompli la plupart de mes priorités du jour.",score:3},{text:"J'ai accompli mes 3 tâches prioritaires et j'ai planifié le lendemain.",score:4}]},
   { axe:0, text:"Utilisez-vous une méthode de priorisation formelle (ABCDE, MoSCoW, ICE Score…) ?", answers:[{text:"Non, je fonctionne à l'intuition.",score:1},{text:"J'ai essayé mais je n'ai pas de méthode stable.",score:2},{text:"J'utilise une méthode simple de façon régulière.",score:3},{text:"J'utilise une méthode structurée et je la transmets à mon équipe.",score:4}]},
   { axe:0, text:"Votre agenda reflète-t-il réellement vos priorités stratégiques ?", answers:[{text:"Non, il est rempli de réunions et d'urgences subies.",score:1},{text:"Partiellement — quelques blocs stratégiques mais souvent bousculés.",score:2},{text:"Oui, j'ai des blocs dédiés à mes priorités que je protège.",score:3},{text:"Oui, mon agenda est un reflet fidèle de ma stratégie à 90 jours.",score:4}]},
   { axe:1, text:"Comment gérez-vous votre liste de tâches au quotidien ?", answers:[{text:"Je garde tout en tête — je n'utilise pas de liste.",score:1},{text:"J'ai des notes éparpillées (post-it, cahier, e-mails à moi-même).",score:2},{text:"J'utilise un outil numérique ou un carnet dédié mis à jour régulièrement.",score:3},{text:"J'utilise un système structuré (GTD, Notion, Todoist) avec revue hebdomadaire.",score:4}]},
-  { axe:1, text:"Quelle est la taille habituelle de votre to-do list ?", answers:[{text:"Plus de 50 tâches — elle est ingérable.",score:1},{text:"Entre 20 et 50 tâches — je ne sais plus par où commencer.",score:2},{text:"Entre 10 et 20 tâches — c'est gérable mais chargé.",score:3},{text:"Moins de 10 tâches actives — le reste est en backlog organisé.",score:4}]},
+  { axe:1, text:"Quelle est la taille habituelle de votre to-do list ?", answers:[{text:"Je n’en ai pas — je gère mes tâches au fil de l’eau.",score:1},{text:"Plus de 50 tâches — elle est ingérable.",score:1},{text:"Entre 20 et 50 tâches — je ne sais plus par où commencer.",score:2},{text:"Entre 10 et 20 tâches — c'est gérable mais chargé.",score:3},{text:"Moins de 10 tâches actives — les autres sont classées dans une liste de tâches à traiter plus tard.",score:4}]},
   { axe:1, text:"Faites-vous une revue hebdomadaire de vos tâches et projets en cours ?", answers:[{text:"Non, jamais.",score:1},{text:"Rarement — seulement quand je me sens débordé.",score:2},{text:"Parfois — j'essaie mais ce n'est pas systématique.",score:3},{text:"Oui, chaque semaine à heure fixe — c'est un rituel non négociable.",score:4}]},
   { axe:1, text:"Vos tâches sont-elles formulées avec une action concrète et un résultat attendu ?", answers:[{text:"Non, j'écris des mots vagues comme « budget » ou « RH ».",score:1},{text:"Parfois — certaines tâches sont claires, d'autres non.",score:2},{text:"Souvent — j'essaie de formuler des actions précises.",score:3},{text:"Toujours — chaque tâche commence par un verbe d'action et a un livrable défini.",score:4}]},
   { axe:1, text:"Utilisez-vous des délais (deadlines) pour chacune de vos tâches ?", answers:[{text:"Non — les tâches s'accumulent sans date limite.",score:1},{text:"Seulement pour les tâches imposées par des tiers.",score:2},{text:"Pour la plupart de mes tâches importantes.",score:3},{text:"Pour toutes mes tâches, avec rappels automatiques.",score:4}]},
@@ -56,7 +56,7 @@ const TEMPS_QUESTIONS = [
   { axe:2, text:"Quelle proportion de vos tâches déléguez-vous à votre équipe ?", answers:[{text:"Moins de 10% — je préfère faire moi-même pour être sûr du résultat.",score:1},{text:"Entre 10 et 30% — je délègue les tâches simples uniquement.",score:2},{text:"Entre 30 et 60% — je délègue régulièrement mais je garde beaucoup.",score:3},{text:"Plus de 60% — je me concentre sur ce que seul je peux faire.",score:4}]},
   { axe:2, text:"Lorsque vous déléguez une tâche, comment procédez-vous ?", answers:[{text:"Je donne la tâche oralement sans suivi particulier.",score:1},{text:"J'explique ce que je veux mais je ne fixe pas de délai précis.",score:2},{text:"Je définis la tâche, le délai et je fais un point intermédiaire.",score:3},{text:"Je définis le résultat attendu, les ressources, le délai et j'utilise un outil de suivi.",score:4}]},
   { axe:2, text:"Avez-vous identifié les tâches que vous seul pouvez faire (zone de génie) ?", answers:[{text:"Non — je fais tout sans distinction.",score:1},{text:"Vaguement — j'ai une idée mais ce n'est pas formalisé.",score:2},{text:"Oui — j'ai une liste de mes tâches à haute valeur ajoutée.",score:3},{text:"Oui — tout le reste est délégué, automatisé ou supprimé.",score:4}]},
-  { axe:2, text:"Comment réagissez-vous quand un collaborateur revient vers vous avec un problème ?", answers:[{text:"Je résous le problème à sa place immédiatement.",score:1},{text:"Je lui donne la solution sans lui expliquer le raisonnement.",score:2},{text:"Je lui pose des questions pour qu'il trouve lui-même la solution.",score:3},{text:"Mon équipe résout les problèmes de niveau 1 et 2 sans me solliciter.",score:4}]},
+  { axe:2, text:"Comment réagissez-vous quand un collaborateur revient vers vous avec un problème ?", answers:[{text:"Je résous le problème à sa place immédiatement.",score:1},{text:"Je lui donne la solution et/ou lui explique le raisonnement.",score:2},{text:"Je lui pose des questions pour qu'il trouve lui-même la solution.",score:3},{text:"Mon équipe résout les problèmes de niveau 1 et 2 sans me solliciter.",score:4}]},
   { axe:2, text:"Utilisez-vous un outil de gestion de projet ou de suivi des délégations ?", answers:[{text:"Non — le suivi se fait oralement ou par e-mail.",score:1},{text:"J'utilise des e-mails et des tableaux Excel basiques.",score:2},{text:"J'utilise un outil dédié (Trello, Asana, Monday) de façon régulière.",score:3},{text:"J'ai un système complet avec tableaux de bord, KPIs et revues hebdomadaires.",score:4}]}
 ];
 
@@ -72,7 +72,7 @@ const TEMPS_ENGAGEMENT_QUESTIONS = [
 
 const TEMPS_SOLUTIONS = [
   { axe:0, nom:"Gestion des Priorités", emoji:"🎯", niveaux:{ debutant:{ intro:"Vous gérez vos priorités de façon réactive. La Matrice d'Eisenhower et la règle des 3 MIT vont transformer votre quotidien.", outils:[{titre:"Matrice d'Eisenhower",desc:"Classez chaque tâche selon Urgent vs Important."},{titre:"Règle des 3 MIT",desc:"Identifiez vos 3 Most Important Tasks chaque matin."},{titre:"Méthode ABCDE",desc:"Notez A (critique) à E (à éliminer) devant chaque tâche."}]}, intermediaire:{ intro:"Vous avez de bonnes bases. Alignez votre agenda sur vos objectifs à 90 jours et protégez vos plages de travail profond.", outils:[{titre:"Time Blocking",desc:"Bloquez des créneaux dédiés à vos priorités dans votre agenda."},{titre:"Objectifs OKR",desc:"Définissez 3 Objectifs et leurs Résultats Clés."},{titre:"Deep Work",desc:"Protégez 2 à 4h de travail concentré chaque jour."}]}, avance:{ intro:"Vous maîtrisez la gestion des priorités. Systématisez et transmettez ces méthodes à votre équipe.", outils:[{titre:"Revue 90 jours",desc:"Planifiez par cycles de 90 jours avec jalons hebdomadaires."},{titre:"Agenda idéal",desc:"Concevez votre semaine idéale type chaque vendredi."},{titre:"Délégation des priorités",desc:"Formez votre équipe à filtrer ce qui vous remonte."}]}}},
-  { axe:1, nom:"To-Do List", emoji:"✅", niveaux:{ debutant:{ intro:"Votre système de gestion des tâches est insuffisant. Externalisez votre mémoire dans un système fiable.", outils:[{titre:"Méthode GTD",desc:"Capturez tout, clarifiez, organisez, révisez, agissez."},{titre:"Todoist / TickTick",desc:"Applications gratuites pour gérer vos tâches avec délais."},{titre:"Règle des 2 minutes",desc:"Si < 2 minutes : faites-le. Sinon : planifiez-le."}]}, intermediaire:{ intro:"Vous avez un système mais il manque de structure. Travaillez sur la qualité des tâches et la revue hebdomadaire.", outils:[{titre:"Revue hebdomadaire GTD",desc:"Chaque vendredi : videz, révisez, planifiez."},{titre:"Notion / Obsidian",desc:"Outils tout-en-un pour tâches, projets et notes."},{titre:"Formulation SMART",desc:"Chaque tâche : Spécifique, Mesurable, Temporelle."}]}, avance:{ intro:"Votre système est mature. Optimisez l'automatisation et la délégation des récurrences.", outils:[{titre:"Zapier / Make",desc:"Automatisez les tâches récurrentes entre vos outils."},{titre:"Capture universelle",desc:"Un seul endroit pour tout capturer, accessible partout."},{titre:"Backlog priorisé",desc:"Organisez par valeur/effort pour décider rapidement."}]}}},
+  { axe:1, nom:"To-Do List", emoji:"✅", niveaux:{ debutant:{ intro:"Votre système de gestion des tâches est insuffisant. Externalisez votre mémoire dans un système fiable.", outils:[{titre:"Méthode GTD",desc:"Capturez tout, clarifiez, organisez, révisez, agissez."},{titre:"Todoist / TickTick",desc:"Applications gratuites pour gérer vos tâches avec délais."},{titre:"Règle des 2 minutes",desc:"Si < 2 minutes : faites-le. Sinon : planifiez-le."}]}, intermediaire:{ intro:"Vous avez un système mais il manque de structure. Travaillez sur la qualité des tâches et la revue hebdomadaire.", outils:[{titre:"Revue hebdomadaire GTD",desc:"Chaque vendredi : videz, révisez, planifiez."},{titre:"Notion / Obsidian",desc:"Outils tout-en-un pour tâches, projets et notes."},{titre:"Formulation SMART",desc:"Chaque tâche : Spécifique, Mesurable, Temporelle."}]}, avance:{ intro:"Votre système est mature. Optimisez l'automatisation et la délégation des récurrences.", outils:[{titre:"Zapier / Make",desc:"Automatisez les tâches récurrentes entre vos outils."},{titre:"Capture universelle",desc:"Un seul endroit pour tout capturer, accessible partout."},{titre:"Liste des tâches à traiter plus tard, priorisée",desc:"Classez les tâches à traiter plus tard selon leur valeur et l’effort nécessaire pour décider rapidement."}]}}},
   { axe:2, nom:"Délégation", emoji:"🤝", niveaux:{ debutant:{ intro:"Vous déléguez peu ou pas. C'est le frein principal à votre croissance. Commencez par identifier votre zone de génie.", outils:[{titre:"Zone de génie",desc:"Identifiez ce que seul vous pouvez faire. Déléguez le reste."},{titre:"Matrice de délégation",desc:"Qui peut faire quoi ? Avec quelle formation ?"},{titre:"Délégation situationnelle",desc:"Adaptez votre style au niveau de maturité de chacun."}]}, intermediaire:{ intro:"Vous déléguez mais sans système structuré. Clarifiez les briefs et mettez en place un outil de suivi.", outils:[{titre:"Brief RACI",desc:"Responsable, Approbateur, Consulté, Informé."},{titre:"Trello / Asana",desc:"Suivez les délégations sans micro-management."},{titre:"Check-in hebdomadaire",desc:"15 minutes par semaine avec chaque collaborateur clé."}]}, avance:{ intro:"Vous déléguez efficacement. Créez une organisation apprenante où l'équipe résout les problèmes sans vous.", outils:[{titre:"Management OKR",desc:"Donnez des objectifs, pas des tâches."},{titre:"Niveaux d'autonomie",desc:"Formalisez les décisions que chacun peut prendre seul."},{titre:"Documentation SOP",desc:"Documentez chaque processus clé pour l'autonomie totale."}]}}}
 ];
 
@@ -108,7 +108,7 @@ const COMM_QUESTIONS_SALARIE = [
   { axe:0, text:"Pensez-vous que votre magasin communique efficacement avec ses clients ?", answers:[{text:"Non, la communication client est quasi inexistante.",score:1},{text:"Quelques actions mais sans cohérence.",score:2},{text:"Des actions régulières mais perfectibles.",score:3},{text:"Communication active, cohérente et efficace.",score:4}]},
   { axe:0, text:"Les clients vous font-ils des retours positifs sur l'accueil et l'ambiance ?", answers:[{text:"Rarement ou jamais — les retours sont plutôt négatifs.",score:1},{text:"Parfois, mais ce n'est pas la norme.",score:2},{text:"Souvent — la plupart des clients semblent satisfaits.",score:3},{text:"Très souvent — l'accueil est reconnu comme un point fort.",score:4}]},
   { axe:0, text:"Recommanderiez-vous votre magasin à vos proches comme lieu de courses ?", answers:[{text:"Non, je ne le recommanderais pas.",score:1},{text:"Peut-être, sans conviction particulière.",score:2},{text:"Oui, je le recommanderais.",score:3},{text:"Oui, absolument et je le fais déjà spontanément.",score:4}]},
-  { axe:0, text:"Votre magasin est-il impliqué dans la vie locale ?", answers:[{text:"Non, aucune implication locale visible.",score:1},{text:"Quelques actions ponctuelles.",score:2},{text:"Des actions régulières.",score:3},{text:"L'ancrage local est une vraie valeur du magasin.",score:4}]},
+  { axe:0, text:"Votre magasin est-il impliqué dans la vie locale ?", answers:[{text:"Non, aucune implication locale visible.",score:1},{text:"Quelques actions ponctuelles.",score:2},{text:"Des actions fréquentes.",score:3},{text:"L'ancrage local est une vraie valeur du magasin.",score:4}]},
   { axe:0, text:"Pensez-vous que l'image de votre magasin attire et fidélise les clients ?", answers:[{text:"Non, nous perdons des clients régulièrement.",score:1},{text:"La clientèle est stable mais sans croissance.",score:2},{text:"L'image contribue à fidéliser une partie des clients.",score:3},{text:"L'image est un vrai moteur d'attraction et de fidélisation.",score:4}]},
   { axe:1, text:"Vous sentez-vous bien informé(e) des actualités et décisions importantes ?", answers:[{text:"Non, je suis souvent le dernier à apprendre les informations.",score:1},{text:"L'information circule mal et de façon aléatoire.",score:2},{text:"Je suis informé(e) de l'essentiel.",score:3},{text:"Je suis toujours informé(e) en temps et en heure.",score:4}]},
   { axe:1, text:"Pouvez-vous facilement exprimer vos idées ou suggestions à votre responsable ?", answers:[{text:"Non, il n'y a pas de canal pour s'exprimer.",score:1},{text:"Théoriquement oui, mais en pratique c'est difficile.",score:2},{text:"Je peux m'exprimer mais les suites données sont rares.",score:3},{text:"Mes idées sont écoutées et prises en compte régulièrement.",score:4}]},
@@ -117,7 +117,7 @@ const COMM_QUESTIONS_SALARIE = [
   { axe:1, text:"Vous sentez-vous reconnu(e) et valorisé(e) pour votre travail ?", answers:[{text:"Non, les efforts ne sont jamais reconnus.",score:1},{text:"La reconnaissance est rare.",score:2},{text:"Certaines réussites sont soulignées.",score:3},{text:"Je me sens régulièrement reconnu(e) et valorisé(e).",score:4}]},
   { axe:1, text:"Connaissez-vous les objectifs et la vision de votre magasin ?", answers:[{text:"Non, aucune visibilité sur les objectifs.",score:1},{text:"Je connais les objectifs de vente mais pas la vision.",score:2},{text:"Les objectifs principaux me sont communiqués.",score:3},{text:"Je connais la vision, les objectifs et mon rôle dans leur atteinte.",score:4}]},
   { axe:1, text:"Des réunions d'équipe sont-elles organisées régulièrement ?", answers:[{text:"Non, jamais de réunions d'équipe.",score:1},{text:"Rarement — seulement en cas de crise.",score:2},{text:"Parfois — de façon irrégulière.",score:3},{text:"Oui, régulièrement avec ordre du jour et suivi des décisions.",score:4}]},
-  { axe:1, text:"NPS Employé — Recommanderiez-vous votre magasin à un proche comme lieu de travail ?", answers:[{text:"Non, certainement pas (0 à 3 / 10).",score:1},{text:"Probablement pas (4 à 6 / 10).",score:2},{text:"Probablement oui (7 à 8 / 10).",score:3},{text:"Oui, absolument (9 à 10 / 10).",score:4}]},
+  { axe:1, text:"Recommanderiez-vous votre magasin à un proche comme lieu de travail ?", answers:[{text:"Non, certainement pas (0 à 3 / 10).",score:1},{text:"Probablement pas (4 à 6 / 10).",score:2},{text:"Probablement oui (7 à 8 / 10).",score:3},{text:"Oui, absolument (9 à 10 / 10).",score:4}]},
   { axe:1, text:"Si vous pouviez changer une seule chose dans la communication de votre magasin, ce serait :", answers:[{text:"Que le gérant nous informe mieux des décisions qui nous concernent.",score:1},{text:"Que nos idées et suggestions soient vraiment prises en compte.",score:2},{text:"Que l'ambiance entre collègues soit plus soudée et bienveillante.",score:3},{text:"Rien — la communication est déjà très satisfaisante.",score:4}]}
 ];
 
@@ -186,8 +186,8 @@ let accountGuardPromise = null;
 const ACCOUNT_GUARD_MS = 15000;
 let clockInterval = null;
 
-let tempsState = { index:0, scores:[0,0,0], engagements:[null,null,null] };
-let commState  = { profil:null, index:0, scores:[0,0], npsScore:null, activePlan:"6m" };
+let tempsState = { index:0, scores:[0,0,0], engagements:[null,null,null], pending:null, completed:false };
+let commState  = { profil:null, index:0, scores:[0,0], npsScore:null, satisfactionScore:null, activePlan:"6m", pending:null, responses:[], engagements:[null,null], completed:false };
 let cyberState = { questions:[], index:0, score:0, answered:false, responses:[], pending:null };
 
 /* ============================================================
@@ -360,6 +360,50 @@ function renderAnswersList(containerId, answers, onSelect) {
 
   el.addEventListener("click", clickHandler);
   el.addEventListener("keydown", keyHandler);
+}
+
+function renderSelectableAnswersList(containerId, answers, onSelect) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  el.innerHTML = "";
+  shuffleArray(answers).forEach(function(answer) {
+    const li = document.createElement("li");
+    li.className = "app-answer-item";
+    li.setAttribute("role", "button");
+    li.setAttribute("tabindex", "0");
+    Object.keys(answer).forEach(function(k) { if (k !== "text") li.dataset[k] = answer[k]; });
+    const badge = document.createElement("span");
+    badge.className = "app-answer-badge";
+    badge.textContent = "→";
+    const txt = document.createElement("span");
+    txt.textContent = answer.text;
+    li.appendChild(badge); li.appendChild(txt); el.appendChild(li);
+  });
+  function selectItem(item) {
+    el.querySelectorAll(".app-answer-item").forEach(function(x) { x.classList.remove("selected"); });
+    item.classList.add("selected");
+    onSelect(item);
+  }
+  el.onclick = function(e) { const item=e.target.closest(".app-answer-item"); if(item) selectItem(item); };
+  el.onkeydown = function(e) { if(e.key!=="Enter" && e.key!==" ") return; const item=e.target.closest(".app-answer-item"); if(item){e.preventDefault(); selectItem(item);} };
+}
+
+function scrollToQuestionAction(buttonId) {
+  window.setTimeout(function() {
+    const btn = document.getElementById(buttonId);
+    if (!btn) return;
+    const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    btn.scrollIntoView({behavior:reduceMotion ? "auto" : "smooth", block:"center"});
+  }, 70);
+}
+
+function scrollToQuestionTop(questionId) {
+  window.setTimeout(function() {
+    const el = document.getElementById(questionId);
+    if (!el) return;
+    const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    el.scrollIntoView({behavior:reduceMotion ? "auto" : "smooth", block:"start"});
+  }, 70);
 }
 
 /* ============================================================
@@ -914,6 +958,10 @@ function closeApp(appId) {
   const win = document.getElementById("app-" + appId);
   if (win) win.classList.add("hidden");
   setActiveDockApp(null);
+  // Une fois un questionnaire terminé, sa prochaine ouverture repart automatiquement de zéro.
+  if (appId === "temps" && tempsState.completed) tempsInit();
+  if (appId === "comm" && commState.completed) commInit();
+  if (appId === "cyber" && cyberState.index >= CYBER_TOTAL) { cyberState = {questions:[],index:0,score:0,answered:false,responses:[],pending:null}; showAppScreen("cyber","cyber-screen-intro"); }
 }
 
 function forceLocalLogout(message) {
@@ -1167,228 +1215,167 @@ async function adminDeleteUser(row) {
    APP TEMPS
    ============================================================ */
 function tempsInit() {
-  tempsState = { index:0, scores:[0,0,0], engagements:[null,null,null] };
+  tempsState = { index:0, scores:[0,0,0], engagements:[null,null,null], pending:null, completed:false };
   document.getElementById("temps-chips").innerHTML = "";
+  const next=document.getElementById("temps-btn-next"); if(next){next.classList.add("hidden"); next.disabled=true;}
   showAppScreen("temps","temps-screen-intro");
 }
 
 function tempsRenderQuestion() {
-  const q   = TEMPS_QUESTIONS[tempsState.index];
-  const axe = q.axe;
-
-  document.getElementById("temps-axe-label").textContent = TEMPS_AXE_EMOJIS[axe] + " " + TEMPS_AXE_NAMES[axe];
-  document.getElementById("temps-counter").textContent   = "Question " + (tempsState.index + 1) + " / " + TEMPS_QUESTIONS.length;
-  document.getElementById("temps-progress").style.width  = Math.round((tempsState.index / TEMPS_QUESTIONS.length) * 100) + "%";
-  document.getElementById("temps-question").textContent  = sanitize(q.text);
-
-  renderChips("temps-chips", TEMPS_AXE_NAMES, TEMPS_AXE_EMOJIS, axe);
-  renderAnswersList("temps-answers", q.answers, function(item) {
-    tempsState.scores[axe] += parseInt(item.dataset.score, 10);
-    tempsState.index++;
-    if (tempsState.index >= TEMPS_QUESTIONS.length) {
-      document.getElementById("temps-progress").style.width = "100%";
-      tempsShowEngagement();
-    } else {
-      tempsRenderQuestion();
-    }
+  const q=TEMPS_QUESTIONS[tempsState.index], axe=q.axe;
+  tempsState.pending=null;
+  document.getElementById("temps-axe-label").textContent=TEMPS_AXE_EMOJIS[axe]+" "+TEMPS_AXE_NAMES[axe];
+  document.getElementById("temps-counter").textContent="Question "+(tempsState.index+1)+" / "+TEMPS_QUESTIONS.length;
+  document.getElementById("temps-progress").style.width=Math.round((tempsState.index/TEMPS_QUESTIONS.length)*100)+"%";
+  document.getElementById("temps-question").textContent=sanitize(q.text);
+  const next=document.getElementById("temps-btn-next"); next.classList.add("hidden"); next.disabled=true;
+  next.textContent=(tempsState.index+1>=TEMPS_QUESTIONS.length)?"Voir mon diagnostic →":"Question suivante →";
+  renderChips("temps-chips",TEMPS_AXE_NAMES,TEMPS_AXE_EMOJIS,axe);
+  renderSelectableAnswersList("temps-answers",q.answers,function(item){
+    tempsState.pending={axe:axe,score:parseInt(item.dataset.score,10),answer:item.textContent.replace(/^→/,"").trim()};
+    next.disabled=false; next.classList.remove("hidden"); scrollToQuestionAction("temps-btn-next");
   });
 }
 
-function tempsShowEngagement() {
-  const container = document.getElementById("temps-engagement-blocks");
-  container.innerHTML = "";
-  const headerClasses = ["app-eng-header-0","app-eng-header-1","app-eng-header-2"];
+function tempsCommitAndNext(){
+  if(!tempsState.pending) return;
+  tempsState.scores[tempsState.pending.axe]+=tempsState.pending.score;
+  tempsState.pending=null; tempsState.index++;
+  if(tempsState.index>=TEMPS_QUESTIONS.length){document.getElementById("temps-progress").style.width="100%"; tempsShowDiagnostic();}
+  else {tempsRenderQuestion(); scrollToQuestionTop("temps-question");}
+}
 
-  TEMPS_ENGAGEMENT_QUESTIONS.forEach(function(eq) {
-    const pct    = Math.round((tempsState.scores[eq.axe] / TEMPS_MAX_SCORES[eq.axe]) * 100);
-    const niveau = getNiveauTemps(pct);
-    const block  = document.createElement("div");
-    block.classList.add("app-engagement-block");
-    block.innerHTML =
-      '<div class="app-engagement-header ' + headerClasses[eq.axe] + '">' +
-        '<span>' + TEMPS_AXE_EMOJIS[eq.axe] + '</span>' +
-        '<span>' + sanitize(TEMPS_AXE_NAMES[eq.axe]) + '</span>' +
-        '<span class="app-engagement-score">' + getNiveauLabelTemps(niveau) + ' — ' + pct + '%</span>' +
-      '</div>' +
-      '<div class="app-engagement-body">' +
-        '<p class="app-engagement-q">' + sanitize(eq.text) + '</p>' +
-        '<ul class="app-engagement-options" data-axe="' + eq.axe + '">' +
-          eq.options.map(function(opt) {
-            return '<li class="app-engagement-option" role="button" tabindex="0" data-axe="' + eq.axe + '" data-type="' + sanitize(opt.type) + '">' +
-              '<span class="app-eng-opt-icon">' + opt.icon + '</span>' +
-              '<div><div class="app-eng-opt-title">' + sanitize(opt.title) + '</div>' +
-              '<div class="app-eng-opt-desc">' + sanitize(opt.desc) + '</div></div>' +
-            '</li>';
-          }).join("") +
-        '</ul>' +
-      '</div>';
+function tempsDiagnosticData(){
+  return TEMPS_SOLUTIONS.map(function(sol){
+    const pct=Math.round((tempsState.scores[sol.axe]/TEMPS_MAX_SCORES[sol.axe])*100), niveau=getNiveauTemps(pct);
+    return {sol:sol,pct:pct,niveau:niveau,data:sol.niveaux[niveau]};
+  });
+}
+
+function tempsShowDiagnostic(){
+  const data=tempsDiagnosticData();
+  renderAxeScores("temps-diagnostic-scores",data.map(function(x){return {nom:x.sol.nom,emoji:x.sol.emoji,pct:x.pct,niveau:x.niveau,label:getNiveauLabelTemps(x.niveau)};}));
+  const c=document.getElementById("temps-diagnostic-phrases"); c.innerHTML="";
+  data.forEach(function(x){const s=document.createElement("div"); s.className="app-solution-section"; s.innerHTML='<div class="app-solution-header app-sol-header-'+x.sol.axe+'"><span>'+x.sol.emoji+'</span><span>'+sanitize(x.sol.nom)+'</span></div><div class="app-solution-body"><span class="app-solution-badge" style="'+getBadgeStyleTemps(x.niveau)+'">'+getNiveauLabelTemps(x.niveau)+'</span><p class="app-solution-intro">'+sanitize(x.data.intro)+'</p></div>'; c.appendChild(s);});
+  tempsState.completed=true; showAppScreen("temps","temps-screen-diagnostic");
+}
+
+function tempsShowEngagement() {
+  const container=document.getElementById("temps-engagement-blocks"); container.innerHTML="";
+  const headerClasses=["app-eng-header-0","app-eng-header-1","app-eng-header-2"];
+  TEMPS_ENGAGEMENT_QUESTIONS.forEach(function(eq){
+    const pct=Math.round((tempsState.scores[eq.axe]/TEMPS_MAX_SCORES[eq.axe])*100), niveau=getNiveauTemps(pct), block=document.createElement("div");
+    block.className="app-engagement-block";
+    block.innerHTML='<div class="app-engagement-header '+headerClasses[eq.axe]+'"><span>'+TEMPS_AXE_EMOJIS[eq.axe]+'</span><span>'+sanitize(TEMPS_AXE_NAMES[eq.axe])+'</span><span class="app-engagement-score">'+getNiveauLabelTemps(niveau)+' — '+pct+'%</span></div><div class="app-engagement-body"><p class="app-engagement-q">'+sanitize(eq.text)+'</p><ul class="app-engagement-options" data-axe="'+eq.axe+'">'+eq.options.map(function(opt){return '<li class="app-engagement-option" role="button" tabindex="0" data-axe="'+eq.axe+'" data-type="'+sanitize(opt.type)+'"><span class="app-eng-opt-icon">'+opt.icon+'</span><div><div class="app-eng-opt-title">'+sanitize(opt.title)+'</div><div class="app-eng-opt-desc">'+sanitize(opt.desc)+'</div></div></li>';}).join("")+'</ul></div>';
     container.appendChild(block);
   });
-
   showAppScreen("temps","temps-screen-engagement");
 }
 
 function tempsShowResult() {
-  document.getElementById("temps-result-subtitle").textContent = "Voici votre profil de maturité sur les 3 axes analysés.";
+  const c=document.getElementById("temps-accompagnement-axes"); c.innerHTML="";
+  const selected=tempsDiagnosticData().filter(function(x){return tempsState.engagements[x.sol.axe]==="accompagne";});
+  if(!selected.length){c.innerHTML='<div class="app-message-box"><span>ℹ️</span><div><p class="app-message-title">Aucun accompagnement sélectionné</p><p class="app-message-text">Vous pouvez tout de même consulter vos pistes en autonomie ou recommencer votre diagnostic.</p></div></div>';}
+  selected.forEach(function(x){const d=document.createElement("div"); d.className="app-solution-section"; d.innerHTML='<div class="app-solution-header app-sol-header-'+x.sol.axe+'"><span>'+x.sol.emoji+'</span><span>'+sanitize(x.sol.nom)+'</span></div><div class="app-solution-body"><p class="app-solution-intro">'+sanitize(x.data.intro)+'</p></div>'; c.appendChild(d);});
+  const nbAcc=selected.length, recMap={0:"Découverte",1:"Accompagnement",2:"Accompagnement",3:"Transformation"}; renderForfaits("temps-forfaits",TEMPS_FORFAITS,recMap[nbAcc]||"Accompagnement");
+  const auto=tempsState.engagements.some(function(e){return e==="autonome";}); document.getElementById("temps-btn-autonomy").classList.toggle("hidden",!auto);
+  tempsState.completed=true; showAppScreen("temps","temps-screen-result");
+}
 
-  const axeData = TEMPS_AXE_NAMES.map(function(nom, i) {
-    const pct    = Math.round((tempsState.scores[i] / TEMPS_MAX_SCORES[i]) * 100);
-    const niveau = getNiveauTemps(pct);
-    return { nom:nom, emoji:TEMPS_AXE_EMOJIS[i], pct:pct, niveau:niveau, label:getNiveauLabelTemps(niveau) };
-  });
-  renderAxeScores("temps-axes-scores", axeData);
-
-  const solContainer = document.getElementById("temps-solutions");
-  solContainer.innerHTML = "";
-  const headerClasses = ["app-sol-header-0","app-sol-header-1","app-sol-header-2"];
-  const engLabelMap   = { accompagne:"🤝 Accompagnement Pekahellix souhaité", autonome:"💪 Travail en autonomie", abandon:"⏸️ Point mis de côté" };
-
-  TEMPS_SOLUTIONS.forEach(function(sol) {
-    const pct    = Math.round((tempsState.scores[sol.axe] / TEMPS_MAX_SCORES[sol.axe]) * 100);
-    const niveau = getNiveauTemps(pct);
-    const data   = sol.niveaux[niveau];
-    const eng    = tempsState.engagements[sol.axe];
-    const section = document.createElement("div");
-    section.classList.add("app-solution-section");
-    section.innerHTML =
-      '<div class="app-solution-header ' + headerClasses[sol.axe] + '">' +
-        '<span>' + sol.emoji + '</span><span>' + sanitize(sol.nom) + '</span>' +
-      '</div>' +
-      '<div class="app-solution-body">' +
-        '<span class="app-solution-badge" style="' + getBadgeStyleTemps(niveau) + '">' + getNiveauLabelTemps(niveau) + '</span>' +
-        (eng ? '<div class="app-solution-eng-recap">' + engLabelMap[eng] + '</div>' : '') +
-        '<p class="app-solution-intro">' + sanitize(data.intro) + '</p>' +
-        '<div class="app-outils-grid">' +
-          data.outils.map(function(o) {
-            return '<div class="app-outil-card"><div class="app-outil-title">🔧 ' + sanitize(o.titre) + '</div><div class="app-outil-desc">' + sanitize(o.desc) + '</div></div>';
-          }).join("") +
-        '</div>' +
-      '</div>';
-    solContainer.appendChild(section);
-  });
-
-  const nbAcc  = tempsState.engagements.filter(function(e) { return e === "accompagne"; }).length;
-  const recMap = { 0:"Découverte", 1:"Accompagnement", 2:"Accompagnement", 3:"Transformation" };
-  renderForfaits("temps-forfaits", TEMPS_FORFAITS, recMap[nbAcc] || "Accompagnement");
-
-  showAppScreen("temps","temps-screen-result");
+function tempsShowAutonomy(){
+  const c=document.getElementById("temps-autonomy-content"); c.innerHTML="";
+  tempsDiagnosticData().filter(function(x){return tempsState.engagements[x.sol.axe]==="autonome";}).forEach(function(x){const d=document.createElement("section"); d.className="app-solution-section"; d.innerHTML='<div class="app-solution-header app-sol-header-'+x.sol.axe+'"><span>'+x.sol.emoji+'</span><span>'+sanitize(x.sol.nom)+'</span></div><div class="app-solution-body"><p class="app-solution-intro">'+sanitize(x.data.intro)+'</p><div class="app-outils-grid static-tools">'+x.data.outils.map(function(o){return '<div class="app-outil-card static-card"><div class="app-outil-title">🔧 '+sanitize(o.titre)+'</div><div class="app-outil-desc">'+sanitize(o.desc)+'</div></div>';}).join("")+'</div></div>'; c.appendChild(d);});
+  showAppScreen("temps","temps-screen-autonomy");
 }
 
 /* ============================================================
    APP COMM
    ============================================================ */
 function commInit() {
-  commState = { profil:null, index:0, scores:[0,0], npsScore:null, activePlan:"6m" };
-  document.getElementById("comm-chips").innerHTML = "";
+  commState={profil:null,index:0,scores:[0,0],npsScore:null,satisfactionScore:null,activePlan:"6m",pending:null,responses:[],engagements:[null,null],completed:false};
+  document.getElementById("comm-chips").innerHTML="";
+  const next=document.getElementById("comm-btn-next"); if(next){next.classList.add("hidden"); next.disabled=true;}
   showAppScreen("comm","comm-screen-profil");
 }
 
 function commSetupIntro(profil) {
-  const iconEl     = document.getElementById("comm-intro-icon");
-  const titleEl    = document.getElementById("comm-intro-title");
-  const subtitleEl = document.getElementById("comm-intro-subtitle");
-  const rulesEl    = document.getElementById("comm-rules");
-
-  if (profil === "gerant") {
-    iconEl.textContent     = "🏪";
-    titleEl.textContent    = "Diagnostic — Vision Gérant";
-    subtitleEl.textContent = "Évaluez votre stratégie de communication et découvrez comment vous situez par rapport aux enseignes exemplaires.";
-    rulesEl.innerHTML =
-      '<li><span>📡</span><strong>8 questions</strong> sur votre communication externe</li>' +
-      '<li><span>💬</span><strong>7 questions</strong> sur votre communication interne</li>' +
-      '<li><span>🏆</span>Benchmark avec les <strong>meilleures enseignes</strong> du secteur</li>' +
-      '<li><span>🗓️</span>Plan de communication sur <strong>6 mois, 1 an ou 3 ans</strong></li>';
+  const iconEl=document.getElementById("comm-intro-icon"), titleEl=document.getElementById("comm-intro-title"), subtitleEl=document.getElementById("comm-intro-subtitle"), rulesEl=document.getElementById("comm-rules");
+  if(profil==="gerant"){
+    iconEl.textContent="🏪"; titleEl.textContent="Diagnostic — Vision Gérant"; subtitleEl.textContent="Évaluez votre stratégie de communication et découvrez comment vous situez par rapport aux enseignes exemplaires.";
+    rulesEl.innerHTML='<li><span>📡</span><strong>8 questions</strong> sur votre communication externe</li><li><span>💬</span><strong>7 questions</strong> sur votre communication interne</li><li><span>🏆</span>Benchmark avec les <strong>meilleures enseignes</strong> du secteur</li><li><span>🗓️</span>Plan de communication sur <strong>6 mois, 1 an ou 3 ans</strong></li>';
   } else {
-    iconEl.textContent     = "👥";
-    titleEl.textContent    = "Diagnostic — Vision Salarié";
-    subtitleEl.textContent = "Partagez votre perception. Vos réponses sont anonymes et contribueront à améliorer votre environnement de travail.";
-    rulesEl.innerHTML =
-      '<li><span>📡</span><strong>6 questions</strong> sur l\'image externe de votre magasin</li>' +
-      '<li><span>💬</span><strong>9 questions</strong> sur la communication interne</li>' +
-      '<li><span>🔒</span>Vos réponses sont <strong>anonymes et confidentielles</strong></li>' +
-      '<li><span>✅</span>Elles seront <strong>prises en compte</strong> pour améliorer votre quotidien</li>';
+    iconEl.textContent="👥"; titleEl.textContent="Diagnostic — Vision Employé"; subtitleEl.textContent="Partagez votre perception. Vos réponses sont anonymes et contribueront à améliorer votre environnement de travail.";
+    rulesEl.innerHTML='<li><span>📡</span><strong>6 questions</strong> sur l\'image externe de votre magasin</li><li><span>💬</span><strong>9 questions</strong> sur la communication interne</li><li><span>🔒</span>Vos réponses sont <strong>anonymes et confidentielles</strong></li><li><span>✅</span>Elles peuvent être <strong>envoyées anonymement</strong> à la fin du questionnaire</li>';
   }
 }
 
+function commSatisfactionLabel(v){v=Number(v); if(v<=3)return "Non, certainement pas"; if(v<=6)return "Probablement pas"; if(v<=8)return "Probablement oui"; return "Oui, absolument";}
+function commSatisfactionScore(v){v=Number(v); if(v<=3)return 1; if(v<=6)return 2; if(v<=8)return 3; return 4;}
+
 function commRenderQuestion() {
-  const questions = commState.profil === "gerant" ? COMM_QUESTIONS_GERANT : COMM_QUESTIONS_SALARIE;
-  const axeNames  = ["Communication Externe","Communication Interne"];
-  const axeEmojis = ["📡","💬"];
-  const q   = questions[commState.index];
-  const axe = q.axe;
+  const questions=commState.profil==="gerant"?COMM_QUESTIONS_GERANT:COMM_QUESTIONS_SALARIE, axeNames=["Communication Externe","Communication Interne"], axeEmojis=["📡","💬"], q=questions[commState.index], axe=q.axe;
+  commState.pending=null;
+  document.getElementById("comm-axe-label").textContent=axeEmojis[axe]+" "+axeNames[axe];
+  document.getElementById("comm-counter").textContent="Question "+(commState.index+1)+" / "+questions.length;
+  document.getElementById("comm-progress").style.width=Math.round((commState.index/questions.length)*100)+"%";
+  document.getElementById("comm-question").textContent=sanitize(q.text);
+  renderChips("comm-chips",axeNames,axeEmojis,axe);
+  const next=document.getElementById("comm-btn-next"), answers=document.getElementById("comm-answers"), sliderWrap=document.getElementById("comm-slider-wrap");
+  next.classList.add("hidden"); next.disabled=true; next.textContent=(commState.index+1>=questions.length)?"Voir mes résultats →":"Question suivante →";
+  const isSatisfaction=commState.profil==="salarie" && q.text.startsWith("Recommanderiez-vous votre magasin à un proche comme lieu de travail");
+  answers.classList.toggle("hidden",isSatisfaction); sliderWrap.classList.toggle("hidden",!isSatisfaction);
+  if(isSatisfaction){
+    const slider=document.getElementById("comm-satisfaction-slider"), val=document.getElementById("comm-slider-value"), label=document.getElementById("comm-slider-label");
+    slider.value="5"; val.textContent="5 / 10"; label.textContent=commSatisfactionLabel(5);
+    function update(){const v=Number(slider.value); val.textContent=v+" / 10"; label.textContent=commSatisfactionLabel(v); commState.pending={axe:axe,score:commSatisfactionScore(v),answer:v+" / 10 — "+commSatisfactionLabel(v),satisfaction:v,question:q.text}; next.disabled=false; next.classList.remove("hidden");}
+    slider.oninput=update; slider.onchange=function(){update(); scrollToQuestionAction("comm-btn-next");}; update();
+  } else {
+    renderSelectableAnswersList("comm-answers",q.answers,function(item){commState.pending={axe:axe,score:parseInt(item.dataset.score,10),answer:item.textContent.replace(/^→/,"").trim(),question:q.text}; next.disabled=false; next.classList.remove("hidden"); scrollToQuestionAction("comm-btn-next");});
+  }
+}
 
-  document.getElementById("comm-axe-label").textContent = axeEmojis[axe] + " " + axeNames[axe];
-  document.getElementById("comm-counter").textContent   = "Question " + (commState.index + 1) + " / " + questions.length;
-  document.getElementById("comm-progress").style.width  = Math.round((commState.index / questions.length) * 100) + "%";
-  document.getElementById("comm-question").textContent  = sanitize(q.text);
-
-  renderChips("comm-chips", axeNames, axeEmojis, axe);
-  renderAnswersList("comm-answers", q.answers, function(item) {
-    const score = parseInt(item.dataset.score, 10);
-    commState.scores[axe] += score;
-    if (q.text.includes("NPS") || q.text.includes("recommanderiez")) commState.npsScore = score;
-    commState.index++;
-    if (commState.index >= questions.length) {
-      document.getElementById("comm-progress").style.width = "100%";
-      if (commState.profil === "gerant") commShowResultGerant();
-      else commShowResultSalarie();
-    } else {
-      commRenderQuestion();
-    }
-  });
+function commCommitAndNext(){
+  if(!commState.pending)return; const p=commState.pending; commState.scores[p.axe]+=p.score; if(p.satisfaction!==undefined){commState.satisfactionScore=p.satisfaction; commState.npsScore=p.score;} commState.responses.push({question:p.question,answer:p.answer,axe:p.axe,score:p.score}); commState.pending=null; commState.index++;
+  const questions=commState.profil==="gerant"?COMM_QUESTIONS_GERANT:COMM_QUESTIONS_SALARIE;
+  if(commState.index>=questions.length){document.getElementById("comm-progress").style.width="100%"; if(commState.profil==="gerant")commShowResultGerant(); else commShowResultSalarie();}
+  else {commRenderQuestion(); scrollToQuestionTop("comm-question");}
 }
 
 function commShowResultSalarie() {
-  const maxScores = [6*4, 9*4];
-  const pctExt = Math.round((commState.scores[0] / maxScores[0]) * 100);
-  const pctInt = Math.round((commState.scores[1] / maxScores[1]) * 100);
-
-  document.getElementById("comm-salarie-merci").textContent =
-    "Merci " + sanitize(osUser.displayName) + " pour votre participation. Votre avis compte et sera pris en compte.";
-
-  renderAxeScores("comm-salarie-scores", [
-    { nom:"Image Externe",         emoji:"📡", pct:pctExt, niveau:getNiveauComm(pctExt), label:getNiveauLabelComm(getNiveauComm(pctExt)) },
-    { nom:"Communication Interne", emoji:"💬", pct:pctInt, niveau:getNiveauComm(pctInt), label:getNiveauLabelComm(getNiveauComm(pctInt)) }
-  ]);
-
-  const npsLabels = {
-    1:"Vous ne recommanderiez pas votre magasin comme lieu de travail (0-3/10). Ce signal est important.",
-    2:"Vous hésiteriez à recommander votre magasin (4-6/10). Des axes d'amélioration existent.",
-    3:"Vous recommanderiez probablement votre magasin (7-8/10). C'est encourageant !",
-    4:"Vous recommanderiez absolument votre magasin (9-10/10). Vous êtes un vrai ambassadeur !"
-  };
-  const npsEl = document.getElementById("comm-nps-recap");
-  if (commState.npsScore) {
-    npsEl.innerHTML = "<strong>Votre NPS Employé :</strong> " + npsLabels[commState.npsScore];
-    npsEl.classList.remove("hidden");
-  }
-  showAppScreen("comm","comm-screen-result-salarie");
+  const maxScores=[6*4,9*4], pctExt=Math.round((commState.scores[0]/maxScores[0])*100), pctInt=Math.round((commState.scores[1]/maxScores[1])*100);
+  document.getElementById("comm-salarie-merci").textContent="Merci "+sanitize(osUser.displayName)+" pour votre participation. Vous pouvez maintenant envoyer vos réponses de façon anonymisée.";
+  renderAxeScores("comm-salarie-scores",[{nom:"Image Externe",emoji:"📡",pct:pctExt,niveau:getNiveauComm(pctExt),label:getNiveauLabelComm(getNiveauComm(pctExt))},{nom:"Communication Interne",emoji:"💬",pct:pctInt,niveau:getNiveauComm(pctInt),label:getNiveauLabelComm(getNiveauComm(pctInt))}]);
+  const npsEl=document.getElementById("comm-nps-recap"); if(commState.satisfactionScore!==null){npsEl.innerHTML="<strong>Votre satisfaction en tant qu’employé :</strong> "+commState.satisfactionScore+" / 10 — "+commSatisfactionLabel(commState.satisfactionScore); npsEl.classList.remove("hidden");}
+  document.getElementById("comm-anon-status").textContent=""; document.getElementById("comm-btn-send-anon").disabled=false; commState.completed=true; showAppScreen("comm","comm-screen-result-salarie");
 }
 
+const COMM_GERANT_DIAGNOSTICS={
+  externe:{faible:"Votre communication externe manque de structure et de régularité. Commencez par sécuriser les fondamentaux locaux et digitaux.",intermediaire:"Votre communication externe est en développement. Renforcez la cohérence, la fréquence et la mesure des actions.",fort:"Votre communication externe est performante. Consolidez votre différenciation locale et pilotez-la avec des indicateurs."},
+  interne:{faible:"Votre communication interne doit être structurée pour mieux informer, écouter et reconnaître les équipes.",intermediaire:"Votre communication interne dispose de bonnes bases. Formalisez les rituels, le feedback et la circulation de l’information.",fort:"Votre communication interne est performante. Faites-en un levier d’engagement et impliquez davantage les employés dans les décisions."}
+};
+
 function commShowResultGerant() {
-  const maxScores    = [8*4, 7*4];
-  const pctExt       = Math.round((commState.scores[0] / maxScores[0]) * 100);
-  const pctInt       = Math.round((commState.scores[1] / maxScores[1]) * 100);
-  const niveauExt    = getNiveauComm(pctExt);
-  const niveauInt    = getNiveauComm(pctInt);
-  const totalPct     = Math.round(((commState.scores[0] + commState.scores[1]) / (maxScores[0] + maxScores[1])) * 100);
-  const niveauGlobal = getNiveauComm(totalPct);
+  const max=[8*4,7*4], pExt=Math.round((commState.scores[0]/max[0])*100), pInt=Math.round((commState.scores[1]/max[1])*100), nExt=getNiveauComm(pExt), nInt=getNiveauComm(pInt);
+  document.getElementById("comm-gerant-title").textContent="📊 Votre Diagnostic"; document.getElementById("comm-gerant-subtitle").textContent="Voici votre profil de communication sur les deux axes analysés.";
+  renderAxeScores("comm-gerant-scores",[{nom:"Communication Externe",emoji:"📡",pct:pExt,niveau:nExt,label:getNiveauLabelComm(nExt)},{nom:"Communication Interne",emoji:"💬",pct:pInt,niveau:nInt,label:getNiveauLabelComm(nInt)}]);
+  const c=document.getElementById("comm-gerant-diagnostic-phrases"); c.innerHTML='<div class="app-solution-section"><div class="app-solution-header app-sol-header-0"><span>📡</span><span>Communication Externe</span></div><div class="app-solution-body"><p class="app-solution-intro">'+sanitize(COMM_GERANT_DIAGNOSTICS.externe[nExt])+'</p></div></div><div class="app-solution-section"><div class="app-solution-header app-sol-header-1"><span>💬</span><span>Communication Interne</span></div><div class="app-solution-body"><p class="app-solution-intro">'+sanitize(COMM_GERANT_DIAGNOSTICS.interne[nInt])+'</p></div></div>';
+  commState.completed=true; showAppScreen("comm","comm-screen-result-gerant");
+}
 
-  document.getElementById("comm-gerant-title").textContent    = "📊 Diagnostic de " + sanitize(osUser.displayName);
-  document.getElementById("comm-gerant-subtitle").textContent = "Voici votre profil de communication, mis en perspective avec les meilleures pratiques du secteur.";
+function commShowGerantEngagement(){
+  const c=document.getElementById("comm-gerant-engagement-blocks"); c.innerHTML=""; const axes=[{axe:0,name:"Communication Externe",icon:"📡"},{axe:1,name:"Communication Interne",icon:"💬"}], opts=[{type:"accompagne",icon:"🤝",title:"Je veux un accompagnement Pekahellix",desc:"Je souhaite être accompagné pour structurer et déployer mes actions."},{type:"abandon",icon:"⏸️",title:"Je mets ça de côté",desc:"Je ne souhaite pas agir sur cet axe maintenant."},{type:"autonome",icon:"💪",title:"Je vais le faire en autonomie",desc:"Je vais mettre en œuvre les recommandations avec mes propres moyens."}];
+  axes.forEach(function(a){const b=document.createElement("div"); b.className="app-engagement-block"; b.innerHTML='<div class="app-engagement-header app-eng-header-'+a.axe+'"><span>'+a.icon+'</span><span>'+a.name+'</span></div><div class="app-engagement-body"><ul class="app-engagement-options" data-axe="'+a.axe+'">'+opts.map(function(o){return '<li class="app-engagement-option comm-gerant-option" role="button" tabindex="0" data-axe="'+a.axe+'" data-type="'+o.type+'"><span class="app-eng-opt-icon">'+o.icon+'</span><div><div class="app-eng-opt-title">'+o.title+'</div><div class="app-eng-opt-desc">'+o.desc+'</div></div></li>';}).join("")+'</ul></div>'; c.appendChild(b);});
+  showAppScreen("comm","comm-screen-engagement-gerant");
+}
 
-  renderAxeScores("comm-gerant-scores", [
-    { nom:"Communication Externe", emoji:"📡", pct:pctExt, niveau:niveauExt, label:getNiveauLabelComm(niveauExt) },
-    { nom:"Communication Interne", emoji:"💬", pct:pctInt, niveau:niveauInt, label:getNiveauLabelComm(niveauInt) }
-  ]);
+function commShowGerantPlan(){
+  const max=[8*4,7*4], totalPct=Math.round(((commState.scores[0]+commState.scores[1])/(max[0]+max[1]))*100), level=getNiveauComm(totalPct); commRenderBenchmark(); commRenderPlan(level,"6m"); const forfaitMap={faible:"Essentiel 6 mois",intermediaire:"Croissance 1 an",fort:"Transformation 3 ans"}; renderForfaits("comm-forfaits",COMM_FORFAITS,forfaitMap[level]); commState.completed=true; showAppScreen("comm","comm-screen-plan-gerant");
+}
 
-  commRenderBenchmark();
-  commRenderPlan(niveauGlobal, "6m");
-
-  const forfaitMap = { faible:"Essentiel 6 mois", intermediaire:"Croissance 1 an", fort:"Transformation 3 ans" };
-  renderForfaits("comm-forfaits", COMM_FORFAITS, forfaitMap[niveauGlobal]);
-
-  showAppScreen("comm","comm-screen-result-gerant");
+async function commSendAnonymousResponses(){
+  const btn=document.getElementById("comm-btn-send-anon"), status=document.getElementById("comm-anon-status"); if(!supabaseClient){status.textContent="Connexion au service indisponible.";return;} btn.disabled=true; status.textContent="Envoi en cours…";
+  const payload={responses:commState.responses,external_score:commState.scores[0],internal_score:commState.scores[1],satisfaction_score:commState.satisfactionScore};
+  const r=await supabaseClient.from("communication_employee_responses").insert(payload); if(r.error){console.warn("anonymous communication response",r.error); status.textContent="Envoi impossible pour le moment. Réessayez plus tard."; btn.disabled=false; return;} status.textContent="Merci. Vos réponses anonymisées ont été envoyées."; btn.textContent="Réponses envoyées ✓";
 }
 
 function commRenderBenchmark() {
@@ -1912,76 +1899,27 @@ document.addEventListener("DOMContentLoaded", function() {
   });
 
   /* ── APP TEMPS ── */
-  document.getElementById("temps-btn-start").addEventListener("click", function() {
-    tempsInit();
-    showAppScreen("temps","temps-screen-diag");
-    tempsRenderQuestion();
-  });
-
-  document.getElementById("temps-engagement-blocks").addEventListener("click", function(e) {
-    const opt = e.target.closest(".app-engagement-option");
-    if (!opt) return;
-    const axe  = parseInt(opt.dataset.axe, 10);
-    const type = opt.dataset.type;
-    document.querySelectorAll('.app-engagement-option[data-axe="' + axe + '"]').forEach(function(el) {
-      el.classList.remove("selected-accompagne","selected-autonome","selected-abandon");
-    });
-    opt.classList.add("selected-" + type);
-    tempsState.engagements[axe] = type;
-  });
-
-  document.getElementById("temps-btn-validate").addEventListener("click", function() {
-    const missing = tempsState.engagements.findIndex(function(e) { return e === null; });
-    if (missing !== -1) {
-      const blocks = document.querySelectorAll(".app-engagement-block");
-      if (blocks[missing]) {
-        blocks[missing].scrollIntoView({ behavior:"smooth", block:"center" });
-        blocks[missing].style.outline = "2px solid #FF7900";
-        setTimeout(function() { blocks[missing].style.outline = ""; }, 2000);
-      }
-      return;
-    }
-    tempsShowResult();
-  });
-
-  document.getElementById("temps-btn-restart").addEventListener("click", function() {
-    tempsInit();
-    showAppScreen("temps","temps-screen-diag");
-    tempsRenderQuestion();
-  });
+  document.getElementById("temps-btn-start").addEventListener("click", function(){tempsInit(); showAppScreen("temps","temps-screen-diag"); tempsRenderQuestion();});
+  document.getElementById("temps-btn-next").addEventListener("click", tempsCommitAndNext);
+  document.getElementById("temps-btn-to-engagement").addEventListener("click", tempsShowEngagement);
+  document.getElementById("temps-engagement-blocks").addEventListener("click", function(e){const opt=e.target.closest(".app-engagement-option"); if(!opt)return; const axe=parseInt(opt.dataset.axe,10),type=opt.dataset.type; document.querySelectorAll('.app-engagement-option[data-axe="'+axe+'"]').forEach(function(el){el.classList.remove("selected-accompagne","selected-autonome","selected-abandon");}); opt.classList.add("selected-"+type); tempsState.engagements[axe]=type;});
+  document.getElementById("temps-btn-validate").addEventListener("click", function(){const missing=tempsState.engagements.findIndex(function(e){return e===null;}); if(missing!==-1){const blocks=document.querySelectorAll("#temps-engagement-blocks .app-engagement-block"); if(blocks[missing]){blocks[missing].scrollIntoView({behavior:"smooth",block:"center"}); blocks[missing].style.outline="2px solid #FF7900"; setTimeout(function(){blocks[missing].style.outline="";},2000);} return;} tempsShowResult();});
+  document.getElementById("temps-btn-autonomy").addEventListener("click",tempsShowAutonomy);
+  document.getElementById("temps-btn-back-support").addEventListener("click",function(){showAppScreen("temps","temps-screen-result");});
+  document.getElementById("temps-btn-restart").addEventListener("click", function(){tempsInit(); showAppScreen("temps","temps-screen-diag"); tempsRenderQuestion();});
 
   /* ── APP COMM ── */
-  document.getElementById("comm-btn-gerant").addEventListener("click", function() {
-    commState.profil = "gerant";
-    commSetupIntro("gerant");
-    showAppScreen("comm","comm-screen-intro");
-  });
-
-  document.getElementById("comm-btn-salarie").addEventListener("click", function() {
-    commState.profil = "salarie";
-    commSetupIntro("salarie");
-    showAppScreen("comm","comm-screen-intro");
-  });
-
-  document.getElementById("comm-btn-start").addEventListener("click", function() {
-    commState.index    = 0;
-    commState.scores   = [0,0];
-    commState.npsScore = null;
-    document.getElementById("comm-chips").innerHTML = "";
-    showAppScreen("comm","comm-screen-diag");
-    commRenderQuestion();
-  });
-
-  document.getElementById("comm-btn-restart-salarie").addEventListener("click", commInit);
-  document.getElementById("comm-btn-restart-gerant").addEventListener("click", commInit);
-
-  document.querySelectorAll(".app-plan-tab").forEach(function(tab) {
-    tab.addEventListener("click", function() {
-      const maxScores    = [8*4, 7*4];
-      const totalPct     = Math.round(((commState.scores[0] + commState.scores[1]) / (maxScores[0] + maxScores[1])) * 100);
-      commRenderPlan(getNiveauComm(totalPct), this.dataset.plan);
-    });
-  });
+  document.getElementById("comm-btn-gerant").addEventListener("click",function(){commState.profil="gerant"; commSetupIntro("gerant"); showAppScreen("comm","comm-screen-intro");});
+  document.getElementById("comm-btn-salarie").addEventListener("click",function(){commState.profil="salarie"; commSetupIntro("salarie"); showAppScreen("comm","comm-screen-intro");});
+  document.getElementById("comm-btn-start").addEventListener("click",function(){const profil=commState.profil; commState={profil:profil,index:0,scores:[0,0],npsScore:null,satisfactionScore:null,activePlan:"6m",pending:null,responses:[],engagements:[null,null],completed:false}; document.getElementById("comm-chips").innerHTML=""; showAppScreen("comm","comm-screen-diag"); commRenderQuestion();});
+  document.getElementById("comm-btn-next").addEventListener("click",commCommitAndNext);
+  document.getElementById("comm-btn-restart-salarie").addEventListener("click",commInit);
+  document.getElementById("comm-btn-restart-gerant").addEventListener("click",commInit);
+  document.getElementById("comm-btn-send-anon").addEventListener("click",commSendAnonymousResponses);
+  document.getElementById("comm-btn-to-engagement-gerant").addEventListener("click",commShowGerantEngagement);
+  document.getElementById("comm-gerant-engagement-blocks").addEventListener("click",function(e){const opt=e.target.closest(".comm-gerant-option"); if(!opt)return; const axe=parseInt(opt.dataset.axe,10),type=opt.dataset.type; document.querySelectorAll('.comm-gerant-option[data-axe="'+axe+'"]').forEach(function(x){x.classList.remove("selected-accompagne","selected-autonome","selected-abandon");}); opt.classList.add("selected-"+type); commState.engagements[axe]=type;});
+  document.getElementById("comm-btn-show-plan-gerant").addEventListener("click",function(){const missing=commState.engagements.findIndex(function(e){return e===null;}); if(missing!==-1){const blocks=document.querySelectorAll("#comm-gerant-engagement-blocks .app-engagement-block"); if(blocks[missing])blocks[missing].scrollIntoView({behavior:"smooth",block:"center"}); return;} commShowGerantPlan();});
+  document.querySelectorAll(".app-plan-tab").forEach(function(tab){tab.addEventListener("click",function(){const max=[8*4,7*4],totalPct=Math.round(((commState.scores[0]+commState.scores[1])/(max[0]+max[1]))*100); commRenderPlan(getNiveauComm(totalPct),this.dataset.plan);});});
 
   /* ── APP CYBER ── */
   document.getElementById("cyber-btn-start").addEventListener("click", cyberInit);
@@ -2059,5 +1997,6 @@ document.addEventListener("DOMContentLoaded", function() {
   });
 
   document.getElementById("cyber-btn-retry").addEventListener("click", cyberInit);
+  document.getElementById("cyber-btn-retry-top").addEventListener("click", cyberInit);
 
 }); /* FIN DOMContentLoaded */

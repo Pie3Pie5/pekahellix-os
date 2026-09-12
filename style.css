@@ -1489,11 +1489,32 @@ body.logo-lightbox-open { overflow: hidden !important; }
   }
 }
 
+
 /* ============================================================
-   V0.5-F.10 — ACTIVATION / RECOVERY : CONTENU TOUJOURS ACCESSIBLE
-   Les écrans avec règles de mot de passe peuvent dépasser la hauteur du viewport.
-   On les fait donc défiler depuis le haut, sur PC comme sur mobile.
+   V0.5-G.1 — QUESTIONNAIRES / PARCOURS
    ============================================================ */
+.comm-slider-wrap { margin-top: 1rem; padding: 1rem; border-radius: 16px; background: rgba(46,134,193,.08); }
+.comm-slider-wrap input[type="range"] { width: 100%; accent-color: #2E86C1; }
+.comm-slider-scale { display:flex; align-items:center; justify-content:space-between; margin-top:.5rem; color:#667; }
+.comm-slider-label { margin:.5rem 0 0; text-align:center; font-weight:800; color:#2E86C1; font-size:1.05rem; }
+.static-card { cursor: default !important; transform:none !important; }
+.static-card:hover { transform:none !important; box-shadow:inherit !important; }
+.app-result-top-action { display:flex; justify-content:flex-start; margin-bottom:.75rem; }
+#temps-diagnostic-phrases, #comm-gerant-diagnostic-phrases { margin-bottom:1rem; }
+#temps-accompagnement-axes:empty::after { content:"Aucun axe sélectionné."; display:block; color:#667; }
+@media (max-width: 760px) {
+  .app-question-actions .app-btn { width:100%; }
+  .comm-slider-wrap { padding:.85rem; }
+}
+
+
+/* ============================================================
+   V0.5-G.2 — AUTH ACCESSIBLE + IDENTITE VISUELLE MODULES
+   Base stable F.10 + améliorations G.1.
+   ============================================================ */
+
+/* F.10 : les écrans d'activation/récupération restent accessibles même
+   lorsque les règles de mot de passe dépassent la hauteur du viewport. */
 #os-activation,
 #os-password-recovery,
 #os-forgot-password {
@@ -1513,12 +1534,52 @@ body.logo-lightbox-open { overflow: hidden !important; }
   max-height: none;
 }
 
-/* Le logo reste pleine largeur, sans être rogné par le haut du viewport. */
 #os-activation .auth-logo-wide,
 #os-password-recovery .auth-logo-wide,
 #os-forgot-password .auth-logo-wide {
   flex: 0 0 auto;
 }
+
+/* Couleurs Pekahellix : Temps = orange, Communication = bleu, Cyber = vert. */
+:root {
+  --peka-temps: #F39C12;
+  --peka-temps-dark: #D98200;
+  --peka-comm: #2E86C1;
+  --peka-comm-dark: #236C9E;
+  --peka-cyber: #28B463;
+  --peka-cyber-dark: #1F914F;
+}
+
+/* Bureau : icônes et barres d'app cohérentes avec les 3 anneaux du logo. */
+.app-temps { background: linear-gradient(135deg, #FF9A00, var(--peka-temps)); }
+.app-comm  { background: linear-gradient(135deg, #3AA0DD, var(--peka-comm)); }
+.app-cyber { background: linear-gradient(135deg, #39C978, var(--peka-cyber)); }
+.app-bar-temps { background: linear-gradient(135deg, #FF9A00, var(--peka-temps)); }
+.app-bar-comm  { background: linear-gradient(135deg, #3AA0DD, var(--peka-comm)); }
+.app-bar-cyber { background: linear-gradient(135deg, #39C978, var(--peka-cyber)); }
+
+/* Boutons principaux à l'intérieur de chaque application. */
+#app-temps .app-btn-primary {
+  background: var(--peka-temps); border-color: var(--peka-temps); color: #fff;
+}
+#app-temps .app-btn-primary:hover { background: var(--peka-temps-dark); border-color: var(--peka-temps-dark); }
+#app-comm .app-btn-primary {
+  background: var(--peka-comm); border-color: var(--peka-comm); color: #fff;
+}
+#app-comm .app-btn-primary:hover { background: var(--peka-comm-dark); border-color: var(--peka-comm-dark); }
+#app-cyber .app-btn-primary {
+  background: var(--peka-cyber); border-color: var(--peka-cyber); color: #fff;
+}
+#app-cyber .app-btn-primary:hover { background: var(--peka-cyber-dark); border-color: var(--peka-cyber-dark); }
+
+/* Dock inférieur : couleur du module, y compris hors écran mobile. */
+.os-dock-item[data-app="temps"] { background: rgba(243,156,18,.78); }
+.os-dock-item[data-app="comm"]  { background: rgba(46,134,193,.78); }
+.os-dock-item[data-app="cyber"] { background: rgba(40,180,99,.78); }
+.os-dock-item[data-app="admin"] { background: rgba(100,110,125,.68); }
+.os-dock-item[data-app="temps"]:hover { background: var(--peka-temps); }
+.os-dock-item[data-app="comm"]:hover  { background: var(--peka-comm); }
+.os-dock-item[data-app="cyber"]:hover { background: var(--peka-cyber); }
 
 @media (max-width: 600px) {
   #os-activation,
@@ -1526,7 +1587,6 @@ body.logo-lightbox-open { overflow: hidden !important; }
   #os-forgot-password {
     padding: 0;
   }
-
   #os-activation .login-panel,
   #os-password-recovery .login-panel,
   #os-forgot-password .login-panel {
@@ -1534,4 +1594,41 @@ body.logo-lightbox-open { overflow: hidden !important; }
     min-height: 100dvh;
     padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
   }
+
+  /* Date réellement centrée sur la largeur physique de l'écran, indépendamment
+     de la largeur du logo et de la zone utilisateur. */
+  .os-topbar { position: relative; }
+  .os-topbar-center {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: max-content;
+    max-width: 28vw;
+    z-index: 2;
+    pointer-events: none;
+  }
+  .os-topbar-left, .os-topbar-right { position: relative; z-index: 3; }
+
+  /* Cartes d'accès aux applis : teinte légère du module. */
+  .os-app-icon[data-app="temps"] { background: rgba(243,156,18,.18); border-color: rgba(243,156,18,.42); }
+  .os-app-icon[data-app="comm"]  { background: rgba(46,134,193,.18); border-color: rgba(46,134,193,.42); }
+  .os-app-icon[data-app="cyber"] { background: rgba(40,180,99,.18); border-color: rgba(40,180,99,.42); }
+  .os-app-icon[data-app="admin"] { background: rgba(100,110,125,.18); border-color: rgba(150,160,175,.35); }
+
+  /* Sur mobile, les boutons du dock restent bien identifiables sans perdre le contraste. */
+  .os-dock-item[data-app="temps"] { background: rgba(243,156,18,.72); }
+  .os-dock-item[data-app="comm"]  { background: rgba(46,134,193,.72); }
+  .os-dock-item[data-app="cyber"] { background: rgba(40,180,99,.72); }
+  .os-dock-item[data-app="admin"] { background: rgba(100,110,125,.62); }
+  .os-dock-item.is-active[data-app="temps"] { background: var(--peka-temps); }
+  .os-dock-item.is-active[data-app="comm"]  { background: var(--peka-comm); }
+  .os-dock-item.is-active[data-app="cyber"] { background: var(--peka-cyber); }
+  .os-dock-item.is-active[data-app="admin"] { background: #5B6573; }
+}
+
+@media (max-width: 380px) {
+  /* Laisse respirer la date centrale sur les écrans étroits. */
+  .os-topbar-center { max-width: 30vw; }
+  .os-username { max-width: 48px; }
 }

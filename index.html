@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=0.5-f.10" />
+  <link rel="stylesheet" href="style.css?v=0.5-g.2" />
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
   <link rel="icon" type="image/png" href="favicon.png">
@@ -20,7 +20,7 @@
   <!-- V0.5-F.8 — Splash vers le logo principal de connexion -->
   <div id="startup-splash" class="startup-splash" aria-hidden="true">
     <div class="startup-splash-bg"></div>
-    <img id="startup-splash-logo" src="logo-header.png" alt="" class="startup-splash-logo" />
+    <img id="startup-splash-logo" src="logo-auth.png" alt="" class="startup-splash-logo" />
   </div>
 
   <!-- ═══════════════════════════════════════
@@ -29,7 +29,7 @@
   <div id="os-login" class="os-login active">
     <div class="login-bg"></div>
     <div class="login-panel">
-      <img src="logo-header.png" alt="Pekahellix — 3 piliers pour accompagner votre proximité" class="login-logo login-logo-main" />
+      <img src="logo-auth.png" alt="Pekahellix — 3 piliers pour accompagner votre proximité" class="login-logo login-logo-main" />
 
       <div class="login-field">
         <label for="input-username">Adresse e-mail</label>
@@ -62,7 +62,7 @@
   <div id="os-activation" class="os-login hidden">
     <div class="login-bg"></div>
     <div class="login-panel activation-panel">
-      <img src="logo-header.png" alt="Pekahellix — 3 piliers pour accompagner votre proximité" class="login-logo auth-logo-wide" />
+      <img src="logo-auth.png" alt="Pekahellix — 3 piliers pour accompagner votre proximité" class="login-logo auth-logo-wide" />
       <h1 class="login-title">Activation <span>Pekahellix</span></h1>
       <p class="login-subtitle">Créez votre mot de passe pour finaliser votre compte.</p>
 
@@ -112,7 +112,7 @@
   <div id="os-forgot-password" class="os-login hidden">
     <div class="login-bg"></div>
     <div class="login-panel">
-      <img src="logo-header.png" alt="Pekahellix — 3 piliers pour accompagner votre proximité" class="login-logo auth-logo-wide" />
+      <img src="logo-auth.png" alt="Pekahellix — 3 piliers pour accompagner votre proximité" class="login-logo auth-logo-wide" />
       <h1 class="login-title">Mot de passe <span>oublié</span></h1>
       <p class="login-subtitle">Saisissez votre adresse e-mail. Si un compte Pekahellix lui est associé, vous recevrez un lien sécurisé.</p>
 
@@ -135,7 +135,7 @@
   <div id="os-password-recovery" class="os-login hidden">
     <div class="login-bg"></div>
     <div class="login-panel activation-panel">
-      <img src="logo-header.png" alt="Pekahellix — 3 piliers pour accompagner votre proximité" class="login-logo auth-logo-wide" />
+      <img src="logo-auth.png" alt="Pekahellix — 3 piliers pour accompagner votre proximité" class="login-logo auth-logo-wide" />
       <h1 class="login-title">Nouveau <span>mot de passe</span></h1>
       <p class="login-subtitle">Créez un nouveau mot de passe pour votre compte Pekahellix.</p>
 
@@ -272,11 +272,11 @@
           <h2 class="app-card-title" id="temps-welcome">Bonjour !</h2>
           <p class="app-card-subtitle">Diagnostic de vos pertes de temps en tant que gérant</p>
           <ul class="app-rules">
-            <li><span>📋</span><strong>18 questions</strong> réparties sur 3 axes clés</li>
+            <li><span>📋</span><strong>17 questions</strong> réparties sur 3 axes clés</li>
             <li><span>🎯</span>Axe 1 — <strong>Gestion des priorités</strong></li>
             <li><span>✅</span>Axe 2 — <strong>To-do lists</strong></li>
             <li><span>🤝</span>Axe 3 — <strong>Délégation</strong></li>
-            <li><span>💬</span><strong>3 questions d'engagement</strong></li>
+            <li><span>💬</span><strong>3 choix d’action</strong> après votre diagnostic</li>
             <li><span>⏳</span>Durée : <strong>8 à 10 minutes</strong></li>
           </ul>
           <button type="button" id="temps-btn-start" class="app-btn app-btn-primary app-btn-full">Démarrer →</button>
@@ -297,43 +297,54 @@
         <div class="app-card app-question-card">
           <p class="app-question-text" id="temps-question"></p>
           <ul class="app-answers" id="temps-answers" role="list"></ul>
+          <div class="app-question-actions">
+            <button type="button" id="temps-btn-next" class="app-btn app-btn-primary hidden" disabled>Question suivante →</button>
+          </div>
         </div>
+      </div>
+
+      <div id="temps-screen-diagnostic" class="app-screen hidden">
+        <div class="app-card">
+          <h2 class="app-card-title">📊 Votre Diagnostic</h2>
+          <p class="app-card-subtitle">Voici votre profil de maturité sur les 3 axes analysés.</p>
+          <div class="app-axes-scores" id="temps-diagnostic-scores"></div>
+        </div>
+        <div id="temps-diagnostic-phrases"></div>
+        <button type="button" id="temps-btn-to-engagement" class="app-btn app-btn-primary app-btn-full">Construire mon plan d’actions →</button>
       </div>
 
       <div id="temps-screen-engagement" class="app-screen hidden">
         <div class="app-card">
           <div class="app-card-icon">🧭</div>
-          <h2 class="app-card-title">Votre plan d'action</h2>
-          <p class="app-card-subtitle">Indiquez votre intention pour chacun des 3 axes identifiés.</p>
+          <h2 class="app-card-title">Votre plan d'actions</h2>
+          <p class="app-card-subtitle">Pour chaque axe, choisissez comment vous souhaitez poursuivre.</p>
         </div>
         <div id="temps-engagement-blocks"></div>
-        <button type="button" id="temps-btn-validate" class="app-btn app-btn-primary app-btn-full">
-          Voir mes résultats →
-        </button>
+        <button type="button" id="temps-btn-validate" class="app-btn app-btn-primary app-btn-full">Voir mon accompagnement →</button>
       </div>
 
       <div id="temps-screen-result" class="app-screen hidden">
         <div class="app-card">
-          <h2 class="app-card-title">📊 Votre diagnostic</h2>
-          <p class="app-card-subtitle" id="temps-result-subtitle"></p>
-          <div class="app-axes-scores" id="temps-axes-scores"></div>
-          <button type="button" id="temps-btn-restart" class="app-btn app-btn-outline app-btn-full">🔄 Recommencer</button>
+          <h2 class="app-card-title">🤝 Pekahellix vous accompagne</h2>
+          <p class="app-card-subtitle">Retrouvez les axes pour lesquels vous avez demandé un accompagnement.</p>
+          <div id="temps-accompagnement-axes"></div>
         </div>
-        <div id="temps-solutions"></div>
         <div class="app-card app-peka-cta">
           <div class="app-peka-header">
             <img src="logo.png" alt="Pekahellix" class="app-peka-logo" />
-            <div>
-              <h3 class="app-peka-title">Pekahellix vous accompagne</h3>
-              <p class="app-peka-sub">Un expert dédié pour transformer votre organisation</p>
-            </div>
+            <div><h3 class="app-peka-title">Pekahellix vous accompagne</h3><p class="app-peka-sub">Un expert dédié pour transformer votre organisation</p></div>
           </div>
           <div id="temps-forfaits" class="app-forfaits-grid"></div>
-          <div class="app-peka-contact">
-            <p>Prenez rendez-vous avec un consultant Pekahellix</p>
-            <a href="mailto:pierrick@pekahellix.fr" class="app-btn app-btn-primary">Contacter Pekahellix</a>
-          </div>
+          <div class="app-peka-contact"><p>Prenez rendez-vous avec un consultant Pekahellix</p><a href="mailto:pierrick@pekahellix.fr" class="app-btn app-btn-primary">Contacter Pekahellix</a></div>
         </div>
+        <button type="button" id="temps-btn-autonomy" class="app-btn app-btn-secondary app-btn-full hidden">Voir mes pistes en autonomie →</button>
+        <button type="button" id="temps-btn-restart" class="app-btn app-btn-outline app-btn-full">🔄 Recommencer</button>
+      </div>
+
+      <div id="temps-screen-autonomy" class="app-screen hidden">
+        <div class="app-card"><h2 class="app-card-title">💪 Mes pistes en autonomie</h2><p class="app-card-subtitle">Des exemples concrets pour les axes que vous avez choisi de travailler seul.</p></div>
+        <div id="temps-autonomy-content"></div>
+        <button type="button" id="temps-btn-back-support" class="app-btn app-btn-outline app-btn-full">← Retour à mon accompagnement</button>
       </div>
 
     </div>
@@ -365,7 +376,7 @@
             </button>
             <button type="button" id="comm-btn-salarie" class="app-profil-btn">
               <span class="app-profil-icon">👥</span>
-              <span class="app-profil-title">Salarié</span>
+              <span class="app-profil-title">Employé</span>
               <span class="app-profil-desc">Partagez votre perception. Réponses anonymes et prises en compte.</span>
             </button>
           </div>
@@ -396,6 +407,14 @@
         <div class="app-card app-question-card">
           <p class="app-question-text" id="comm-question"></p>
           <ul class="app-answers" id="comm-answers" role="list"></ul>
+          <div id="comm-slider-wrap" class="comm-slider-wrap hidden">
+            <input id="comm-satisfaction-slider" type="range" min="0" max="10" step="1" value="5" aria-label="Satisfaction de 0 à 10">
+            <div class="comm-slider-scale"><span>0</span><strong id="comm-slider-value">5 / 10</strong><span>10</span></div>
+            <p id="comm-slider-label" class="comm-slider-label">Probablement pas</p>
+          </div>
+          <div class="app-question-actions">
+            <button type="button" id="comm-btn-next" class="app-btn app-btn-primary hidden" disabled>Question suivante →</button>
+          </div>
         </div>
       </div>
 
@@ -408,27 +427,34 @@
           <div class="app-message-box">
             <span>✉️</span>
             <div>
-              <p class="app-message-title">Vos réponses ont bien été enregistrées</p>
-              <p class="app-message-text">Vos réponses sont traitées de façon <strong>anonyme et confidentielle</strong>. Pekahellix accompagnera votre entreprise vers une communication plus fluide.</p>
+              <p class="app-message-title">Vos réponses sont prêtes à être envoyées</p>
+              <p class="app-message-text">Aucune identité n’est enregistrée avec vos réponses. Elles seront stockées sous forme <strong>anonymisée</strong> afin de produire des tendances collectives.</p>
             </div>
           </div>
           <div id="comm-nps-recap" class="app-nps-recap hidden"></div>
+          <button type="button" id="comm-btn-send-anon" class="app-btn app-btn-primary app-btn-full">Envoyer mes réponses anonymement</button>
+          <p id="comm-anon-status" class="app-card-subtitle" aria-live="polite"></p>
           <button type="button" id="comm-btn-restart-salarie" class="app-btn app-btn-outline app-btn-full">🔄 Recommencer</button>
         </div>
       </div>
 
       <div id="comm-screen-result-gerant" class="app-screen hidden">
         <div class="app-card">
-          <h2 class="app-card-title" id="comm-gerant-title">📊 Votre diagnostic</h2>
+          <h2 class="app-card-title" id="comm-gerant-title">📊 Votre Diagnostic</h2>
           <p class="app-card-subtitle" id="comm-gerant-subtitle"></p>
           <div class="app-axes-scores" id="comm-gerant-scores"></div>
-          <button type="button" id="comm-btn-restart-gerant" class="app-btn app-btn-outline app-btn-full">🔄 Recommencer</button>
         </div>
-        <div class="app-card app-benchmark-card">
-          <h3 class="app-section-title">🏆 Benchmark — Enseignes exemplaires</h3>
-          <p class="app-section-intro">Comparez votre situation aux meilleures pratiques du secteur.</p>
-          <div id="comm-benchmark"></div>
-        </div>
+        <div id="comm-gerant-diagnostic-phrases"></div>
+        <button type="button" id="comm-btn-to-engagement-gerant" class="app-btn app-btn-primary app-btn-full">Construire mon plan d’actions →</button>
+      </div>
+
+      <div id="comm-screen-engagement-gerant" class="app-screen hidden">
+        <div class="app-card"><h2 class="app-card-title">Votre plan d'actions</h2><p class="app-card-subtitle">Choisissez votre intention pour chacun des deux axes.</p></div>
+        <div id="comm-gerant-engagement-blocks"></div>
+        <button type="button" id="comm-btn-show-plan-gerant" class="app-btn app-btn-primary app-btn-full">Voir mon accompagnement →</button>
+      </div>
+
+      <div id="comm-screen-plan-gerant" class="app-screen hidden">
         <div class="app-card app-plan-card">
           <h3 class="app-section-title">🗓️ Plan de communication personnalisé</h3>
           <p class="app-section-intro" id="comm-plan-intro"></p>
@@ -439,20 +465,17 @@
           </div>
           <div id="comm-plan-content"></div>
         </div>
-        <div class="app-card app-peka-cta">
-          <div class="app-peka-header">
-            <img src="logo.png" alt="Pekahellix" class="app-peka-logo" />
-            <div>
-              <h3 class="app-peka-title">Pekahellix vous accompagne</h3>
-              <p class="app-peka-sub">Un expert communication pour transformer votre image</p>
-            </div>
-          </div>
-          <div id="comm-forfaits" class="app-forfaits-grid"></div>
-          <div class="app-peka-contact">
-            <p>Prenez rendez-vous avec un consultant Pekahellix</p>
-            <a href="mailto:pierrick@pekahellix.fr" class="app-btn app-btn-primary">Contacter Pekahellix</a>
-          </div>
+        <div class="app-card app-benchmark-card">
+          <h3 class="app-section-title">🏆 Benchmark — Enseignes exemplaires</h3>
+          <p class="app-section-intro">Comparez votre situation aux meilleures pratiques du secteur.</p>
+          <div id="comm-benchmark"></div>
         </div>
+        <div class="app-card app-peka-cta">
+          <div class="app-peka-header"><img src="logo.png" alt="Pekahellix" class="app-peka-logo" /><div><h3 class="app-peka-title">Pekahellix vous accompagne</h3><p class="app-peka-sub">Un expert communication pour transformer votre image</p></div></div>
+          <div id="comm-forfaits" class="app-forfaits-grid"></div>
+          <div class="app-peka-contact"><p>Prenez rendez-vous avec un consultant Pekahellix</p><a href="mailto:pierrick@pekahellix.fr" class="app-btn app-btn-primary">Contacter Pekahellix</a></div>
+        </div>
+        <button type="button" id="comm-btn-restart-gerant" class="app-btn app-btn-outline app-btn-full">🔄 Recommencer</button>
       </div>
 
     </div>
@@ -512,6 +535,7 @@
 
       <div id="cyber-screen-result" class="app-screen hidden">
         <div class="app-card" style="text-align:center;">
+          <div class="app-result-top-action"><button type="button" id="cyber-btn-retry-top" class="app-btn app-btn-outline">🔄 Recommencer</button></div>
           <div class="app-card-icon" id="cyber-result-icon"></div>
           <h2 class="app-card-title" id="cyber-result-title"></h2>
           <p class="app-card-subtitle" id="cyber-result-subtitle"></p>
@@ -623,7 +647,7 @@
   </div>
 
   <script src="config.js"></script>
-  <script src="script.js?v=0.5-f.10"></script>
+  <script src="script.js?v=0.5-g.2"></script>
 
 <script>
 if ('serviceWorker' in navigator) {
