@@ -1421,3 +1421,70 @@ body.logo-lightbox-open { overflow: hidden !important; }
 
   .os-username { max-width: 44px; }
 }
+
+
+/* ============================================================
+   V0.5-F.9 — LOGO PLEINE LARGEUR SUR TOUS LES ÉCRANS D'AUTH
+   Activation / mot de passe oublié / nouveau mot de passe
+   ============================================================ */
+
+/* Les trois écrans secondaires reprennent la largeur de la carte principale. */
+#os-activation .login-panel,
+#os-forgot-password .login-panel,
+#os-password-recovery .login-panel {
+  width: min(92vw, 760px);
+  max-width: 760px;
+  padding: 2.35rem 4.25rem 2.25rem;
+}
+
+/* Neutralise l'ancien max-width de .activation-panel. */
+#os-activation .activation-panel,
+#os-password-recovery .activation-panel {
+  max-width: 760px;
+}
+
+/* Logo horizontal identique à celui de l'accueil d'authentification. */
+#os-activation .auth-logo-wide,
+#os-forgot-password .auth-logo-wide,
+#os-password-recovery .auth-logo-wide {
+  display: block;
+  width: 100%;
+  max-width: none;
+  height: auto;
+  max-height: none;
+  object-fit: contain;
+  margin: 0 auto 1.25rem;
+}
+
+@media (max-width: 600px) {
+  #os-activation,
+  #os-forgot-password,
+  #os-password-recovery {
+    align-items: flex-start;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  #os-activation .login-panel,
+  #os-forgot-password .login-panel,
+  #os-password-recovery .login-panel {
+    width: 100%;
+    max-width: none;
+    min-height: 100dvh;
+    border-radius: 0;
+    padding: clamp(1.15rem, 4vh, 2rem) 1.25rem 1.5rem;
+  }
+
+  /* Sort du padding de la carte : le logo prend toute la largeur de l'écran. */
+  #os-activation .auth-logo-wide,
+  #os-forgot-password .auth-logo-wide,
+  #os-password-recovery .auth-logo-wide {
+    width: 100vw;
+    max-width: none;
+    height: auto;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+    margin-bottom: clamp(0.9rem, 2.5vh, 1.35rem);
+    padding: 0;
+  }
+}
