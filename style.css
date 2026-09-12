@@ -1324,4 +1324,100 @@ body.logo-lightbox-open { overflow: hidden !important; }
   .startup-splash-logo,
   .startup-splash-bg { animation: none !important; transition: none !important; }
 }
-\n\n/* ============================================================\n   V0.5-F.7 — LOGO AUTHENTIFICATION PLEINE LARGEUR + HEADER MOBILE\n   ============================================================ */\n\n/* Accueil de connexion : le logo de marque devient l'unique en-tête. */\n#os-login .login-logo-main {\n  display: block;\n  width: 100%;\n  max-width: 100%;\n  height: auto;\n  max-height: 150px;\n  object-fit: contain;\n  margin: 0 auto 1.75rem;\n}\n\n/* Le splash utilise le même logo et peut occuper une grande partie du viewport. */\n.startup-splash-logo {\n  width: min(92vw, 1100px);\n  max-height: 84vh;\n}\n\n@media (max-width: 600px) {\n  /* Le logo de connexion s'étend sur toute la largeur de l'écran,\n     indépendamment du padding du formulaire. */\n  #os-login .login-logo-main {\n    width: 100vw;\n    max-width: none;\n    height: auto;\n    max-height: 180px;\n    margin-left: calc(50% - 50vw);\n    margin-right: calc(50% - 50vw);\n    margin-bottom: 1.45rem;\n    padding: 0 0.15rem;\n  }\n\n  .startup-splash-logo {\n    width: 100vw;\n    max-width: none;\n    max-height: 82vh;\n    padding: 0 0.15rem;\n  }\n\n  /* Donne davantage d'espace au logo du bureau tout en conservant\n     la date et la déconnexion accessibles. */\n  .os-topbar {\n    grid-template-columns: minmax(148px, 1.55fr) auto minmax(82px, 0.8fr);\n    gap: 0.3rem;\n    padding-left: 0.4rem;\n    padding-right: 0.4rem;\n  }\n\n  .topbar-logo {\n    width: min(205px, 100%);\n    height: 62px;\n  }\n\n  .os-username {\n    max-width: 60px;\n    font-size: 0.66rem;\n  }\n}\n\n@media (max-width: 360px) {\n  .os-topbar {\n    grid-template-columns: minmax(136px, 1.5fr) auto minmax(76px, 0.75fr);\n  }\n  .topbar-logo {\n    width: min(192px, 100%);\n    height: 58px;\n  }\n  .os-username { max-width: 48px; }\n}\n
+
+
+/* ============================================================
+   V0.5-F.8 — AUTHENTIFICATION : LOGO RÉELLEMENT PLEINE LARGEUR
+   Corrige le bloc F.7 qui avait été injecté avec des \n littéraux.
+   ============================================================ */
+
+/* Bureau : carte de connexion plus large, comme sur la maquette validée. */
+#os-login .login-panel {
+  width: min(92vw, 760px);
+  max-width: 760px;
+  padding: 2.75rem 4.25rem 2.5rem;
+}
+
+/* Le logo remplit toute la largeur utile du cadre blanc. */
+#os-login .login-logo-main {
+  display: block;
+  width: 100%;
+  max-width: none;
+  height: auto;
+  max-height: none;
+  object-fit: contain;
+  margin: 0 auto 2rem;
+}
+
+/* Splash : même logo, très présent avant son zoom vers la connexion. */
+.startup-splash-logo {
+  width: min(92vw, 1200px);
+  max-width: none;
+  max-height: 86vh;
+  height: auto;
+  object-fit: contain;
+}
+
+@media (max-width: 600px) {
+  #os-login .login-panel {
+    width: 100%;
+    max-width: none;
+    min-height: 100dvh;
+    padding: clamp(1.5rem, 6vh, 3rem) 1.25rem 1.5rem;
+  }
+
+  /* Sort du padding du formulaire pour aller réellement bord à bord. */
+  #os-login .login-logo-main {
+    width: 100vw;
+    max-width: none;
+    height: auto;
+    max-height: none;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+    margin-bottom: clamp(1.35rem, 4vh, 2rem);
+    padding: 0;
+  }
+
+  .startup-splash-logo {
+    width: 100vw;
+    max-width: none;
+    max-height: 84vh;
+    padding: 0;
+  }
+
+  /* Header du bureau : logo un peu plus généreux, sans gêner les contrôles. */
+  .os-topbar {
+    grid-template-columns: minmax(155px, 1.65fr) auto minmax(78px, 0.72fr);
+    gap: 0.25rem;
+    padding-left: 0.3rem;
+    padding-right: 0.3rem;
+  }
+
+  .topbar-logo {
+    width: min(220px, 100%);
+    height: 66px;
+  }
+
+  .os-username {
+    max-width: 56px;
+    font-size: 0.64rem;
+  }
+}
+
+@media (max-width: 360px) {
+  #os-login .login-panel {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .os-topbar {
+    grid-template-columns: minmax(145px, 1.6fr) auto minmax(72px, 0.68fr);
+  }
+
+  .topbar-logo {
+    width: min(205px, 100%);
+    height: 62px;
+  }
+
+  .os-username { max-width: 44px; }
+}
