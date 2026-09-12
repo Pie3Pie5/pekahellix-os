@@ -1497,8 +1497,26 @@ body.logo-lightbox-open { overflow: hidden !important; }
 .comm-slider-wrap input[type="range"] { width: 100%; accent-color: #2E86C1; }
 .comm-slider-scale { display:flex; align-items:center; justify-content:space-between; margin-top:.5rem; color:#667; }
 .comm-slider-label { margin:.5rem 0 0; text-align:center; font-weight:800; color:#2E86C1; font-size:1.05rem; }
-.static-card { cursor: default !important; transform:none !important; }
-.static-card:hover { transform:none !important; box-shadow:inherit !important; }
+.static-card {
+  cursor: default !important;
+  transform: none !important;
+  transition: none !important;
+  border-color: #E8E8E8 !important;
+  box-shadow: none !important;
+  background: #F7F9FC !important;
+  -webkit-tap-highlight-color: transparent;
+}
+.static-card:hover,
+.static-card:focus,
+.static-card:focus-visible,
+.static-card:active {
+  transform: none !important;
+  transition: none !important;
+  border-color: #E8E8E8 !important;
+  box-shadow: none !important;
+  background: #F7F9FC !important;
+  outline: none !important;
+}
 .app-result-top-action { display:flex; justify-content:flex-start; margin-bottom:.75rem; }
 #temps-diagnostic-phrases, #comm-gerant-diagnostic-phrases { margin-bottom:1rem; }
 #temps-accompagnement-axes:empty::after { content:"Aucun axe sélectionné."; display:block; color:#667; }
