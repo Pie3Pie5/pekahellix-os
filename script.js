@@ -1,4 +1,4 @@
-window.PEKAHELLIX_BUILD = "0.5-F.9";
+window.PEKAHELLIX_BUILD = "0.5-F.10";
 /* ============================================================
    PEKAHELLIX OS — Gestionnaire unifié des 3 applications
    Apps : Gestion du Temps · Communication · Cybersécurité

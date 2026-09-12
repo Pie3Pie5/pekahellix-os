@@ -1,0 +1,14 @@
+SUPABASE — MODÈLE D'E-MAIL D'INVITATION PEKAHELLIX
+
+Objet : Activez votre compte Pekahellix
+
+Dans Supabase :
+Authentication > Email Templates > Invite user
+
+1. Remplacer l'objet par : Activez votre compte Pekahellix
+2. Remplacer le corps HTML par le contenu du fichier :
+   SUPABASE_INVITATION_EMAIL_V0.5-F.10.html
+3. Enregistrer.
+
+Important : Resend / no-reply@pekahellix.fr gère l'expéditeur SMTP.
+Le contenu du mail d'invitation est, lui, défini dans le modèle "Invite user" de Supabase.

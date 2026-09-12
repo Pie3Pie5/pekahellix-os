@@ -1488,3 +1488,50 @@ body.logo-lightbox-open { overflow: hidden !important; }
     padding: 0;
   }
 }
+
+/* ============================================================
+   V0.5-F.10 — ACTIVATION / RECOVERY : CONTENU TOUJOURS ACCESSIBLE
+   Les écrans avec règles de mot de passe peuvent dépasser la hauteur du viewport.
+   On les fait donc défiler depuis le haut, sur PC comme sur mobile.
+   ============================================================ */
+#os-activation,
+#os-password-recovery,
+#os-forgot-password {
+  align-items: flex-start;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  padding: clamp(12px, 3vh, 32px) 0;
+}
+
+#os-activation .login-panel,
+#os-password-recovery .login-panel,
+#os-forgot-password .login-panel {
+  flex: 0 0 auto;
+  margin: auto;
+  max-height: none;
+}
+
+/* Le logo reste pleine largeur, sans être rogné par le haut du viewport. */
+#os-activation .auth-logo-wide,
+#os-password-recovery .auth-logo-wide,
+#os-forgot-password .auth-logo-wide {
+  flex: 0 0 auto;
+}
+
+@media (max-width: 600px) {
+  #os-activation,
+  #os-password-recovery,
+  #os-forgot-password {
+    padding: 0;
+  }
+
+  #os-activation .login-panel,
+  #os-password-recovery .login-panel,
+  #os-forgot-password .login-panel {
+    margin: 0;
+    min-height: 100dvh;
+    padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
+  }
+}
