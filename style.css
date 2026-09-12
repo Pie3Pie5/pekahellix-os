@@ -1632,3 +1632,23 @@ body.logo-lightbox-open { overflow: hidden !important; }
   .os-topbar-center { max-width: 30vw; }
   .os-username { max-width: 48px; }
 }
+
+/* ============================================================
+   V0.5-G.2.1 — HEADER MOBILE : ZONE UTILISATEUR À DROITE
+   La date est positionnée en absolu pour rester au centre physique.
+   On force donc explicitement le logo en colonne 1 et les contrôles
+   utilisateur/déconnexion en colonne 3 de la grille.
+   ============================================================ */
+@media (max-width: 768px) {
+  .os-topbar-left {
+    grid-column: 1;
+    justify-self: start;
+  }
+
+  .os-topbar-right {
+    grid-column: 3;
+    justify-self: end;
+    width: auto;
+    margin-left: auto;
+  }
+}
