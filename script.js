@@ -1,4 +1,4 @@
-window.PEKAHELLIX_BUILD = "0.5-F.5";
+window.PEKAHELLIX_BUILD = "0.5-F.6";
 /* ============================================================
    PEKAHELLIX OS — Gestionnaire unifié des 3 applications
    Apps : Gestion du Temps · Communication · Cybersécurité
@@ -1640,7 +1640,7 @@ function cyberShowResult() {
 }
 
 /* ============================================================
-   V0.5-F.5 — SPLASH LOGO + AGRANDISSEMENT DU LOGO HEADER
+   V0.5-F.6 — SPLASH LOGO + AGRANDISSEMENT DU LOGO HEADER
    ============================================================ */
 function getVisibleAuthLogo() {
   const screens = Array.from(document.querySelectorAll(".os-login"));
