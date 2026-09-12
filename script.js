@@ -1,4 +1,4 @@
-window.PEKAHELLIX_BUILD = "0.5-F.4";
+window.PEKAHELLIX_BUILD = "0.5-F.5";
 /* ============================================================
    PEKAHELLIX OS — Gestionnaire unifié des 3 applications
    Apps : Gestion du Temps · Communication · Cybersécurité
@@ -1640,6 +1640,109 @@ function cyberShowResult() {
 }
 
 /* ============================================================
+   V0.5-F.5 — SPLASH LOGO + AGRANDISSEMENT DU LOGO HEADER
+   ============================================================ */
+function getVisibleAuthLogo() {
+  const screens = Array.from(document.querySelectorAll(".os-login"));
+  const activeScreen = screens.find(function(screen) {
+    return !screen.classList.contains("hidden") && window.getComputedStyle(screen).display !== "none";
+  });
+  return activeScreen ? activeScreen.querySelector(".login-logo") : null;
+}
+
+function runStartupSplash() {
+  const splash = document.getElementById("startup-splash");
+  const splashBg = splash && splash.querySelector(".startup-splash-bg");
+  const splashLogo = document.getElementById("startup-splash-logo");
+  if (!splash || !splashLogo) return;
+
+  const reduceMotion = window.matchMedia &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const target = getVisibleAuthLogo();
+
+  // Si une session restaurée affiche directement le bureau, on conserve un
+  // court splash de marque puis on le retire sans forcer le retour au login.
+  if (!target) {
+    if (reduceMotion || !splash.animate) {
+      window.setTimeout(function() { splash.classList.add("hidden"); }, 180);
+      return;
+    }
+    splash.animate([{ opacity: 1 }, { opacity: 0 }], {
+      duration: 420,
+      delay: 420,
+      easing: "ease-out",
+      fill: "forwards"
+    }).finished.finally(function() { splash.classList.add("hidden"); });
+    return;
+  }
+
+  target.classList.add("splash-target-hidden");
+
+  // Attendre deux frames garantit que le navigateur a calculé la position
+  // réelle du logo dans le formulaire responsive.
+  requestAnimationFrame(function() {
+    requestAnimationFrame(function() {
+      const from = splashLogo.getBoundingClientRect();
+      const to = target.getBoundingClientRect();
+      const dx = (to.left + to.width / 2) - (from.left + from.width / 2);
+      const dy = (to.top + to.height / 2) - (from.top + from.height / 2);
+      const scale = Math.min(to.width / from.width, to.height / from.height);
+
+      if (reduceMotion || !splashLogo.animate) {
+        target.classList.remove("splash-target-hidden");
+        splash.classList.add("hidden");
+        return;
+      }
+
+      const logoAnim = splashLogo.animate([
+        { transform: "translate3d(0,0,0) scale(1)", opacity: 1 },
+        { transform: "translate3d(0,0,0) scale(1)", opacity: 1, offset: 0.42 },
+        { transform: "translate3d(" + dx + "px," + dy + "px,0) scale(" + scale + ")", opacity: 1 }
+      ], {
+        duration: 1550,
+        easing: "cubic-bezier(.22,.8,.22,1)",
+        fill: "forwards"
+      });
+
+      if (splashBg && splashBg.animate) {
+        splashBg.animate([
+          { opacity: 1 },
+          { opacity: 1, offset: 0.45 },
+          { opacity: 0 }
+        ], {
+          duration: 1450,
+          easing: "ease-out",
+          fill: "forwards"
+        });
+      }
+
+      logoAnim.finished.finally(function() {
+        target.classList.remove("splash-target-hidden");
+        splash.classList.add("hidden");
+      });
+    });
+  });
+}
+
+function openLogoLightbox() {
+  const modal = document.getElementById("logo-lightbox");
+  const close = document.getElementById("logo-lightbox-close");
+  if (!modal) return;
+  modal.classList.remove("hidden");
+  document.body.classList.add("logo-lightbox-open");
+  if (close) close.focus();
+}
+
+function closeLogoLightbox() {
+  const modal = document.getElementById("logo-lightbox");
+  const trigger = document.getElementById("topbar-logo-btn");
+  if (!modal) return;
+  modal.classList.add("hidden");
+  document.body.classList.remove("logo-lightbox-open");
+  if (trigger && !document.getElementById("os-desktop").classList.contains("hidden")) trigger.focus();
+}
+
+/* ============================================================
    INITIALISATION — TOUS LES LISTENERS DANS DOMContentLoaded
    ============================================================ */
 document.addEventListener("DOMContentLoaded", function() {
@@ -1659,6 +1762,8 @@ document.addEventListener("DOMContentLoaded", function() {
     document.getElementById("os-login").classList.remove("hidden");
   }
 
+  runStartupSplash();
+
   // Supabase émet PASSWORD_RECOVERY lorsqu'un lien de récupération est consommé.
   if (supabaseClient) {
     supabaseClient.auth.onAuthStateChange(function(event) {
@@ -1672,6 +1777,22 @@ document.addEventListener("DOMContentLoaded", function() {
   });
   window.addEventListener("online", function() {
     if (osUser) validateCurrentAccount();
+  });
+
+  const logoTrigger = document.getElementById("topbar-logo-btn");
+  const logoModal = document.getElementById("logo-lightbox");
+  const logoClose = document.getElementById("logo-lightbox-close");
+  if (logoTrigger) logoTrigger.addEventListener("click", openLogoLightbox);
+  if (logoClose) logoClose.addEventListener("click", closeLogoLightbox);
+  if (logoModal) {
+    logoModal.addEventListener("click", function(e) {
+      if (e.target === logoModal) closeLogoLightbox();
+    });
+  }
+  document.addEventListener("keydown", function(e) {
+    if (e.key === "Escape" && logoModal && !logoModal.classList.contains("hidden")) {
+      closeLogoLightbox();
+    }
   });
 
   /* ── LOGIN — écoute click direct sur le bouton ── */

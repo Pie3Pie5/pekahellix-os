@@ -1183,3 +1183,144 @@ html, body { height: 100%; font-family: "Poppins", "Segoe UI", Arial, sans-serif
 .password-toggle:hover { background: rgba(255,255,255,.10); opacity: 1; }
 .password-toggle:focus-visible { outline: 2px solid #2E86C1; outline-offset: 1px; opacity: 1; }
 .password-toggle[aria-pressed="true"] { opacity: 1; }
+
+/* ============================================================
+   V0.5-F.5 — SPLASH LOGO + LOGO HEADER AGRANDISSABLE
+   ============================================================ */
+.startup-splash {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.startup-splash.hidden { display: none; }
+
+.startup-splash-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 18% 18%, rgba(46,134,193,0.34), transparent 34%),
+    radial-gradient(circle at 82% 82%, rgba(40,180,99,0.22), transparent 36%),
+    linear-gradient(145deg, #0d2137 0%, #123b2a 58%, #2e1a00 100%);
+}
+
+.startup-splash-logo {
+  position: relative;
+  z-index: 1;
+  width: min(78vw, 650px);
+  max-height: 78vh;
+  object-fit: contain;
+  transform-origin: center center;
+  filter: drop-shadow(0 18px 38px rgba(0,0,0,0.28));
+  will-change: transform, opacity;
+}
+
+.login-logo.splash-target-hidden { opacity: 0 !important; }
+
+.topbar-logo-btn {
+  min-width: 0;
+  max-width: 100%;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  cursor: zoom-in;
+  border-radius: 10px;
+}
+
+.topbar-logo-btn:hover .topbar-logo { filter: brightness(1.08); }
+.topbar-logo-btn:focus-visible {
+  outline: 2px solid rgba(255,255,255,0.88);
+  outline-offset: 3px;
+}
+
+.logo-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: max(1rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right))
+           max(1rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left));
+  background: rgba(3, 12, 20, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.logo-lightbox.hidden { display: none; }
+
+.logo-lightbox-content {
+  width: min(94vw, 1200px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.logo-lightbox-image {
+  display: block;
+  width: 100%;
+  max-height: 72vh;
+  object-fit: contain;
+  filter: drop-shadow(0 18px 38px rgba(0,0,0,0.32));
+}
+
+.logo-lightbox-tagline {
+  margin: 0;
+  color: rgba(255,255,255,0.92);
+  font-size: clamp(0.9rem, 2vw, 1.2rem);
+  font-weight: 600;
+  text-align: center;
+}
+
+.logo-lightbox-close {
+  position: absolute;
+  top: max(0.8rem, env(safe-area-inset-top));
+  right: max(0.8rem, env(safe-area-inset-right));
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.28);
+  background: rgba(255,255,255,0.12);
+  color: #fff;
+  font: 300 2rem/1 sans-serif;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+
+.logo-lightbox-close:hover { background: rgba(255,255,255,0.2); }
+.logo-lightbox-close:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+
+body.logo-lightbox-open { overflow: hidden !important; }
+
+@media (max-width: 600px) {
+  .startup-splash-logo {
+    width: min(88vw, 520px);
+    max-height: 72vh;
+  }
+
+  .logo-lightbox {
+    padding-left: 0.65rem;
+    padding-right: 0.65rem;
+  }
+
+  .logo-lightbox-content { width: 98vw; }
+  .logo-lightbox-image { max-height: 64vh; }
+  .logo-lightbox-tagline { font-size: 0.86rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .startup-splash-logo,
+  .startup-splash-bg { animation: none !important; transition: none !important; }
+}
