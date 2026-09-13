@@ -1,4 +1,4 @@
-window.PEKAHELLIX_BUILD = "0.5-G.3.3";
+window.PEKAHELLIX_BUILD = "0.5-G.3.4";
 /* ============================================================
    PEKAHELLIX OS — Gestionnaire unifié des 3 applications
    Apps : Gestion du Temps · Communication · Cybersécurité
@@ -1032,9 +1032,30 @@ function forceLocalLogout(message) {
     loginMsg.classList.remove("success", "hidden");
   }
 
-  tempsState = { index:0, scores:[0,0,0], engagements:[null,null,null] };
-  commState  = { profil:null, index:0, scores:[0,0], npsScore:null, activePlan:"6m" };
-  cyberState = { questions:[], index:0, score:0, answered:false, responses:[] };
+  // Une déconnexion explicite constitue une frontière de confidentialité :
+  // aucun état temporaire d'un utilisateur ne doit survivre à la session.
+  tempsState = { index:0, scores:[0,0,0], engagements:[null,null,null], pending:null, completed:false };
+  commState  = { profil:null, index:0, scores:[0,0], npsScore:null, satisfactionScore:null, activePlan:"6m", pending:null, responses:[], engagements:[null,null], completed:false };
+  cyberState = { questions:[], index:0, score:0, answered:false, responses:[], pending:null };
+
+  // Réinitialise également les écrans affichés. Réinitialiser uniquement les
+  // objets JS ne suffit pas : le DOM pouvait rester sur la dernière question
+  // rendue et la montrer au compte suivant lors de la réouverture du module.
+  const tempsChips = document.getElementById("temps-chips");
+  if (tempsChips) tempsChips.innerHTML = "";
+  const tempsNext = document.getElementById("temps-btn-next");
+  if (tempsNext) { tempsNext.classList.add("hidden"); tempsNext.disabled = true; }
+  showAppScreen("temps", "temps-screen-intro");
+
+  const commChips = document.getElementById("comm-chips");
+  if (commChips) commChips.innerHTML = "";
+  const commNext = document.getElementById("comm-btn-next");
+  if (commNext) { commNext.classList.add("hidden"); commNext.disabled = true; }
+  const commReportBtn = document.getElementById("comm-btn-report");
+  if (commReportBtn) commReportBtn.classList.add("hidden");
+  showAppScreen("comm", "comm-screen-profil");
+
+  showAppScreen("cyber", "cyber-screen-intro");
 }
 
 async function logoutSupabaseLocal() {
