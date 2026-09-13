@@ -1,4 +1,4 @@
-window.PEKAHELLIX_BUILD = "0.5-G.3.2";
+window.PEKAHELLIX_BUILD = "0.5-G.3.3";
 /* ============================================================
    PEKAHELLIX OS — Gestionnaire unifié des 3 applications
    Apps : Gestion du Temps · Communication · Cybersécurité
@@ -945,6 +945,8 @@ async function validateCurrentAccount() {
       displayName: fullName || p.email,
       role: p.role,
       isActive: p.is_active,
+      organizationId: p.organization_id || null,
+      communicationReport: !!p.access_communication_report,
       access: {
         temps: !!p.access_temps,
         comm: !!p.access_communication,
