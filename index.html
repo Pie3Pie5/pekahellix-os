@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=0.5-g.2.3" />
+  <link rel="stylesheet" href="style.css?v=0.5-g.3.2" />
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
   <link rel="icon" type="image/png" href="favicon.png">
@@ -380,7 +380,14 @@
               <span class="app-profil-desc">Partagez votre perception. Réponses anonymes et prises en compte.</span>
             </button>
           </div>
+          <button type="button" id="comm-btn-report" class="app-btn app-btn-primary app-btn-full hidden" style="margin-top:18px">📊 Résultats de mon équipe</button>
         </div>
+      </div>
+
+      <div id="comm-screen-employee-report" class="app-screen hidden">
+        <div class="app-card"><h2 class="app-card-title">📊 Résultats de mon équipe</h2><p class="app-card-subtitle">Restitution agrégée et anonymisée des questionnaires Employé.</p><label class="comm-report-filter">Période <select id="comm-report-period"><option value="30">30 derniers jours</option><option value="90" selected>3 mois</option><option value="180">6 mois</option><option value="365">12 mois</option></select></label></div>
+        <div id="comm-report-content"></div>
+        <button type="button" id="comm-btn-report-back" class="app-btn app-btn-outline app-btn-full">← Retour</button>
       </div>
 
       <div id="comm-screen-intro" class="app-screen hidden">
@@ -591,17 +598,25 @@
       <div id="admin-message" class="admin-message hidden" role="status" aria-live="polite"></div>
 
       <section class="admin-card">
+        <h3>Entreprises clientes</h3>
+        <p class="admin-help">Créez d’abord l’entreprise afin de rattacher ses utilisateurs et d’isoler ses résultats Communication.</p>
+        <div class="admin-inline-create"><input id="admin-new-org-name" type="text" maxlength="120" placeholder="Nom de l’entreprise"><button type="button" id="admin-create-org" class="app-btn app-btn-secondary">Créer l’entreprise</button></div>
+      </section>
+
+      <section class="admin-card">
         <h3>Créer un utilisateur</h3>
         <div class="admin-form-grid">
           <label>Prénom<input id="admin-new-firstname" type="text" maxlength="80" autocomplete="off"></label>
           <label>Nom<input id="admin-new-lastname" type="text" maxlength="80" autocomplete="off"></label>
           <label class="admin-span-2">Adresse e-mail<input id="admin-new-email" type="email" maxlength="254" inputmode="email" autocomplete="off" placeholder="nom@entreprise.fr"></label>
+          <label class="admin-span-2">Entreprise<select id="admin-new-organization"><option value="">— Aucune entreprise —</option></select></label>
         </div>
         <fieldset class="admin-access-fieldset">
           <legend>Applications autorisées</legend>
           <label><input id="admin-new-temps" type="checkbox"> Gestion du Temps</label>
           <label><input id="admin-new-comm" type="checkbox"> Communication</label>
           <label><input id="admin-new-cyber" type="checkbox"> Cybersécurité</label>
+          <label><input id="admin-new-report" type="checkbox"> Consulter les résultats Communication de l’entreprise</label>
         </fieldset>
         <p class="admin-help">L’utilisateur recevra une invitation par e-mail pour définir son accès. L’administrateur ne connaît jamais son mot de passe.</p>
         <button type="button" id="admin-create-user" class="app-btn app-btn-primary">Créer et inviter</button>
@@ -649,7 +664,7 @@
   </div>
 
   <script src="config.js"></script>
-  <script src="script.js?v=0.5-g.2.3"></script>
+  <script src="script.js?v=0.5-g.3.2"></script>
 
 <script>
 if ('serviceWorker' in navigator) {

@@ -1,4 +1,4 @@
-window.PEKAHELLIX_BUILD = "0.5-G.2.3";
+window.PEKAHELLIX_BUILD = "0.5-G.3.2";
 /* ============================================================
    PEKAHELLIX OS — Gestionnaire unifié des 3 applications
    Apps : Gestion du Temps · Communication · Cybersécurité
@@ -774,7 +774,7 @@ async function authenticate(email, password) {
 
   const profileResult = await supabaseClient
     .from("profiles")
-    .select("id, first_name, last_name, email, role, is_active, access_temps, access_communication, access_cyber")
+    .select("id, first_name, last_name, email, role, is_active, access_temps, access_communication, access_cyber, organization_id, access_communication_report")
     .eq("id", user.id)
     .single();
 
@@ -800,6 +800,8 @@ async function authenticate(email, password) {
     displayName: fullName || p.email,
     role: p.role,
     isActive: p.is_active,
+    organizationId: p.organization_id || null,
+    communicationReport: !!p.access_communication_report,
     access: {
       temps: !!p.access_temps,
       comm: !!p.access_communication,
@@ -916,7 +918,7 @@ async function validateCurrentAccount() {
     // Étape 2 : le compte est actif. On actualise ensuite les droits et le profil.
     const profileResult = await supabaseClient
       .from("profiles")
-      .select("id, first_name, last_name, email, role, is_active, access_temps, access_communication, access_cyber")
+      .select("id, first_name, last_name, email, role, is_active, access_temps, access_communication, access_cyber, organization_id, access_communication_report")
       .eq("id", checkedUserId)
       .maybeSingle();
 
@@ -1069,6 +1071,23 @@ function adminEscape(value) {
     .replace(/\"/g,"&quot;").replace(/'/g,"&#039;");
 }
 
+
+let adminOrganizations=[];
+async function adminLoadOrganizations(){
+  if(!userCanAccess("admin")||!supabaseClient)return;
+  const r=await supabaseClient.rpc("admin_list_organizations");
+  if(r.error){console.error("admin_list_organizations",r.error);return;}
+  adminOrganizations=r.data||[];
+  const sel=document.getElementById("admin-new-organization");
+  if(sel) sel.innerHTML='<option value="">— Aucune entreprise —</option>'+adminOrganizations.map(o=>'<option value="'+adminEscape(o.id)+'">'+adminEscape(o.name)+'</option>').join('');
+}
+function adminOrganizationOptions(selected){return '<option value="">Aucune entreprise</option>'+adminOrganizations.map(o=>'<option value="'+adminEscape(o.id)+'"'+(o.id===selected?' selected':'')+'>'+adminEscape(o.name)+'</option>').join('');}
+async function adminCreateOrganization(){
+  const input=document.getElementById("admin-new-org-name"); const name=input.value.trim(); if(!name){adminSetMessage("Saisissez le nom de l’entreprise.",true);return;}
+  const r=await supabaseClient.rpc("admin_create_organization",{p_name:name}); if(r.error){adminSetMessage("Création de l’entreprise impossible : "+r.error.message,true);return;}
+  input.value=""; adminSetMessage("Entreprise créée."); await adminLoadOrganizations(); await adminLoadUsers();
+}
+
 async function adminLoadUsers() {
   if (!userCanAccess("admin") || !supabaseClient) return;
   const loading = document.getElementById("admin-users-loading");
@@ -1076,6 +1095,7 @@ async function adminLoadUsers() {
   if (!list) return;
   loading && loading.classList.remove("hidden");
   adminSetMessage("");
+  if(!adminOrganizations.length) await adminLoadOrganizations();
 
   const result = await supabaseClient.rpc("admin_list_profiles");
   loading && loading.classList.add("hidden");
@@ -1110,6 +1130,8 @@ function adminRenderUser(u) {
       '<label><input class="admin-right admin-right-temps" type="checkbox"' + checked(u.access_temps) + disabledRights + '> Temps</label>' +
       '<label><input class="admin-right admin-right-comm" type="checkbox"' + checked(u.access_communication) + disabledRights + '> Communication</label>' +
       '<label><input class="admin-right admin-right-cyber" type="checkbox"' + checked(u.access_cyber) + disabledRights + '> Cyber</label>' +
+      '<label><input class="admin-right admin-right-report" type="checkbox"' + checked(u.access_communication_report) + disabledRights + '> Résultats équipe</label>' +
+      '<label class="admin-org-label">Entreprise<select class="admin-organization"' + disabledRights + '>' + adminOrganizationOptions(u.organization_id) + '</select></label>' +
       '<label class="admin-status-toggle"><input class="admin-active" type="checkbox"' + checked(u.is_active) + disabledSelfStatus + '> Actif</label>' +
     '</div>' +
     '<div class="admin-user-actions">' +
@@ -1138,7 +1160,9 @@ async function adminSaveRow(row) {
     p_is_active: isActive,
     p_access_temps: !!row.querySelector(".admin-right-temps").checked,
     p_access_communication: !!row.querySelector(".admin-right-comm").checked,
-    p_access_cyber: !!row.querySelector(".admin-right-cyber").checked
+    p_access_cyber: !!row.querySelector(".admin-right-cyber").checked,
+    p_organization_id: row.querySelector(".admin-organization").value || null,
+    p_access_communication_report: !!row.querySelector(".admin-right-report").checked
   };
 
   try {
@@ -1200,8 +1224,10 @@ async function adminCreateUser() {
   const access = {
     temps: document.getElementById("admin-new-temps").checked,
     communication: document.getElementById("admin-new-comm").checked,
-    cyber: document.getElementById("admin-new-cyber").checked
+    cyber: document.getElementById("admin-new-cyber").checked,
+    communicationReport: document.getElementById("admin-new-report").checked
   };
+  const organizationId = document.getElementById("admin-new-organization").value || null;
   if (!firstName || !lastName || !email) {
     adminSetMessage("Prénom, nom et adresse e-mail sont obligatoires.", true);
     return;
@@ -1214,9 +1240,9 @@ async function adminCreateUser() {
   btn.disabled = true; btn.textContent = "Création…";
   adminSetMessage("");
   try {
-    await callAdminUsers({ action:"invite", firstName:firstName, lastName:lastName, email:email, access:access });
+    await callAdminUsers({ action:"invite", firstName:firstName, lastName:lastName, email:email, access:access, organizationId:organizationId });
     ["admin-new-firstname","admin-new-lastname","admin-new-email"].forEach(id => document.getElementById(id).value = "");
-    ["admin-new-temps","admin-new-comm","admin-new-cyber"].forEach(id => document.getElementById(id).checked = false);
+    ["admin-new-temps","admin-new-comm","admin-new-cyber","admin-new-report"].forEach(id => document.getElementById(id).checked = false);
     adminSetMessage("Invitation envoyée à " + email + ".");
     await adminLoadUsers();
   } catch (e) {
@@ -1247,6 +1273,29 @@ async function adminDeleteUser(row) {
     console.error("admin-users delete", e);
     adminSetMessage("Suppression impossible. " + (e.message || ""), true);
   }
+}
+
+
+/* ============================================================
+   COMMUNICATION — RESTITUTION AGRÉGÉE EMPLOYÉS V0.5-G.3.2
+   ============================================================ */
+function commPct(v){ return v == null ? "—" : (Math.round(Number(v)*10)/10).toLocaleString("fr-FR") + " %"; }
+async function commLoadEmployeeReport(periodDays){
+  const box=document.getElementById("comm-report-content"); if(!box)return;
+  box.innerHTML='<p class="app-card-subtitle">Chargement des résultats…</p>';
+  const r=await supabaseClient.rpc("communication_employee_report",{p_days:Number(periodDays||90)});
+  if(r.error){ console.error("communication_employee_report",r.error); box.innerHTML='<div class="app-message-box"><span>⚠️</span><div><p class="app-message-title">Résultats indisponibles</p><p class="app-message-text">Vérifiez votre rattachement à l’entreprise et votre droit de consultation.</p></div></div>'; return; }
+  const d=(r.data&&r.data[0])||{}; const n=Number(d.response_count||0);
+  if(n<5){ box.innerHTML='<div class="app-card" style="text-align:center"><div class="app-card-icon">🔒</div><h3>'+n+' réponse'+(n>1?'s':'')+' reçue'+(n>1?'s':'')+'</h3><p class="app-card-subtitle">Les résultats seront affichés à partir de 5 réponses afin de préserver l’anonymat des participants.</p></div>'; return; }
+  const dist=[['0–3',d.satisfaction_0_3],['4–6',d.satisfaction_4_6],['7–8',d.satisfaction_7_8],['9–10',d.satisfaction_9_10]];
+  const bars=dist.map(x=>{const pct=Math.round(Number(x[1]||0)*100/n);return '<div class="comm-report-bar"><span>'+x[0]+'</span><div><i style="width:'+pct+'%"></i></div><strong>'+pct+' %</strong></div>'}).join('');
+  let q=''; try{const qa=typeof d.question_summary==='string'?JSON.parse(d.question_summary):d.question_summary; if(Array.isArray(qa)&&qa.length){q='<h3 class="app-section-title">Tendances par question</h3><div class="comm-report-questions">'+qa.map(x=>'<div><strong>'+adminEscape(x.question)+'</strong><span>'+commPct(x.avg_pct)+'</span></div>').join('')+'</div>';}}catch(_){ }
+  box.innerHTML='<div class="comm-report-kpis"><div><strong>'+n+'</strong><span>réponses</span></div><div><strong>'+Number(d.avg_satisfaction).toLocaleString("fr-FR",{maximumFractionDigits:1})+' / 10</strong><span>satisfaction moyenne</span></div><div><strong>'+commPct(d.avg_external_pct)+'</strong><span>communication externe</span></div><div><strong>'+commPct(d.avg_internal_pct)+'</strong><span>communication interne</span></div></div><div class="app-card"><h3 class="app-section-title">Répartition de la recommandation employeur</h3>'+bars+'</div>'+q;
+}
+function commOpenEmployeeReport(){
+  if(!osUser || !osUser.communicationReport){return;}
+  showAppScreen("comm","comm-screen-employee-report");
+  const sel=document.getElementById("comm-report-period"); commLoadEmployeeReport(sel?sel.value:90);
 }
 
 /* ============================================================
@@ -1330,6 +1379,7 @@ function tempsShowAutonomy(){
    APP COMM
    ============================================================ */
 function commInit() {
+  const reportBtn=document.getElementById("comm-btn-report"); if(reportBtn) reportBtn.classList.toggle("hidden",!(osUser&&osUser.communicationReport));
   commState={profil:null,index:0,scores:[0,0],npsScore:null,satisfactionScore:null,activePlan:"6m",pending:null,responses:[],engagements:[null,null],completed:false};
   document.getElementById("comm-chips").innerHTML="";
   const next=document.getElementById("comm-btn-next"); if(next){next.classList.add("hidden"); next.disabled=true;}
@@ -1412,8 +1462,8 @@ function commShowGerantPlan(){
 
 async function commSendAnonymousResponses(){
   const btn=document.getElementById("comm-btn-send-anon"), status=document.getElementById("comm-anon-status"); if(!supabaseClient){status.textContent="Connexion au service indisponible.";return;} btn.disabled=true; status.textContent="Envoi en cours…";
-  const payload={responses:commState.responses,external_score:commState.scores[0],internal_score:commState.scores[1],satisfaction_score:commState.satisfactionScore};
-  const r=await supabaseClient.from("communication_employee_responses").insert(payload); if(r.error){console.warn("anonymous communication response",r.error); status.textContent="Envoi impossible pour le moment. Réessayez plus tard."; btn.disabled=false; return;} status.textContent="Merci. Vos réponses anonymisées ont été envoyées."; btn.textContent="Réponses envoyées ✓";
+  const payload={p_responses:commState.responses,p_external_score:commState.scores[0],p_internal_score:commState.scores[1],p_satisfaction_score:commState.satisfactionScore};
+  const r=await supabaseClient.rpc("submit_communication_employee_response",payload); if(r.error){console.warn("anonymous communication response",r.error); status.textContent="Envoi impossible. Vérifiez que votre compte est rattaché à une entreprise ou réessayez plus tard."; btn.disabled=false; return;} status.textContent="Merci. Vos réponses anonymisées ont été envoyées à votre entreprise."; btn.textContent="Réponses envoyées ✓";
 }
 
 function commRenderBenchmark(selectedType) {
@@ -1946,7 +1996,8 @@ document.addEventListener("DOMContentLoaded", function() {
   });
 
   /* ── ADMINISTRATION ── */
-  document.getElementById("admin-refresh").addEventListener("click", adminLoadUsers);
+  document.getElementById("admin-refresh").addEventListener("click", async function(){ await adminLoadOrganizations(); await adminLoadUsers(); });
+  document.getElementById("admin-create-org").addEventListener("click", adminCreateOrganization);
   document.getElementById("admin-create-user").addEventListener("click", adminCreateUser);
   document.getElementById("admin-users-list").addEventListener("click", function(e) {
     const row = e.target.closest(".admin-user-row");
@@ -1970,6 +2021,9 @@ document.addEventListener("DOMContentLoaded", function() {
   document.getElementById("temps-btn-restart").addEventListener("click", function(){tempsInit(); showAppScreen("temps","temps-screen-diag"); tempsRenderQuestion();});
 
   /* ── APP COMM ── */
+  document.getElementById("comm-btn-report").addEventListener("click",commOpenEmployeeReport);
+  document.getElementById("comm-report-period").addEventListener("change",function(){commLoadEmployeeReport(this.value);});
+  document.getElementById("comm-btn-report-back").addEventListener("click",function(){showAppScreen("comm","comm-screen-profil");});
   document.getElementById("comm-btn-gerant").addEventListener("click",function(){commState.profil="gerant"; commSetupIntro("gerant"); showAppScreen("comm","comm-screen-intro");});
   document.getElementById("comm-btn-salarie").addEventListener("click",function(){commState.profil="salarie"; commSetupIntro("salarie"); showAppScreen("comm","comm-screen-intro");});
   document.getElementById("comm-btn-start").addEventListener("click",function(){const profil=commState.profil; commState={profil:profil,index:0,scores:[0,0],npsScore:null,satisfactionScore:null,activePlan:"6m",pending:null,responses:[],engagements:[null,null],completed:false}; document.getElementById("comm-chips").innerHTML=""; showAppScreen("comm","comm-screen-diag"); commRenderQuestion();});
