@@ -1670,3 +1670,12 @@ body.logo-lightbox-open { overflow: hidden !important; }
     margin-left: auto;
   }
 }
+
+
+/* V0.5-G.2.3 — benchmark sectoriel Communication */
+.app-benchmark-label { display:block; font-weight:700; margin:0.8rem 0 0.35rem; color:#222; }
+.app-benchmark-select { width:100%; padding:0.75rem 0.85rem; border:1.5px solid #d9dde3; border-radius:10px; background:#fff; font:inherit; margin-bottom:1rem; }
+.app-benchmark-header.benchmark-neutral { background:linear-gradient(135deg,#2387c9,#20a6b5); color:#fff; }
+.app-benchmark-source { display:inline-block; margin-top:0.6rem; font-size:0.72rem; color:#287fb7; text-decoration:none; }
+.app-benchmark-source:hover { text-decoration:underline; }
+.app-benchmark-note { font-size:0.72rem; line-height:1.45; color:#666; margin:0.9rem 0 0; }

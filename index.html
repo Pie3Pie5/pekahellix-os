@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=0.5-g.2.2" />
+  <link rel="stylesheet" href="style.css?v=0.5-g.2.3" />
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
   <link rel="icon" type="image/png" href="favicon.png">
@@ -467,7 +467,9 @@
         </div>
         <div class="app-card app-benchmark-card">
           <h3 class="app-section-title">🏆 Benchmark — Enseignes exemplaires</h3>
-          <p class="app-section-intro">Comparez votre situation aux meilleures pratiques du secteur.</p>
+          <p class="app-section-intro">Choisissez votre activité pour afficher des exemples concrets et des pratiques inspirantes.</p>
+          <label class="app-benchmark-label" for="comm-benchmark-type">Type de commerce / activité</label>
+          <select id="comm-benchmark-type" class="app-benchmark-select" aria-label="Type de commerce"></select>
           <div id="comm-benchmark"></div>
         </div>
         <div class="app-card app-peka-cta">
@@ -647,7 +649,7 @@
   </div>
 
   <script src="config.js"></script>
-  <script src="script.js?v=0.5-g.2.2"></script>
+  <script src="script.js?v=0.5-g.2.3"></script>
 
 <script>
 if ('serviceWorker' in navigator) {
