@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=0.5-g.3.4" />
+  <link rel="stylesheet" href="style.css?v=0.5-h.2" />
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
   <link rel="icon" type="image/png" href="favicon.png">
@@ -367,7 +367,7 @@
         <div class="app-card">
           <div class="app-card-icon">👤</div>
           <h2 class="app-card-title" id="comm-welcome">Bonjour !</h2>
-          <p class="app-card-subtitle">Précisez votre rôle — les questions seront adaptées.</p>
+          <p class="app-card-subtitle" id="comm-profile-subtitle">Votre parcours Communication est défini par votre profil.</p>
           <div class="app-profil-grid">
             <button type="button" id="comm-btn-gerant" class="app-profil-btn">
               <span class="app-profil-icon">🏪</span>
@@ -380,7 +380,7 @@
               <span class="app-profil-desc">Partagez votre perception. Réponses anonymes et prises en compte.</span>
             </button>
           </div>
-          <button type="button" id="comm-btn-report" class="app-btn app-btn-primary app-btn-full hidden" style="margin-top:18px">📊 Résultats de mon équipe</button>
+          
         </div>
       </div>
 
@@ -414,6 +414,9 @@
         <div class="app-card app-question-card">
           <p class="app-question-text" id="comm-question"></p>
           <ul class="app-answers" id="comm-answers" role="list"></ul>
+          <div id="comm-text-wrap" class="hidden">
+            <textarea id="comm-free-text" class="comm-free-text" rows="5" maxlength="1200" placeholder="Votre réponse…" aria-label="Réponse libre"></textarea>
+          </div>
           <div id="comm-slider-wrap" class="comm-slider-wrap hidden">
             <input id="comm-satisfaction-slider" type="range" min="0" max="10" step="1" value="5" aria-label="Satisfaction de 0 à 10">
             <div class="comm-slider-scale"><span>0</span><strong id="comm-slider-value">5 / 10</strong><span>10</span></div>
@@ -452,7 +455,9 @@
           <div class="app-axes-scores" id="comm-gerant-scores"></div>
         </div>
         <div id="comm-gerant-diagnostic-phrases"></div>
-        <button type="button" id="comm-btn-to-engagement-gerant" class="app-btn app-btn-primary app-btn-full">Construire mon plan d’actions →</button>
+        <button type="button" id="comm-btn-report-gerant" class="app-btn app-btn-primary app-btn-full hidden">📊 Voir les résultats de mon équipe</button>
+        <p id="comm-manager-save-status" class="app-card-subtitle hidden" aria-live="polite"></p>
+        <button type="button" id="comm-btn-to-engagement-gerant" class="app-btn app-btn-secondary app-btn-full">Construire mon plan d’actions →</button>
       </div>
 
       <div id="comm-screen-engagement-gerant" class="app-screen hidden">
@@ -616,7 +621,7 @@
           <label><input id="admin-new-temps" type="checkbox"> Gestion du Temps</label>
           <label><input id="admin-new-comm" type="checkbox"> Communication</label>
           <label><input id="admin-new-cyber" type="checkbox"> Cybersécurité</label>
-          <label><input id="admin-new-report" type="checkbox"> Consulter les résultats Communication de l’entreprise</label>
+          <label>Profil Communication<select id="admin-new-comm-profile"><option value="employee">Employé</option><option value="manager">Gérant</option></select></label>
         </fieldset>
         <p class="admin-help">L’utilisateur recevra une invitation par e-mail pour définir son accès. L’administrateur ne connaît jamais son mot de passe.</p>
         <button type="button" id="admin-create-user" class="app-btn app-btn-primary">Créer et inviter</button>
@@ -664,7 +669,7 @@
   </div>
 
   <script src="config.js"></script>
-  <script src="script.js?v=0.5-g.3.4"></script>
+  <script src="script.js?v=0.5-h.2"></script>
 
 <script>
 if ('serviceWorker' in navigator) {

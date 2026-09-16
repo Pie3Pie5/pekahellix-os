@@ -1,4 +1,4 @@
-window.PEKAHELLIX_BUILD = "0.5-G.3.4";
+window.PEKAHELLIX_BUILD = "0.5-H.2";
 /* ============================================================
    PEKAHELLIX OS — Gestionnaire unifié des 3 applications
    Apps : Gestion du Temps · Communication · Cybersécurité
@@ -86,39 +86,45 @@ const TEMPS_FORFAITS = [
    ██  APP : COMMUNICATION — DONNÉES  ██
    ============================================================ */
 const COMM_QUESTIONS_GERANT = [
-  { axe:0, text:"Avez-vous une présence active sur les réseaux sociaux pour votre entreprise ?", answers:[{text:"Non, aucune présence sur les réseaux sociaux.",score:1},{text:"Un compte rarement mis à jour.",score:2},{text:"Publications régulières mais sans stratégie définie.",score:3},{text:"Stratégie éditoriale avec publications planifiées et interactions régulières.",score:4}]},
-  { axe:0, text:"Votre entreprise dispose-t-il d'une fiche Google My Business complète et à jour ?", answers:[{text:"Non, pas de fiche Google.",score:1},{text:"Fiche incomplète.",score:2},{text:"Fiche complète mais sans réponse aux avis.",score:3},{text:"Fiche complète, mise à jour régulièrement, réponse à tous les avis.",score:4}]},
-  { axe:0, text:"Organisez-vous des actions de communication locale (prospectus, événements, partenariats) ?", answers:[{text:"Non, aucune communication locale spécifique.",score:1},{text:"Prospectus occasionnels.",score:2},{text:"Actions régulières mais non coordonnées.",score:3},{text:"Plan de communication locale annuel avec événements et partenariats.",score:4}]},
-  { axe:0, text:"Comment gérez-vous les avis clients négatifs en ligne ?", answers:[{text:"Nous ne les traitons pas.",score:1},{text:"Nous les lisons mais ne répondons pas systématiquement.",score:2},{text:"Nous répondons à la plupart sans procédure définie.",score:3},{text:"Procédure de réponse sous 48h avec suivi de satisfaction.",score:4}]},
-  { axe:0, text:"Votre identité visuelle est-elle cohérente sur tous vos supports ?", answers:[{text:"Non, aucune cohérence visuelle.",score:1},{text:"Partiellement cohérente.",score:2},{text:"La plupart des supports sont cohérents.",score:3},{text:"Tous les supports respectent une charte graphique définie.",score:4}]},
-  { axe:0, text:"Mesurez-vous la satisfaction de vos clients (enquêtes, NPS) ?", answers:[{text:"Non, pas de mesure de satisfaction.",score:1},{text:"Retours informels lors du contact avec le client.",score:2},{text:"Enquêtes ponctuelles.",score:3},{text:"Système de mesure régulier avec indicateurs de suivi.",score:4}]},
-  { axe:0, text:"Communiquez-vous sur vos engagements locaux (producteurs locaux, actions solidaires) ?", answers:[{text:"Non, pas d'engagements communiqués.",score:1},{text:"Des engagements existent mais ne sont pas communiqués.",score:2},{text:"Communication occasionnelle en entreprise.",score:3},{text:"Engagements au cœur de la communication sur tous les canaux.",score:4}]},
-  { axe:0, text:"Avez-vous une stratégie de fidélisation client (carte de fidélité, newsletter) ?", answers:[{text:"Non, pas de programme de fidélisation.",score:1},{text:"Carte de fidélité peu exploitée.",score:2},{text:"Fidélisation sans personnalisation.",score:3},{text:"Programme complet avec segmentation et offres personnalisées.",score:4}]},
-  { axe:1, text:"Comment informez-vous vos équipes des actualités et décisions importantes ?", answers:[{text:"À l'oral, au fil de l'eau, sans structure.",score:1},{text:"Affichage en salle de pause, de façon irrégulière.",score:2},{text:"Réunions régulières et affichage structuré.",score:3},{text:"Système multicanal avec compte-rendu systématique.",score:4}]},
-  { axe:1, text:"Organisez-vous des réunions d'équipe régulières avec un ordre du jour défini ?", answers:[{text:"Non, pas de réunions formelles.",score:1},{text:"Rarement — seulement en cas de problème urgent.",score:2},{text:"Mensuellement, sans ordre du jour systématique.",score:3},{text:"Hebdomadairement avec ordre du jour, compte-rendu et suivi.",score:4}]},
-  { axe:1, text:"Vos employés ont-ils un canal pour remonter leurs idées ou problèmes ?", answers:[{text:"Non, pas de canal formel.",score:1},{text:"Ils peuvent me parler directement mais c'est rare.",score:2},{text:"Boîte à idées ou canal dédié peu utilisé.",score:3},{text:"Système actif avec retour systématique sur chaque suggestion.",score:4}]},
-  { axe:1, text:"Comment évaluez-vous la satisfaction et le bien-être de vos employés ?", answers:[{text:"Je ne mesure pas formellement.",score:1},{text:"Je perçois l'ambiance de façon informelle.",score:2},{text:"Entretiens individuels annuels.",score:3},{text:"Enquêtes régulières + entretiens + indicateurs RH.",score:4}]},
-  { axe:1, text:"Vos employés connaissent-ils les objectifs et la stratégie de votre entreprise ?", answers:[{text:"Non, les objectifs ne sont pas partagés.",score:1},{text:"Ils connaissent les objectifs de vente mais pas la vision.",score:2},{text:"Les objectifs principaux sont partagés en réunion.",score:3},{text:"Chaque employé connaît la vision, les objectifs et son rôle.",score:4}]},
-  { axe:1, text:"Valorisez-vous publiquement les réussites de vos employés ?", answers:[{text:"Non, les réussites ne sont pas soulignées.",score:1},{text:"Occasionnellement, à l'oral en privé.",score:2},{text:"Lors des réunions d'équipe, de façon informelle.",score:3},{text:"Systématiquement, avec des rituels de reconnaissance formels.",score:4}]},
-  { axe:1, text:"Si vous deviez évaluer la qualité globale de votre communication interne, quelle note donneriez-vous ?", answers:[{text:"1 à 3 / 10 — très insuffisante.",score:1},{text:"4 à 5 / 10 — largement perfectible.",score:2},{text:"6 à 7 / 10 — correcte mais peut progresser.",score:3},{text:"8 à 10 / 10 — un vrai point fort de mon management.",score:4}]}
+  { id:"EXT-01", kind:"mirror", axe:0, dimension:"Clarté & efficacité", text:"La communication de votre entreprise permet-elle à vos clients de comprendre facilement vos offres, services et informations importantes ?", answers:[{text:"Pas du tout",score:1},{text:"Plutôt non",score:2},{text:"Plutôt oui",score:3},{text:"Tout à fait",score:4}] },
+  { id:"EXT-02", kind:"mirror", axe:0, dimension:"Image & cohérence", text:"L'image que votre entreprise communique à l'extérieur vous paraît-elle claire, cohérente et professionnelle sur ses différents supports ?", answers:[{text:"Pas du tout",score:1},{text:"Plutôt non",score:2},{text:"Plutôt oui",score:3},{text:"Tout à fait",score:4}] },
+  { id:"EXT-03", kind:"mirror", axe:0, dimension:"Accueil & relation client", text:"Selon vous, vos clients perçoivent-ils positivement l'accueil et la qualité de la relation avec votre entreprise ?", answers:[{text:"Pas du tout",score:1},{text:"Plutôt non",score:2},{text:"Plutôt oui",score:3},{text:"Tout à fait",score:4}] },
+  { id:"EXT-04", kind:"mirror", axe:0, dimension:"Écoute & réactivité", text:"Selon vous, votre entreprise écoute-t-elle ses clients et répond-elle efficacement à leurs demandes ou remarques ?", answers:[{text:"Pas du tout",score:1},{text:"Plutôt non",score:2},{text:"Plutôt oui",score:3},{text:"Tout à fait",score:4}] },
+  { id:"EXT-05", kind:"mirror", axe:0, dimension:"Ancrage local", text:"L'implication de votre entreprise dans la vie locale est-elle suffisamment visible auprès de vos clients ?", answers:[{text:"Pas du tout",score:1},{text:"Plutôt non",score:2},{text:"Plutôt oui",score:3},{text:"Tout à fait",score:4}] },
+  { id:"EXT-06", kind:"mirror", axe:0, dimension:"Attractivité & fidélisation", text:"Selon vous, l'image et la communication de votre entreprise donnent-elles envie aux clients de venir, de revenir et de la recommander ?", answers:[{text:"Pas du tout",score:1},{text:"Plutôt non",score:2},{text:"Plutôt oui",score:3},{text:"Tout à fait",score:4}] },
+  { id:"INT-01", kind:"mirror", axe:1, dimension:"Circulation de l'information", text:"Selon vous, vos employés sont-ils informés clairement et suffisamment tôt des actualités et décisions importantes qui les concernent ?", answers:[{text:"Pas du tout",score:1},{text:"Plutôt non",score:2},{text:"Plutôt oui",score:3},{text:"Tout à fait",score:4}] },
+  { id:"INT-02", kind:"mirror", axe:1, dimension:"Expression & écoute", text:"Selon vous, vos employés peuvent-ils facilement exprimer leurs idées, difficultés ou suggestions et obtenir un retour ?", answers:[{text:"Pas du tout",score:1},{text:"Plutôt non",score:2},{text:"Plutôt oui",score:3},{text:"Tout à fait",score:4}] },
+  { id:"INT-03", kind:"mirror", axe:1, dimension:"Communication dans l'équipe", text:"Selon vous, la communication entre les membres de votre équipe est-elle fluide, respectueuse et bienveillante ?", answers:[{text:"Pas du tout",score:1},{text:"Plutôt non",score:2},{text:"Plutôt oui",score:3},{text:"Tout à fait",score:4}] },
+  { id:"INT-04", kind:"mirror", axe:1, dimension:"Feedback", text:"Donnez-vous à vos employés des retours réguliers et constructifs sur leur travail ?", answers:[{text:"Pas du tout",score:1},{text:"Plutôt non",score:2},{text:"Plutôt oui",score:3},{text:"Tout à fait",score:4}] },
+  { id:"INT-05", kind:"mirror", axe:1, dimension:"Reconnaissance", text:"Selon vous, vos employés se sentent-ils suffisamment reconnus et valorisés pour leur travail ?", answers:[{text:"Pas du tout",score:1},{text:"Plutôt non",score:2},{text:"Plutôt oui",score:3},{text:"Tout à fait",score:4}] },
+  { id:"INT-06", kind:"mirror", axe:1, dimension:"Vision & objectifs", text:"Selon vous, vos employés comprennent-ils la vision, les objectifs de l'entreprise et leur rôle dans leur réalisation ?", answers:[{text:"Pas du tout",score:1},{text:"Plutôt non",score:2},{text:"Plutôt oui",score:3},{text:"Tout à fait",score:4}] },
+  { id:"INT-07", kind:"mirror", axe:1, dimension:"Temps d'échange collectifs", text:"Les réunions ou temps d'échange organisés permettent-ils selon vous de partager efficacement les informations et de suivre les décisions prises ?", answers:[{text:"Pas du tout",score:1},{text:"Plutôt non",score:2},{text:"Plutôt oui",score:3},{text:"Tout à fait",score:4}] },
+  { id:"PR-01", kind:"practice", axe:2, dimension:"Réseaux sociaux", text:"Votre entreprise dispose-t-elle d’une présence active et structurée sur les réseaux sociaux pertinents pour son activité ?", answers:[{text:"Non, aucune présence active.",score:1},{text:"Présence occasionnelle, rarement mise à jour.",score:2},{text:"Publications régulières mais sans stratégie formalisée.",score:3},{text:"Stratégie éditoriale structurée, planifiée et suivie.",score:4}] },
+  { id:"PR-02", kind:"practice", axe:2, dimension:"Visibilité locale numérique", text:"Les informations de votre établissement sur Google sont-elles complètes, exactes et régulièrement mises à jour ?", answers:[{text:"Non, aucune fiche ou informations très incomplètes.",score:1},{text:"Fiche présente mais incomplète ou rarement mise à jour.",score:2},{text:"Fiche complète et globalement à jour.",score:3},{text:"Fiche complète, régulièrement actualisée et avis suivis.",score:4}] },
+  { id:"PR-03", kind:"practice", axe:2, dimension:"Communication locale", text:"Menez-vous régulièrement des actions de communication ou des partenariats à l’échelle locale ?", answers:[{text:"Non, aucune action spécifique.",score:1},{text:"Quelques actions ponctuelles.",score:2},{text:"Actions régulières mais peu coordonnées.",score:3},{text:"Plan d’actions local structuré avec partenariats et suivi.",score:4}] },
+  { id:"PR-04", kind:"practice", axe:2, dimension:"Avis & réclamations", text:"Disposez-vous d’une méthode définie pour traiter et suivre les avis ou réclamations clients ?", answers:[{text:"Non, aucun traitement structuré.",score:1},{text:"Traitement au cas par cas.",score:2},{text:"Réponses régulières mais sans procédure formalisée.",score:3},{text:"Procédure définie avec délai, réponse et suivi.",score:4}] },
+  { id:"PR-05", kind:"practice", axe:2, dimension:"Identité visuelle", text:"Disposez-vous d’une identité visuelle définie et appliquée de manière cohérente sur vos supports ?", answers:[{text:"Non, aucune identité définie.",score:1},{text:"Quelques éléments communs mais sans cohérence globale.",score:2},{text:"Identité globalement cohérente sur la plupart des supports.",score:3},{text:"Charte définie et appliquée systématiquement.",score:4}] },
+  { id:"PR-06", kind:"practice", axe:2, dimension:"Satisfaction client", text:"Mesurez-vous régulièrement la satisfaction et/ou la recommandation de vos clients ?", answers:[{text:"Non, aucune mesure.",score:1},{text:"Retours uniquement informels.",score:2},{text:"Mesures ponctuelles.",score:3},{text:"Mesure régulière avec indicateurs et suivi des actions.",score:4}] },
+  { id:"PR-07", kind:"practice", axe:2, dimension:"Communication des engagements", text:"Communiquez-vous régulièrement sur vos engagements, actions ou partenariats locaux ?", answers:[{text:"Non, jamais.",score:1},{text:"Des engagements existent mais sont peu communiqués.",score:2},{text:"Communication occasionnelle.",score:3},{text:"Communication régulière et intégrée aux différents canaux.",score:4}] },
+  { id:"PR-08", kind:"practice", axe:2, dimension:"Fidélisation", text:"Disposez-vous d’actions structurées permettant de maintenir la relation avec vos clients et de favoriser leur fidélisation ?", answers:[{text:"Non, aucune action structurée.",score:1},{text:"Quelques actions ponctuelles.",score:2},{text:"Dispositif régulier mais peu personnalisé.",score:3},{text:"Programme structuré, suivi et adapté aux différents clients.",score:4}] },
 ];
 
 const COMM_QUESTIONS_SALARIE = [
-  { axe:0, text:"Êtes-vous fier(e) de l'image que votre entreprise donne à l'extérieur ?", answers:[{text:"Non, l'image externe est mauvaise ou inexistante.",score:1},{text:"L'image est neutre, sans personnalité.",score:2},{text:"L'image est correcte mais pourrait être meilleure.",score:3},{text:"Oui, je suis fier(e) et j'en parle positivement.",score:4}]},
-  { axe:0, text:"Pensez-vous que votre entreprise communique efficacement avec ses clients ?", answers:[{text:"Non, la communication client est quasi inexistante.",score:1},{text:"Quelques actions mais sans cohérence.",score:2},{text:"Des actions régulières mais perfectibles.",score:3},{text:"Communication active, cohérente et efficace.",score:4}]},
-  { axe:0, text:"Les clients vous font-ils des retours positifs sur l'accueil et l'ambiance ?", answers:[{text:"Rarement ou jamais — les retours sont plutôt négatifs.",score:1},{text:"Parfois, mais ce n'est pas la norme.",score:2},{text:"Souvent — la plupart des clients semblent satisfaits.",score:3},{text:"Très souvent — l'accueil est reconnu comme un point fort.",score:4}]},
-  { axe:0, text:"Recommanderiez-vous à vos proches de devenir clients de votre entreprise ?", answers:[{text:"Non, je ne le recommanderais pas.",score:1},{text:"Peut-être, sans conviction particulière.",score:2},{text:"Oui, je le recommanderais.",score:3},{text:"Oui, absolument et je le fais déjà spontanément.",score:4}]},
-  { axe:0, text:"Votre entreprise est-il impliqué dans la vie locale ?", answers:[{text:"Non, aucune implication locale visible.",score:1},{text:"Quelques actions ponctuelles.",score:2},{text:"Des actions fréquentes.",score:3},{text:"L'ancrage local est une vraie valeur du entreprise.",score:4}]},
-  { axe:0, text:"Pensez-vous que l'image de votre entreprise attire et fidélise les clients ?", answers:[{text:"Non, nous perdons des clients régulièrement.",score:1},{text:"La clientèle est stable mais sans croissance.",score:2},{text:"L'image contribue à fidéliser une partie des clients.",score:3},{text:"L'image est un vrai moteur d'attraction et de fidélisation.",score:4}]},
-  { axe:1, text:"Vous sentez-vous bien informé(e) des actualités et décisions importantes ?", answers:[{text:"Non, je suis souvent le dernier à apprendre les informations.",score:1},{text:"L'information circule mal et de façon aléatoire.",score:2},{text:"Je suis informé(e) de l'essentiel.",score:3},{text:"Je suis toujours informé(e) en temps et en heure.",score:4}]},
-  { axe:1, text:"Pouvez-vous facilement exprimer vos idées ou suggestions à votre responsable ?", answers:[{text:"Non, il n'y a pas de canal pour s'exprimer.",score:1},{text:"Théoriquement oui, mais en pratique c'est difficile.",score:2},{text:"Je peux m'exprimer mais les suites données sont rares.",score:3},{text:"Mes idées sont écoutées et prises en compte régulièrement.",score:4}]},
-  { axe:1, text:"La communication entre collègues est-elle fluide et bienveillante ?", answers:[{text:"Non, il y a des tensions et des non-dits fréquents.",score:1},{text:"La communication est fonctionnelle mais froide.",score:2},{text:"L'ambiance est correcte.",score:3},{text:"L'équipe communique bien et l'ambiance est vraiment positive.",score:4}]},
-  { axe:1, text:"Votre responsable vous donne-t-il/elle des retours réguliers sur votre travail ?", answers:[{text:"Non, je ne reçois jamais de feedback.",score:1},{text:"Rarement — seulement en cas de problème.",score:2},{text:"Parfois — lors des entretiens annuels.",score:3},{text:"Régulièrement — les retours sont constructifs et fréquents.",score:4}]},
-  { axe:1, text:"Vous sentez-vous reconnu(e) et valorisé(e) pour votre travail ?", answers:[{text:"Non, les efforts ne sont jamais reconnus.",score:1},{text:"La reconnaissance est rare.",score:2},{text:"Certaines réussites sont soulignées.",score:3},{text:"Je me sens régulièrement reconnu(e) et valorisé(e).",score:4}]},
-  { axe:1, text:"Connaissez-vous les objectifs et la vision de votre entreprise ?", answers:[{text:"Non, aucune visibilité sur les objectifs.",score:1},{text:"Je connais les objectifs de vente mais pas la vision.",score:2},{text:"Les objectifs principaux me sont communiqués.",score:3},{text:"Je connais la vision, les objectifs et mon rôle dans leur atteinte.",score:4}]},
-  { axe:1, text:"Des réunions d'équipe sont-elles organisées régulièrement ?", answers:[{text:"Non, jamais de réunions d'équipe.",score:1},{text:"Rarement — seulement en cas de crise.",score:2},{text:"Parfois — de façon irrégulière.",score:3},{text:"Oui, régulièrement avec ordre du jour et suivi des décisions.",score:4}]},
-  { axe:1, text:"Recommanderiez-vous votre entreprise à un proche comme lieu de travail ?", answers:[{text:"Non, certainement pas (0 à 3 / 10).",score:1},{text:"Probablement pas (4 à 6 / 10).",score:2},{text:"Probablement oui (7 à 8 / 10).",score:3},{text:"Oui, absolument (9 à 10 / 10).",score:4}]},
-  { axe:1, text:"Si vous pouviez changer une seule chose dans la communication de votre entreprise, ce serait :", answers:[{text:"Que le gérant nous informe mieux des décisions qui nous concernent.",score:1},{text:"Que nos idées et suggestions soient vraiment prises en compte.",score:2},{text:"Que l'ambiance entre collègues soit plus soudée et bienveillante.",score:3},{text:"Rien — la communication est déjà très satisfaisante.",score:4}]}
+  { id:"EXT-01", kind:"mirror", axe:0, dimension:"Clarté & efficacité", text:"Selon vous, les clients comprennent-ils facilement les offres, services et informations communiqués par votre entreprise ?", answers:[{text:"Pas du tout",score:1},{text:"Plutôt non",score:2},{text:"Plutôt oui",score:3},{text:"Tout à fait",score:4}] },
+  { id:"EXT-02", kind:"mirror", axe:0, dimension:"Image & cohérence", text:"L'image que votre entreprise donne à l'extérieur vous paraît-elle claire, cohérente et professionnelle ?", answers:[{text:"Pas du tout",score:1},{text:"Plutôt non",score:2},{text:"Plutôt oui",score:3},{text:"Tout à fait",score:4}] },
+  { id:"EXT-03", kind:"mirror", axe:0, dimension:"Accueil & relation client", text:"Selon vous, les clients perçoivent-ils positivement l'accueil et la qualité de la relation avec votre entreprise ?", answers:[{text:"Pas du tout",score:1},{text:"Plutôt non",score:2},{text:"Plutôt oui",score:3},{text:"Tout à fait",score:4}] },
+  { id:"EXT-04", kind:"mirror", axe:0, dimension:"Écoute & réactivité", text:"Selon vous, votre entreprise écoute-t-elle ses clients et répond-elle efficacement à leurs demandes ou remarques ?", answers:[{text:"Pas du tout",score:1},{text:"Plutôt non",score:2},{text:"Plutôt oui",score:3},{text:"Tout à fait",score:4}] },
+  { id:"EXT-05", kind:"mirror", axe:0, dimension:"Ancrage local", text:"L'implication de votre entreprise dans la vie locale vous paraît-elle suffisamment visible auprès des clients ?", answers:[{text:"Pas du tout",score:1},{text:"Plutôt non",score:2},{text:"Plutôt oui",score:3},{text:"Tout à fait",score:4}] },
+  { id:"EXT-06", kind:"mirror", axe:0, dimension:"Attractivité & fidélisation", text:"Selon vous, l'image et la communication de votre entreprise donnent-elles envie aux clients de venir, de revenir et de la recommander ?", answers:[{text:"Pas du tout",score:1},{text:"Plutôt non",score:2},{text:"Plutôt oui",score:3},{text:"Tout à fait",score:4}] },
+  { id:"INT-01", kind:"mirror", axe:1, dimension:"Circulation de l'information", text:"Êtes-vous informé(e) clairement et suffisamment tôt des actualités et décisions importantes qui vous concernent ?", answers:[{text:"Pas du tout",score:1},{text:"Plutôt non",score:2},{text:"Plutôt oui",score:3},{text:"Tout à fait",score:4}] },
+  { id:"INT-02", kind:"mirror", axe:1, dimension:"Expression & écoute", text:"Pouvez-vous facilement exprimer vos idées, difficultés ou suggestions à votre responsable et obtenir un retour ?", answers:[{text:"Pas du tout",score:1},{text:"Plutôt non",score:2},{text:"Plutôt oui",score:3},{text:"Tout à fait",score:4}] },
+  { id:"INT-03", kind:"mirror", axe:1, dimension:"Communication dans l'équipe", text:"La communication entre collègues vous paraît-elle fluide, respectueuse et bienveillante ?", answers:[{text:"Pas du tout",score:1},{text:"Plutôt non",score:2},{text:"Plutôt oui",score:3},{text:"Tout à fait",score:4}] },
+  { id:"INT-04", kind:"mirror", axe:1, dimension:"Feedback", text:"Recevez-vous de votre responsable des retours réguliers et constructifs sur votre travail ?", answers:[{text:"Pas du tout",score:1},{text:"Plutôt non",score:2},{text:"Plutôt oui",score:3},{text:"Tout à fait",score:4}] },
+  { id:"INT-05", kind:"mirror", axe:1, dimension:"Reconnaissance", text:"Vous sentez-vous suffisamment reconnu(e) et valorisé(e) pour votre travail ?", answers:[{text:"Pas du tout",score:1},{text:"Plutôt non",score:2},{text:"Plutôt oui",score:3},{text:"Tout à fait",score:4}] },
+  { id:"INT-06", kind:"mirror", axe:1, dimension:"Vision & objectifs", text:"Comprenez-vous la vision, les objectifs de l'entreprise et votre rôle dans leur réalisation ?", answers:[{text:"Pas du tout",score:1},{text:"Plutôt non",score:2},{text:"Plutôt oui",score:3},{text:"Tout à fait",score:4}] },
+  { id:"INT-07", kind:"mirror", axe:1, dimension:"Temps d'échange collectifs", text:"Les réunions ou temps d'échange organisés vous permettent-ils de recevoir les informations nécessaires et de suivre les décisions prises ?", answers:[{text:"Pas du tout",score:1},{text:"Plutôt non",score:2},{text:"Plutôt oui",score:3},{text:"Tout à fait",score:4}] },
+  { id:"ENPS-01", kind:"nps", axe:1, dimension:"Recommandation employeur", text:"Sur une échelle de 0 à 10, quelle est la probabilité que vous recommandiez cette entreprise à un proche comme lieu de travail ?" },
+  { id:"QUAL-01", kind:"qualitative", axe:1, dimension:"Amélioration prioritaire", text:"Si vous pouviez améliorer une seule chose dans la communication de votre entreprise, laquelle serait-ce ?" }
 ];
 
 const COMM_BENCHMARK = {
@@ -225,7 +231,7 @@ const ACCOUNT_GUARD_MS = 15000;
 let clockInterval = null;
 
 let tempsState = { index:0, scores:[0,0,0], engagements:[null,null,null], pending:null, completed:false };
-let commState  = { profil:null, index:0, scores:[0,0], npsScore:null, satisfactionScore:null, activePlan:"6m", pending:null, responses:[], engagements:[null,null], completed:false };
+let commState  = { profil:null, index:0, scores:[0,0,0], npsScore:null, satisfactionScore:null, activePlan:"6m", pending:null, responses:[], engagements:[null,null], completed:false };
 let cyberState = { questions:[], index:0, score:0, answered:false, responses:[], pending:null };
 
 /* ============================================================
@@ -774,7 +780,7 @@ async function authenticate(email, password) {
 
   const profileResult = await supabaseClient
     .from("profiles")
-    .select("id, first_name, last_name, email, role, is_active, access_temps, access_communication, access_cyber, organization_id, access_communication_report")
+    .select("id, first_name, last_name, email, role, is_active, access_temps, access_communication, access_cyber, organization_id, access_communication_report, communication_profile")
     .eq("id", user.id)
     .single();
 
@@ -802,6 +808,7 @@ async function authenticate(email, password) {
     isActive: p.is_active,
     organizationId: p.organization_id || null,
     communicationReport: !!p.access_communication_report,
+    communicationProfile: p.communication_profile || null,
     access: {
       temps: !!p.access_temps,
       comm: !!p.access_communication,
@@ -918,7 +925,7 @@ async function validateCurrentAccount() {
     // Étape 2 : le compte est actif. On actualise ensuite les droits et le profil.
     const profileResult = await supabaseClient
       .from("profiles")
-      .select("id, first_name, last_name, email, role, is_active, access_temps, access_communication, access_cyber, organization_id, access_communication_report")
+      .select("id, first_name, last_name, email, role, is_active, access_temps, access_communication, access_cyber, organization_id, access_communication_report, communication_profile")
       .eq("id", checkedUserId)
       .maybeSingle();
 
@@ -947,6 +954,7 @@ async function validateCurrentAccount() {
       isActive: p.is_active,
       organizationId: p.organization_id || null,
       communicationReport: !!p.access_communication_report,
+    communicationProfile: p.communication_profile || null,
       access: {
         temps: !!p.access_temps,
         comm: !!p.access_communication,
@@ -1035,7 +1043,7 @@ function forceLocalLogout(message) {
   // Une déconnexion explicite constitue une frontière de confidentialité :
   // aucun état temporaire d'un utilisateur ne doit survivre à la session.
   tempsState = { index:0, scores:[0,0,0], engagements:[null,null,null], pending:null, completed:false };
-  commState  = { profil:null, index:0, scores:[0,0], npsScore:null, satisfactionScore:null, activePlan:"6m", pending:null, responses:[], engagements:[null,null], completed:false };
+  commState  = { profil:null, index:0, scores:[0,0,0], npsScore:null, satisfactionScore:null, activePlan:"6m", pending:null, responses:[], engagements:[null,null], completed:false };
   cyberState = { questions:[], index:0, score:0, answered:false, responses:[], pending:null };
 
   // Réinitialise également les écrans affichés. Réinitialiser uniquement les
@@ -1051,7 +1059,7 @@ function forceLocalLogout(message) {
   if (commChips) commChips.innerHTML = "";
   const commNext = document.getElementById("comm-btn-next");
   if (commNext) { commNext.classList.add("hidden"); commNext.disabled = true; }
-  const commReportBtn = document.getElementById("comm-btn-report");
+  const commReportBtn = document.getElementById("comm-btn-report-gerant");
   if (commReportBtn) commReportBtn.classList.add("hidden");
   showAppScreen("comm", "comm-screen-profil");
 
@@ -1153,7 +1161,7 @@ function adminRenderUser(u) {
       '<label><input class="admin-right admin-right-temps" type="checkbox"' + checked(u.access_temps) + disabledRights + '> Temps</label>' +
       '<label><input class="admin-right admin-right-comm" type="checkbox"' + checked(u.access_communication) + disabledRights + '> Communication</label>' +
       '<label><input class="admin-right admin-right-cyber" type="checkbox"' + checked(u.access_cyber) + disabledRights + '> Cyber</label>' +
-      '<label><input class="admin-right admin-right-report" type="checkbox"' + checked(u.access_communication_report) + disabledRights + '> Résultats équipe</label>' +
+      '<label>Profil Communication<select class="admin-comm-profile"' + disabledRights + '><option value="employee"' + (u.communication_profile==="employee"?" selected":"") + '>Employé</option><option value="manager"' + (u.communication_profile==="manager"?" selected":"") + '>Gérant</option></select></label>' +
       '<label class="admin-org-label">Entreprise<select class="admin-organization"' + disabledRights + '>' + adminOrganizationOptions(u.organization_id) + '</select></label>' +
       '<label class="admin-status-toggle"><input class="admin-active" type="checkbox"' + checked(u.is_active) + disabledSelfStatus + '> Actif</label>' +
     '</div>' +
@@ -1185,7 +1193,7 @@ async function adminSaveRow(row) {
     p_access_communication: !!row.querySelector(".admin-right-comm").checked,
     p_access_cyber: !!row.querySelector(".admin-right-cyber").checked,
     p_organization_id: row.querySelector(".admin-organization").value || null,
-    p_access_communication_report: !!row.querySelector(".admin-right-report").checked
+    p_communication_profile: row.querySelector(".admin-comm-profile").value
   };
 
   try {
@@ -1248,7 +1256,7 @@ async function adminCreateUser() {
     temps: document.getElementById("admin-new-temps").checked,
     communication: document.getElementById("admin-new-comm").checked,
     cyber: document.getElementById("admin-new-cyber").checked,
-    communicationReport: document.getElementById("admin-new-report").checked
+    communicationProfile: document.getElementById("admin-new-comm-profile").value
   };
   const organizationId = document.getElementById("admin-new-organization").value || null;
   if (!firstName || !lastName || !email) {
@@ -1263,9 +1271,9 @@ async function adminCreateUser() {
   btn.disabled = true; btn.textContent = "Création…";
   adminSetMessage("");
   try {
-    await callAdminUsers({ action:"invite", firstName:firstName, lastName:lastName, email:email, access:access, organizationId:organizationId });
+    await callAdminUsers({ action:"invite", firstName:firstName, lastName:lastName, email:email, access:access, organizationId:organizationId, communicationProfile:access.communicationProfile });
     ["admin-new-firstname","admin-new-lastname","admin-new-email"].forEach(id => document.getElementById(id).value = "");
-    ["admin-new-temps","admin-new-comm","admin-new-cyber","admin-new-report"].forEach(id => document.getElementById(id).checked = false);
+    ["admin-new-temps","admin-new-comm","admin-new-cyber"].forEach(id => document.getElementById(id).checked = false); document.getElementById("admin-new-comm-profile").value="employee";
     adminSetMessage("Invitation envoyée à " + email + ".");
     await adminLoadUsers();
   } catch (e) {
@@ -1310,13 +1318,13 @@ async function commLoadEmployeeReport(periodDays){
   if(r.error){ console.error("communication_employee_report",r.error); box.innerHTML='<div class="app-message-box"><span>⚠️</span><div><p class="app-message-title">Résultats indisponibles</p><p class="app-message-text">Vérifiez votre rattachement à l’entreprise et votre droit de consultation.</p></div></div>'; return; }
   const d=(r.data&&r.data[0])||{}; const n=Number(d.response_count||0);
   if(n<5){ box.innerHTML='<div class="app-card" style="text-align:center"><div class="app-card-icon">🔒</div><h3>'+n+' réponse'+(n>1?'s':'')+' reçue'+(n>1?'s':'')+'</h3><p class="app-card-subtitle">Les résultats seront affichés à partir de 5 réponses afin de préserver l’anonymat des participants.</p></div>'; return; }
-  const dist=[['0–3',d.satisfaction_0_3],['4–6',d.satisfaction_4_6],['7–8',d.satisfaction_7_8],['9–10',d.satisfaction_9_10]];
+  const dist=[['Détracteurs 0–6',d.enps_detractors],['Passifs 7–8',d.enps_passives],['Promoteurs 9–10',d.enps_promoters]];
   const bars=dist.map(x=>{const pct=Math.round(Number(x[1]||0)*100/n);return '<div class="comm-report-bar"><span>'+x[0]+'</span><div><i style="width:'+pct+'%"></i></div><strong>'+pct+' %</strong></div>'}).join('');
   let q=''; try{const qa=typeof d.question_summary==='string'?JSON.parse(d.question_summary):d.question_summary; if(Array.isArray(qa)&&qa.length){q='<h3 class="app-section-title">Tendances par question</h3><div class="comm-report-questions">'+qa.map(x=>'<div><strong>'+adminEscape(x.question)+'</strong><span>'+commPct(x.avg_pct)+'</span></div>').join('')+'</div>';}}catch(_){ }
-  box.innerHTML='<div class="comm-report-kpis"><div><strong>'+n+'</strong><span>réponses</span></div><div><strong>'+Number(d.avg_satisfaction).toLocaleString("fr-FR",{maximumFractionDigits:1})+' / 10</strong><span>satisfaction moyenne</span></div><div><strong>'+commPct(d.avg_external_pct)+'</strong><span>communication externe</span></div><div><strong>'+commPct(d.avg_internal_pct)+'</strong><span>communication interne</span></div></div><div class="app-card"><h3 class="app-section-title">Répartition de la recommandation employeur</h3>'+bars+'</div>'+q;
+  box.innerHTML='<div class="comm-report-kpis"><div><strong>'+n+'</strong><span>réponses</span></div><div><strong>'+Number(d.enps_score).toLocaleString("fr-FR",{maximumFractionDigits:0})+'</strong><span>eNPS</span></div><div><strong>'+commPct(d.avg_external_pct)+'</strong><span>communication externe</span></div><div><strong>'+commPct(d.avg_internal_pct)+'</strong><span>communication interne</span></div></div><div class="app-card"><h3 class="app-section-title">Répartition eNPS employeur</h3>'+bars+'</div>'+q;
 }
 function commOpenEmployeeReport(){
-  if(!osUser || !osUser.communicationReport){return;}
+  if(!osUser || !osUser.communicationReport || (osUser.role==="user" && osUser.communicationProfile!=="manager")){return;}
   showAppScreen("comm","comm-screen-employee-report");
   const sel=document.getElementById("comm-report-period"); commLoadEmployeeReport(sel?sel.value:90);
 }
@@ -1402,8 +1410,13 @@ function tempsShowAutonomy(){
    APP COMM
    ============================================================ */
 function commInit() {
-  const reportBtn=document.getElementById("comm-btn-report"); if(reportBtn) reportBtn.classList.toggle("hidden",!(osUser&&osUser.communicationReport));
-  commState={profil:null,index:0,scores:[0,0],npsScore:null,satisfactionScore:null,activePlan:"6m",pending:null,responses:[],engagements:[null,null],completed:false};
+  const gerantBtn=document.getElementById("comm-btn-gerant"), salarieBtn=document.getElementById("comm-btn-salarie");
+  const ordinary=osUser&&osUser.role==="user", profile=osUser&&osUser.communicationProfile;
+  if(gerantBtn) gerantBtn.classList.toggle("hidden", ordinary && profile!=="manager");
+  if(salarieBtn) salarieBtn.classList.toggle("hidden", ordinary && profile!=="employee");
+  const subtitle=document.getElementById("comm-profile-subtitle");
+  if(subtitle && ordinary) subtitle.textContent=profile==="manager"?"Profil Gérant — réalisez votre diagnostic avant de consulter les résultats anonymisés de votre équipe.":"Profil Employé — partagez votre perception de façon anonyme.";
+  commState={profil:null,index:0,scores:[0,0,0],npsScore:null,satisfactionScore:null,activePlan:"6m",pending:null,responses:[],engagements:[null,null],completed:false};
   document.getElementById("comm-chips").innerHTML="";
   const next=document.getElementById("comm-btn-next"); if(next){next.classList.add("hidden"); next.disabled=true;}
   showAppScreen("comm","comm-screen-profil");
@@ -1413,50 +1426,55 @@ function commSetupIntro(profil) {
   const iconEl=document.getElementById("comm-intro-icon"), titleEl=document.getElementById("comm-intro-title"), subtitleEl=document.getElementById("comm-intro-subtitle"), rulesEl=document.getElementById("comm-rules");
   if(profil==="gerant"){
     iconEl.textContent="🏪"; titleEl.textContent="Diagnostic — Vision Gérant"; subtitleEl.textContent="Évaluez votre stratégie de communication et découvrez comment vous situez par rapport aux enseignes exemplaires.";
-    rulesEl.innerHTML='<li><span>📡</span><strong>8 questions</strong> sur votre communication externe</li><li><span>💬</span><strong>7 questions</strong> sur votre communication interne</li><li><span>🏆</span>Benchmark avec les <strong>meilleures enseignes</strong> du secteur</li><li><span>🗓️</span>Plan de communication sur <strong>6 mois, 1 an ou 3 ans</strong></li>';
+    rulesEl.innerHTML='<li><span>🔄</span><strong>13 questions miroir</strong> : 6 externes et 7 internes</li><li><span>🧭</span><strong>8 questions</strong> sur la maturité de vos pratiques</li><li><span>🏆</span>Benchmark avec les <strong>meilleures enseignes</strong> du secteur</li><li><span>🗓️</span>Plan de communication sur <strong>6 mois, 1 an ou 3 ans</strong></li>';
   } else {
     iconEl.textContent="👥"; titleEl.textContent="Diagnostic — Vision Employé"; subtitleEl.textContent="Partagez votre perception. Vos réponses sont anonymes et contribueront à améliorer votre environnement de travail.";
-    rulesEl.innerHTML='<li><span>📡</span><strong>6 questions</strong> sur l\'image externe de votre entreprise</li><li><span>💬</span><strong>9 questions</strong> sur la communication interne</li><li><span>🔒</span>Vos réponses sont <strong>anonymes et confidentielles</strong></li><li><span>✅</span>Elles peuvent être <strong>envoyées anonymement</strong> à la fin du questionnaire</li>';
+    rulesEl.innerHTML='<li><span>🔄</span><strong>13 questions miroir</strong> : 6 externes et 7 internes</li><li><span>📈</span><strong>1 eNPS</strong> de recommandation employeur</li><li><span>✍️</span><strong>1 question libre</strong> d’amélioration</li><li><span>🔒</span>Vos réponses sont <strong>anonymes et confidentielles</strong></li>';
   }
 }
 
-function commSatisfactionLabel(v){v=Number(v); if(v<=3)return "Non, certainement pas"; if(v<=6)return "Probablement pas"; if(v<=8)return "Probablement oui"; return "Oui, absolument";}
-function commSatisfactionScore(v){v=Number(v); if(v<=3)return 1; if(v<=6)return 2; if(v<=8)return 3; return 4;}
+function commSatisfactionLabel(v){v=Number(v); if(v<=6)return "Détracteur"; if(v<=8)return "Passif"; return "Promoteur";}
+function commMirrorPct(sum,count){ return count ? Math.round(((sum-count)/(3*count))*100) : 0; }
 
 function commRenderQuestion() {
-  const questions=commState.profil==="gerant"?COMM_QUESTIONS_GERANT:COMM_QUESTIONS_SALARIE, axeNames=["Communication Externe","Communication Interne"], axeEmojis=["📡","💬"], q=questions[commState.index], axe=q.axe;
+  const questions=commState.profil==="gerant"?COMM_QUESTIONS_GERANT:COMM_QUESTIONS_SALARIE, axeNames=["Communication Externe","Communication Interne","Maturité des pratiques"], axeEmojis=["📡","💬","🧭"], q=questions[commState.index], axe=q.axe;
   commState.pending=null;
-  document.getElementById("comm-axe-label").textContent=axeEmojis[axe]+" "+axeNames[axe];
+  document.getElementById("comm-axe-label").textContent=axeEmojis[axe]+" "+axeNames[axe]+(q.dimension?" — "+q.dimension:"");
   document.getElementById("comm-counter").textContent="Question "+(commState.index+1)+" / "+questions.length;
   document.getElementById("comm-progress").style.width=Math.round((commState.index/questions.length)*100)+"%";
   document.getElementById("comm-question").textContent=sanitize(q.text);
   renderChips("comm-chips",axeNames,axeEmojis,axe);
-  const next=document.getElementById("comm-btn-next"), answers=document.getElementById("comm-answers"), sliderWrap=document.getElementById("comm-slider-wrap");
+  const next=document.getElementById("comm-btn-next"), answers=document.getElementById("comm-answers"), sliderWrap=document.getElementById("comm-slider-wrap"), textWrap=document.getElementById("comm-text-wrap");
   next.classList.add("hidden"); next.disabled=true; next.textContent=(commState.index+1>=questions.length)?"Voir mes résultats →":"Question suivante →";
-  const isSatisfaction=commState.profil==="salarie" && q.text.startsWith("Recommanderiez-vous votre entreprise à un proche comme lieu de travail");
-  answers.classList.toggle("hidden",isSatisfaction); sliderWrap.classList.toggle("hidden",!isSatisfaction);
-  if(isSatisfaction){
+  const isNps=q.kind==="nps", isText=q.kind==="qualitative";
+  answers.classList.toggle("hidden",isNps||isText); sliderWrap.classList.toggle("hidden",!isNps); if(textWrap)textWrap.classList.toggle("hidden",!isText);
+  if(isNps){
     const slider=document.getElementById("comm-satisfaction-slider"), val=document.getElementById("comm-slider-value"), label=document.getElementById("comm-slider-label");
     slider.value="5"; val.textContent="5 / 10"; label.textContent=commSatisfactionLabel(5);
-    function update(){const v=Number(slider.value); val.textContent=v+" / 10"; label.textContent=commSatisfactionLabel(v); commState.pending={axe:axe,score:commSatisfactionScore(v),answer:v+" / 10 — "+commSatisfactionLabel(v),satisfaction:v,question:q.text}; next.disabled=false; next.classList.remove("hidden");}
+    function update(){const v=Number(slider.value); val.textContent=v+" / 10"; label.textContent=commSatisfactionLabel(v); commState.pending={axe:axe,score:null,answer:v+" / 10 — "+commSatisfactionLabel(v),satisfaction:v,question:q.text,id:q.id,kind:q.kind,dimension:q.dimension}; next.disabled=false; next.classList.remove("hidden");}
     slider.oninput=update; slider.onchange=function(){update(); scrollToQuestionAction("comm-btn-next");}; update();
+  } else if(isText){
+    const ta=document.getElementById("comm-free-text"); ta.value=""; ta.oninput=function(){const v=ta.value.trim(); commState.pending=v?{axe:axe,score:null,answer:v,question:q.text,id:q.id,kind:q.kind,dimension:q.dimension}:null; next.disabled=!v; next.classList.toggle("hidden",!v);}; ta.focus();
   } else {
-    renderSelectableAnswersList("comm-answers",q.answers,function(item){commState.pending={axe:axe,score:parseInt(item.dataset.score,10),answer:item.textContent.replace(/^→/,"").trim(),question:q.text}; next.disabled=false; next.classList.remove("hidden"); scrollToQuestionAction("comm-btn-next");});
+    renderSelectableAnswersList("comm-answers",q.answers,function(item){commState.pending={axe:axe,score:parseInt(item.dataset.score,10),answer:item.textContent.replace(/^→/,"").trim(),question:q.text,id:q.id,kind:q.kind,dimension:q.dimension}; next.disabled=false; next.classList.remove("hidden"); scrollToQuestionAction("comm-btn-next");});
   }
 }
 
 function commCommitAndNext(){
-  if(!commState.pending)return; const p=commState.pending; commState.scores[p.axe]+=p.score; if(p.satisfaction!==undefined){commState.satisfactionScore=p.satisfaction; commState.npsScore=p.score;} commState.responses.push({question:p.question,answer:p.answer,axe:p.axe,score:p.score}); commState.pending=null; commState.index++;
+  if(!commState.pending)return; const p=commState.pending;
+  if(p.score!==null && p.score!==undefined) commState.scores[p.axe]+=p.score;
+  if(p.satisfaction!==undefined){commState.satisfactionScore=p.satisfaction; commState.npsScore=p.satisfaction;}
+  commState.responses.push({id:p.id,kind:p.kind,dimension:p.dimension,question:p.question,answer:p.answer,axe:p.axe,score:p.score}); commState.pending=null; commState.index++;
   const questions=commState.profil==="gerant"?COMM_QUESTIONS_GERANT:COMM_QUESTIONS_SALARIE;
   if(commState.index>=questions.length){document.getElementById("comm-progress").style.width="100%"; if(commState.profil==="gerant")commShowResultGerant(); else commShowResultSalarie();}
   else {commRenderQuestion(); scrollToQuestionTop("comm-question");}
 }
 
 function commShowResultSalarie() {
-  const maxScores=[6*4,9*4], pctExt=Math.round((commState.scores[0]/maxScores[0])*100), pctInt=Math.round((commState.scores[1]/maxScores[1])*100);
+  const pctExt=commMirrorPct(commState.scores[0],6), pctInt=commMirrorPct(commState.scores[1],7);
   document.getElementById("comm-salarie-merci").textContent="Merci "+sanitize(osUser.displayName)+" pour votre participation. Vous pouvez maintenant envoyer vos réponses de façon anonymisée.";
-  renderAxeScores("comm-salarie-scores",[{nom:"Image Externe",emoji:"📡",pct:pctExt,niveau:getNiveauComm(pctExt),label:getNiveauLabelComm(getNiveauComm(pctExt))},{nom:"Communication Interne",emoji:"💬",pct:pctInt,niveau:getNiveauComm(pctInt),label:getNiveauLabelComm(getNiveauComm(pctInt))}]);
-  const npsEl=document.getElementById("comm-nps-recap"); if(commState.satisfactionScore!==null){npsEl.innerHTML="<strong>Votre satisfaction en tant qu’employé :</strong> "+commState.satisfactionScore+" / 10 — "+commSatisfactionLabel(commState.satisfactionScore); npsEl.classList.remove("hidden");}
+  renderAxeScores("comm-salarie-scores",[{nom:"Perception externe",emoji:"📡",pct:pctExt,niveau:getNiveauComm(pctExt),label:getNiveauLabelComm(getNiveauComm(pctExt))},{nom:"Communication interne",emoji:"💬",pct:pctInt,niveau:getNiveauComm(pctInt),label:getNiveauLabelComm(getNiveauComm(pctInt))}]);
+  const npsEl=document.getElementById("comm-nps-recap"); if(commState.satisfactionScore!==null){npsEl.innerHTML="<strong>Recommandation employeur :</strong> "+commState.satisfactionScore+" / 10 — "+commSatisfactionLabel(commState.satisfactionScore); npsEl.classList.remove("hidden");}
   document.getElementById("comm-anon-status").textContent=""; document.getElementById("comm-btn-send-anon").disabled=false; commState.completed=true; showAppScreen("comm","comm-screen-result-salarie");
 }
 
@@ -1465,12 +1483,26 @@ const COMM_GERANT_DIAGNOSTICS={
   interne:{faible:"Votre communication interne doit être structurée pour mieux informer, écouter et reconnaître les équipes.",intermediaire:"Votre communication interne dispose de bonnes bases. Formalisez les rituels, le feedback et la circulation de l’information.",fort:"Votre communication interne est performante. Faites-en un levier d’engagement et impliquez davantage les employés dans les décisions."}
 };
 
-function commShowResultGerant() {
-  const max=[8*4,7*4], pExt=Math.round((commState.scores[0]/max[0])*100), pInt=Math.round((commState.scores[1]/max[1])*100), nExt=getNiveauComm(pExt), nInt=getNiveauComm(pInt);
-  document.getElementById("comm-gerant-title").textContent="📊 Votre Diagnostic"; document.getElementById("comm-gerant-subtitle").textContent="Voici votre profil de communication sur les deux axes analysés.";
-  renderAxeScores("comm-gerant-scores",[{nom:"Communication Externe",emoji:"📡",pct:pExt,niveau:nExt,label:getNiveauLabelComm(nExt)},{nom:"Communication Interne",emoji:"💬",pct:pInt,niveau:nInt,label:getNiveauLabelComm(nInt)}]);
-  const c=document.getElementById("comm-gerant-diagnostic-phrases"); c.innerHTML='<div class="app-solution-section"><div class="app-solution-header app-sol-header-0"><span>📡</span><span>Communication Externe</span></div><div class="app-solution-body"><p class="app-solution-intro">'+sanitize(COMM_GERANT_DIAGNOSTICS.externe[nExt])+'</p></div></div><div class="app-solution-section"><div class="app-solution-header app-sol-header-1"><span>💬</span><span>Communication Interne</span></div><div class="app-solution-body"><p class="app-solution-intro">'+sanitize(COMM_GERANT_DIAGNOSTICS.interne[nInt])+'</p></div></div>';
+async function commRegisterManagerCompletion(){
+  if(!supabaseClient) return false;
+  const payload={p_responses:commState.responses,p_external_score:commMirrorPct(commState.scores[0],6),p_internal_score:commMirrorPct(commState.scores[1],7),p_maturity_score:commMirrorPct(commState.scores[2],8)};
+  const r=await supabaseClient.rpc("submit_communication_manager_diagnostic",payload);
+  if(r.error){console.error("submit_communication_manager_diagnostic",r.error); return false;}
+  return true;
+}
+
+async function commShowResultGerant() {
+  const pExt=commMirrorPct(commState.scores[0],6), pInt=commMirrorPct(commState.scores[1],7), pMat=commMirrorPct(commState.scores[2],8), nExt=getNiveauComm(pExt), nInt=getNiveauComm(pInt), nMat=getNiveauComm(pMat);
+  document.getElementById("comm-gerant-title").textContent="📊 Votre Diagnostic Communication 360°"; document.getElementById("comm-gerant-subtitle").textContent="Votre perception sur les deux axes miroir, complétée par la maturité de vos pratiques.";
+  renderAxeScores("comm-gerant-scores",[{nom:"Perception externe",emoji:"📡",pct:pExt,niveau:nExt,label:getNiveauLabelComm(nExt)},{nom:"Communication interne",emoji:"💬",pct:pInt,niveau:nInt,label:getNiveauLabelComm(nInt)},{nom:"Maturité des pratiques",emoji:"🧭",pct:pMat,niveau:nMat,label:getNiveauLabelComm(nMat)}]);
+  const c=document.getElementById("comm-gerant-diagnostic-phrases"); c.innerHTML='<div class="app-solution-section"><div class="app-solution-header app-sol-header-0"><span>📡</span><span>Communication Externe</span></div><div class="app-solution-body"><p class="app-solution-intro">'+sanitize(COMM_GERANT_DIAGNOSTICS.externe[nExt])+'</p></div></div><div class="app-solution-section"><div class="app-solution-header app-sol-header-1"><span>💬</span><span>Communication Interne</span></div><div class="app-solution-body"><p class="app-solution-intro">'+sanitize(COMM_GERANT_DIAGNOSTICS.interne[nInt])+'</p></div></div><div class="app-solution-section"><div class="app-solution-header"><span>🧭</span><span>Maturité des pratiques</span></div><div class="app-solution-body"><p class="app-solution-intro">Score de maturité : <strong>'+pMat+' %</strong>. Cet indicateur mesure les dispositifs réellement structurés dans votre organisation ; il est volontairement distinct des perceptions miroir.</p></div></div>';
   commState.completed=true; showAppScreen("comm","comm-screen-result-gerant");
+  const reportBtn=document.getElementById("comm-btn-report-gerant"), status=document.getElementById("comm-manager-save-status");
+  if(reportBtn) reportBtn.classList.add("hidden");
+  if(status){status.textContent="Validation sécurisée de votre diagnostic…"; status.classList.remove("hidden");}
+  const saved=await commRegisterManagerCompletion();
+  if(saved && osUser && osUser.communicationReport){ if(reportBtn) reportBtn.classList.remove("hidden"); if(status) status.classList.add("hidden"); }
+  else if(status){status.textContent="Votre diagnostic est affiché, mais l’accès aux résultats de l’équipe ne peut pas être activé pour le moment.";}
 }
 
 function commShowGerantEngagement(){
@@ -1480,12 +1512,12 @@ function commShowGerantEngagement(){
 }
 
 function commShowGerantPlan(){
-  const max=[8*4,7*4], totalPct=Math.round(((commState.scores[0]+commState.scores[1])/(max[0]+max[1]))*100), level=getNiveauComm(totalPct); commRenderBenchmark(); commRenderPlan(level,"6m"); const forfaitMap={faible:"Essentiel 6 mois",intermediaire:"Croissance 1 an",fort:"Transformation 3 ans"}; renderForfaits("comm-forfaits",COMM_FORFAITS,forfaitMap[level]); commState.completed=true; showAppScreen("comm","comm-screen-plan-gerant");
+  const totalPct=Math.round((commMirrorPct(commState.scores[0],6)+commMirrorPct(commState.scores[1],7)+commMirrorPct(commState.scores[2],8))/3), level=getNiveauComm(totalPct); commRenderBenchmark(); commRenderPlan(level,"6m"); const forfaitMap={faible:"Essentiel 6 mois",intermediaire:"Croissance 1 an",fort:"Transformation 3 ans"}; renderForfaits("comm-forfaits",COMM_FORFAITS,forfaitMap[level]); commState.completed=true; showAppScreen("comm","comm-screen-plan-gerant");
 }
 
 async function commSendAnonymousResponses(){
   const btn=document.getElementById("comm-btn-send-anon"), status=document.getElementById("comm-anon-status"); if(!supabaseClient){status.textContent="Connexion au service indisponible.";return;} btn.disabled=true; status.textContent="Envoi en cours…";
-  const payload={p_responses:commState.responses,p_external_score:commState.scores[0],p_internal_score:commState.scores[1],p_satisfaction_score:commState.satisfactionScore};
+  const payload={p_responses:commState.responses,p_external_score:commMirrorPct(commState.scores[0],6),p_internal_score:commMirrorPct(commState.scores[1],7),p_satisfaction_score:commState.satisfactionScore};
   const r=await supabaseClient.rpc("submit_communication_employee_response",payload); if(r.error){console.warn("anonymous communication response",r.error); status.textContent="Envoi impossible. Vérifiez que votre compte est rattaché à une entreprise ou réessayez plus tard."; btn.disabled=false; return;} status.textContent="Merci. Vos réponses anonymisées ont été envoyées à votre entreprise."; btn.textContent="Réponses envoyées ✓";
 }
 
@@ -2044,12 +2076,12 @@ document.addEventListener("DOMContentLoaded", function() {
   document.getElementById("temps-btn-restart").addEventListener("click", function(){tempsInit(); showAppScreen("temps","temps-screen-diag"); tempsRenderQuestion();});
 
   /* ── APP COMM ── */
-  document.getElementById("comm-btn-report").addEventListener("click",commOpenEmployeeReport);
+  document.getElementById("comm-btn-report-gerant").addEventListener("click",commOpenEmployeeReport);
   document.getElementById("comm-report-period").addEventListener("change",function(){commLoadEmployeeReport(this.value);});
-  document.getElementById("comm-btn-report-back").addEventListener("click",function(){showAppScreen("comm","comm-screen-profil");});
+  document.getElementById("comm-btn-report-back").addEventListener("click",function(){showAppScreen("comm","comm-screen-result-gerant");});
   document.getElementById("comm-btn-gerant").addEventListener("click",function(){commState.profil="gerant"; commSetupIntro("gerant"); showAppScreen("comm","comm-screen-intro");});
   document.getElementById("comm-btn-salarie").addEventListener("click",function(){commState.profil="salarie"; commSetupIntro("salarie"); showAppScreen("comm","comm-screen-intro");});
-  document.getElementById("comm-btn-start").addEventListener("click",function(){const profil=commState.profil; commState={profil:profil,index:0,scores:[0,0],npsScore:null,satisfactionScore:null,activePlan:"6m",pending:null,responses:[],engagements:[null,null],completed:false}; document.getElementById("comm-chips").innerHTML=""; showAppScreen("comm","comm-screen-diag"); commRenderQuestion();});
+  document.getElementById("comm-btn-start").addEventListener("click",function(){const profil=commState.profil; commState={profil:profil,index:0,scores:[0,0,0],npsScore:null,satisfactionScore:null,activePlan:"6m",pending:null,responses:[],engagements:[null,null],completed:false}; document.getElementById("comm-chips").innerHTML=""; showAppScreen("comm","comm-screen-diag"); commRenderQuestion();});
   document.getElementById("comm-btn-next").addEventListener("click",commCommitAndNext);
   document.getElementById("comm-btn-restart-salarie").addEventListener("click",commInit);
   document.getElementById("comm-btn-restart-gerant").addEventListener("click",commInit);
