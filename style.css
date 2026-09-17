@@ -1685,3 +1685,6 @@ body.logo-lightbox-open { overflow: hidden !important; }
 
 /* V0.5-H.1 — réponse qualitative Communication */
 .comm-free-text{width:100%;box-sizing:border-box;min-height:130px;padding:14px 16px;border:1px solid var(--border,#d9e0ea);border-radius:12px;font:inherit;resize:vertical;background:#fff;color:inherit}.comm-free-text:focus{outline:2px solid rgba(46,134,193,.25);border-color:#2E86C1}
+
+/* H.2.1 — Maturité Communication : synthèse visuelle externe/interne */
+.app-sol-header-maturity { background: linear-gradient(135deg, #2E86C1 0%, #329B91 52%, #28B463 100%); color: #FFF; }

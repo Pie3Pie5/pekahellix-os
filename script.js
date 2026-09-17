@@ -1,4 +1,4 @@
-window.PEKAHELLIX_BUILD = "0.5-H.2";
+window.PEKAHELLIX_BUILD = "0.5-H.2.1";
 /* ============================================================
    PEKAHELLIX OS — Gestionnaire unifié des 3 applications
    Apps : Gestion du Temps · Communication · Cybersécurité
@@ -1001,6 +1001,10 @@ async function openApp(appId) {
     win.classList.remove("hidden");
     setActiveDockApp(appId);
     if (appId === "admin") adminLoadUsers();
+    // H.2.1 — après une nouvelle connexion, appliquer le profil Communication
+    // avant d'afficher le sélecteur. Un questionnaire déjà commencé dans la
+    // session courante reste en revanche intact.
+    if (appId === "comm" && (!commState || !commState.profil)) commInit();
   }
 }
 
@@ -1426,18 +1430,21 @@ function commSetupIntro(profil) {
   const iconEl=document.getElementById("comm-intro-icon"), titleEl=document.getElementById("comm-intro-title"), subtitleEl=document.getElementById("comm-intro-subtitle"), rulesEl=document.getElementById("comm-rules");
   if(profil==="gerant"){
     iconEl.textContent="🏪"; titleEl.textContent="Diagnostic — Vision Gérant"; subtitleEl.textContent="Évaluez votre stratégie de communication et découvrez comment vous situez par rapport aux enseignes exemplaires.";
-    rulesEl.innerHTML='<li><span>🔄</span><strong>13 questions miroir</strong> : 6 externes et 7 internes</li><li><span>🧭</span><strong>8 questions</strong> sur la maturité de vos pratiques</li><li><span>🏆</span>Benchmark avec les <strong>meilleures enseignes</strong> du secteur</li><li><span>🗓️</span>Plan de communication sur <strong>6 mois, 1 an ou 3 ans</strong></li>';
+    rulesEl.innerHTML='<li><span>🔄</span><strong>13 questions</strong> sur votre perception de la communication de votre entreprise</li><li><span>🧭</span><strong>8 questions</strong> sur la maturité de vos pratiques</li><li><span>🏆</span>Benchmark avec les <strong>meilleures enseignes</strong> du secteur</li><li><span>🗓️</span>Plan de communication sur <strong>6 mois, 1 an ou 3 ans</strong></li>';
   } else {
     iconEl.textContent="👥"; titleEl.textContent="Diagnostic — Vision Employé"; subtitleEl.textContent="Partagez votre perception. Vos réponses sont anonymes et contribueront à améliorer votre environnement de travail.";
-    rulesEl.innerHTML='<li><span>🔄</span><strong>13 questions miroir</strong> : 6 externes et 7 internes</li><li><span>📈</span><strong>1 eNPS</strong> de recommandation employeur</li><li><span>✍️</span><strong>1 question libre</strong> d’amélioration</li><li><span>🔒</span>Vos réponses sont <strong>anonymes et confidentielles</strong></li>';
+    rulesEl.innerHTML='<li><span>🔄</span><strong>13 questions</strong> sur votre perception de la communication de votre entreprise</li><li><span>📈</span><strong>1 indice</strong> de recommandation employeur</li><li><span>✍️</span><strong>1 question libre</strong> d’amélioration</li><li><span>🔒</span>Vos réponses sont <strong>anonymes et confidentielles</strong></li>';
   }
 }
 
-function commSatisfactionLabel(v){v=Number(v); if(v<=6)return "Détracteur"; if(v<=8)return "Passif"; return "Promoteur";}
+function commSatisfactionLabel(v){v=Number(v); if(v<=6)return "Je déconseillerais d’y travailler"; if(v<=8)return "Je n’ai pas d’avis tranché"; return "Je recommanderais d’y travailler";}
 function commMirrorPct(sum,count){ return count ? Math.round(((sum-count)/(3*count))*100) : 0; }
 
 function commRenderQuestion() {
-  const questions=commState.profil==="gerant"?COMM_QUESTIONS_GERANT:COMM_QUESTIONS_SALARIE, axeNames=["Communication Externe","Communication Interne","Maturité des pratiques"], axeEmojis=["📡","💬","🧭"], q=questions[commState.index], axe=q.axe;
+  const questions=commState.profil==="gerant"?COMM_QUESTIONS_GERANT:COMM_QUESTIONS_SALARIE;
+  const axeNames=commState.profil==="gerant"?["Communication Externe","Communication Interne","Maturité des pratiques"]:["Communication Externe","Communication Interne"];
+  const axeEmojis=commState.profil==="gerant"?["📡","💬","🧭"]:["📡","💬"];
+  const q=questions[commState.index], axe=q.axe;
   commState.pending=null;
   document.getElementById("comm-axe-label").textContent=axeEmojis[axe]+" "+axeNames[axe]+(q.dimension?" — "+q.dimension:"");
   document.getElementById("comm-counter").textContent="Question "+(commState.index+1)+" / "+questions.length;
@@ -1495,7 +1502,7 @@ async function commShowResultGerant() {
   const pExt=commMirrorPct(commState.scores[0],6), pInt=commMirrorPct(commState.scores[1],7), pMat=commMirrorPct(commState.scores[2],8), nExt=getNiveauComm(pExt), nInt=getNiveauComm(pInt), nMat=getNiveauComm(pMat);
   document.getElementById("comm-gerant-title").textContent="📊 Votre Diagnostic Communication 360°"; document.getElementById("comm-gerant-subtitle").textContent="Votre perception sur les deux axes miroir, complétée par la maturité de vos pratiques.";
   renderAxeScores("comm-gerant-scores",[{nom:"Perception externe",emoji:"📡",pct:pExt,niveau:nExt,label:getNiveauLabelComm(nExt)},{nom:"Communication interne",emoji:"💬",pct:pInt,niveau:nInt,label:getNiveauLabelComm(nInt)},{nom:"Maturité des pratiques",emoji:"🧭",pct:pMat,niveau:nMat,label:getNiveauLabelComm(nMat)}]);
-  const c=document.getElementById("comm-gerant-diagnostic-phrases"); c.innerHTML='<div class="app-solution-section"><div class="app-solution-header app-sol-header-0"><span>📡</span><span>Communication Externe</span></div><div class="app-solution-body"><p class="app-solution-intro">'+sanitize(COMM_GERANT_DIAGNOSTICS.externe[nExt])+'</p></div></div><div class="app-solution-section"><div class="app-solution-header app-sol-header-1"><span>💬</span><span>Communication Interne</span></div><div class="app-solution-body"><p class="app-solution-intro">'+sanitize(COMM_GERANT_DIAGNOSTICS.interne[nInt])+'</p></div></div><div class="app-solution-section"><div class="app-solution-header"><span>🧭</span><span>Maturité des pratiques</span></div><div class="app-solution-body"><p class="app-solution-intro">Score de maturité : <strong>'+pMat+' %</strong>. Cet indicateur mesure les dispositifs réellement structurés dans votre organisation ; il est volontairement distinct des perceptions miroir.</p></div></div>';
+  const c=document.getElementById("comm-gerant-diagnostic-phrases"); c.innerHTML='<div class="app-solution-section"><div class="app-solution-header app-sol-header-0"><span>📡</span><span>Communication Externe</span></div><div class="app-solution-body"><p class="app-solution-intro">'+sanitize(COMM_GERANT_DIAGNOSTICS.externe[nExt])+'</p></div></div><div class="app-solution-section"><div class="app-solution-header app-sol-header-1"><span>💬</span><span>Communication Interne</span></div><div class="app-solution-body"><p class="app-solution-intro">'+sanitize(COMM_GERANT_DIAGNOSTICS.interne[nInt])+'</p></div></div><div class="app-solution-section"><div class="app-solution-header app-sol-header-maturity"><span>🧭</span><span>Maturité des pratiques</span></div><div class="app-solution-body"><p class="app-solution-intro"><strong>Score de maturité : '+pMat+' %.</strong> Cet indicateur mesure les dispositifs réellement structurés dans votre organisation. <strong>Il complète votre perception de la communication et sera analysé séparément de celle de vos employés et de vos clients.</strong></p></div></div>';
   commState.completed=true; showAppScreen("comm","comm-screen-result-gerant");
   const reportBtn=document.getElementById("comm-btn-report-gerant"), status=document.getElementById("comm-manager-save-status");
   if(reportBtn) reportBtn.classList.add("hidden");
@@ -2079,8 +2086,8 @@ document.addEventListener("DOMContentLoaded", function() {
   document.getElementById("comm-btn-report-gerant").addEventListener("click",commOpenEmployeeReport);
   document.getElementById("comm-report-period").addEventListener("change",function(){commLoadEmployeeReport(this.value);});
   document.getElementById("comm-btn-report-back").addEventListener("click",function(){showAppScreen("comm","comm-screen-result-gerant");});
-  document.getElementById("comm-btn-gerant").addEventListener("click",function(){commState.profil="gerant"; commSetupIntro("gerant"); showAppScreen("comm","comm-screen-intro");});
-  document.getElementById("comm-btn-salarie").addEventListener("click",function(){commState.profil="salarie"; commSetupIntro("salarie"); showAppScreen("comm","comm-screen-intro");});
+  document.getElementById("comm-btn-gerant").addEventListener("click",function(){if(osUser&&osUser.role==="user"&&osUser.communicationProfile!=="manager")return; commState.profil="gerant"; commSetupIntro("gerant"); showAppScreen("comm","comm-screen-intro");});
+  document.getElementById("comm-btn-salarie").addEventListener("click",function(){if(osUser&&osUser.role==="user"&&osUser.communicationProfile!=="employee")return; commState.profil="salarie"; commSetupIntro("salarie"); showAppScreen("comm","comm-screen-intro");});
   document.getElementById("comm-btn-start").addEventListener("click",function(){const profil=commState.profil; commState={profil:profil,index:0,scores:[0,0,0],npsScore:null,satisfactionScore:null,activePlan:"6m",pending:null,responses:[],engagements:[null,null],completed:false}; document.getElementById("comm-chips").innerHTML=""; showAppScreen("comm","comm-screen-diag"); commRenderQuestion();});
   document.getElementById("comm-btn-next").addEventListener("click",commCommitAndNext);
   document.getElementById("comm-btn-restart-salarie").addEventListener("click",commInit);
