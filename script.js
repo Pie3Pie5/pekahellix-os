@@ -1000,7 +1000,7 @@ async function openApp(appId) {
   if (win) {
     win.classList.remove("hidden");
     setActiveDockApp(appId);
-    if (appId === "admin") adminLoadUsers();
+    if (appId === "admin") { adminLoadOrganizations().then(adminLoadUsers).then(adminLoadCustomerCampaigns); }
     // H.2.1 — après une nouvelle connexion, appliquer le profil Communication
     // avant d'afficher le sélecteur. Un questionnaire déjà commencé dans la
     // session courante reste en revanche intact.
@@ -1115,6 +1115,7 @@ async function adminLoadOrganizations(){
   adminOrganizations=r.data||[];
   const sel=document.getElementById("admin-new-organization");
   if(sel) sel.innerHTML='<option value="">— Aucune entreprise —</option>'+adminOrganizations.map(o=>'<option value="'+adminEscape(o.id)+'">'+adminEscape(o.name)+'</option>').join('');
+  adminSyncCampaignOrganizations();
 }
 function adminOrganizationOptions(selected){return '<option value="">Aucune entreprise</option>'+adminOrganizations.map(o=>'<option value="'+adminEscape(o.id)+'"'+(o.id===selected?' selected':'')+'>'+adminEscape(o.name)+'</option>').join('');}
 async function adminCreateOrganization(){
@@ -1212,6 +1213,61 @@ async function adminSaveRow(row) {
     adminSetMessage("Modification impossible : " + (e.message || "Erreur inconnue"), true);
     await adminLoadUsers();
   }
+}
+
+const PEKAHELLIX_CLIENT_BASE_URL = "https://pie3pie5.github.io/pekahellix-client/";
+
+function adminCampaignSetMessage(message, isError){
+  const el=document.getElementById("admin-campaign-message"); if(!el)return;
+  el.textContent=message||""; el.classList.toggle("is-error",!!isError);
+}
+function adminSyncCampaignOrganizations(){
+  const sel=document.getElementById("admin-campaign-org"); if(!sel)return;
+  const current=sel.value;
+  sel.innerHTML='<option value="">— Choisir —</option>'+adminOrganizations.map(o=>'<option value="'+adminEscape(o.id)+'">'+adminEscape(o.name)+'</option>').join('');
+  if(current) sel.value=current;
+}
+async function adminLoadCustomerCampaigns(){
+  if(!userCanAccess("admin")||!supabaseClient)return;
+  adminSyncCampaignOrganizations();
+  const list=document.getElementById("admin-campaigns-list"); if(!list)return;
+  list.innerHTML='<p class="admin-loading">Chargement…</p>';
+  const r=await supabaseClient.rpc("admin_list_communication_customer_campaigns");
+  if(r.error){ console.error(r.error); list.innerHTML=''; adminCampaignSetMessage("Impossible de charger les campagnes : "+r.error.message,true); return; }
+  const rows=r.data||[];
+  list.innerHTML=rows.length?rows.map(adminRenderCustomerCampaign).join(''):'<p class="admin-help">Aucune campagne Client.</p>';
+}
+function adminRenderCustomerCampaign(c){
+  const link=PEKAHELLIX_CLIENT_BASE_URL+'?c='+encodeURIComponent(c.public_code);
+  const qr='https://api.qrserver.com/v1/create-qr-code/?size=220x220&data='+encodeURIComponent(link);
+  return '<article class="admin-campaign-row" data-id="'+adminEscape(c.id)+'" data-code="'+adminEscape(c.public_code)+'">'+
+    '<div class="admin-campaign-main"><strong>'+adminEscape(c.organization_name)+' · '+adminEscape(c.label)+'</strong>'+
+    '<span>'+Number(c.response_count||0)+' réponse'+(Number(c.response_count||0)>1?'s':'')+' · '+(c.is_active?'Active':'Fermée')+'</span>'+
+    '<code>'+adminEscape(c.public_code)+'</code></div>'+
+    '<div class="admin-campaign-actions"><button type="button" class="admin-mini-btn campaign-copy">Copier le lien</button>'+
+    '<a class="admin-mini-btn campaign-qr" href="'+qr+'" target="_blank" rel="noopener">QR code</a>'+
+    '<button type="button" class="admin-mini-btn '+(c.is_active?'danger':'')+' campaign-toggle">'+(c.is_active?'Fermer':'Réouvrir')+'</button></div></article>';
+}
+async function adminCreateCustomerCampaign(){
+  const org=document.getElementById("admin-campaign-org").value;
+  const label=document.getElementById("admin-campaign-label").value;
+  if(!org){adminCampaignSetMessage("Choisissez une entreprise.",true);return;}
+  const r=await supabaseClient.rpc("admin_create_communication_customer_campaign",{p_organization_id:org,p_label:label});
+  if(r.error){adminCampaignSetMessage("Création impossible : "+r.error.message,true);return;}
+  adminCampaignSetMessage("Campagne "+label+" créée. Le lien public et le QR code sont prêts.",false);
+  await adminLoadCustomerCampaigns();
+}
+async function adminToggleCustomerCampaign(row){
+  const id=row.dataset.id; const btn=row.querySelector('.campaign-toggle');
+  const makeActive=btn.textContent.trim()==='Réouvrir';
+  const r=await supabaseClient.rpc("admin_set_communication_customer_campaign_active",{p_campaign_id:id,p_is_active:makeActive});
+  if(r.error){adminCampaignSetMessage("Modification impossible : "+r.error.message,true);return;}
+  adminCampaignSetMessage(makeActive?"Campagne réouverte.":"Campagne fermée.",false); await adminLoadCustomerCampaigns();
+}
+async function adminCopyCampaignLink(row){
+  const link=PEKAHELLIX_CLIENT_BASE_URL+'?c='+encodeURIComponent(row.dataset.code);
+  try{await navigator.clipboard.writeText(link);adminCampaignSetMessage("Lien copié dans le presse-papiers.",false);}
+  catch(e){window.prompt("Copiez ce lien :",link);}
 }
 
 async function callAdminUsers(payload) {
@@ -2058,8 +2114,11 @@ document.addEventListener("DOMContentLoaded", function() {
   });
 
   /* ── ADMINISTRATION ── */
-  document.getElementById("admin-refresh").addEventListener("click", async function(){ await adminLoadOrganizations(); await adminLoadUsers(); });
+  document.getElementById("admin-refresh").addEventListener("click", async function(){ await adminLoadOrganizations(); await adminLoadUsers(); await adminLoadCustomerCampaigns(); });
   document.getElementById("admin-create-org").addEventListener("click", adminCreateOrganization);
+  document.getElementById("admin-campaign-refresh").addEventListener("click", adminLoadCustomerCampaigns);
+  document.getElementById("admin-campaign-create").addEventListener("click", adminCreateCustomerCampaign);
+  document.getElementById("admin-campaigns-list").addEventListener("click", function(e){ const row=e.target.closest(".admin-campaign-row"); if(!row)return; if(e.target.closest(".campaign-copy")) adminCopyCampaignLink(row); if(e.target.closest(".campaign-toggle")) adminToggleCustomerCampaign(row); });
   document.getElementById("admin-create-user").addEventListener("click", adminCreateUser);
   document.getElementById("admin-users-list").addEventListener("click", function(e) {
     const row = e.target.closest(".admin-user-row");

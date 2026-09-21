@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=0.5-h.2.1" />
+  <link rel="stylesheet" href="style.css?v=0.5-h.2.2" />
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
   <link rel="icon" type="image/png" href="favicon.png">
@@ -608,6 +608,21 @@
         <div class="admin-inline-create"><input id="admin-new-org-name" type="text" maxlength="120" placeholder="Nom de l’entreprise"><button type="button" id="admin-create-org" class="app-btn app-btn-secondary">Créer l’entreprise</button></div>
       </section>
 
+
+      <section class="admin-card admin-campaign-card">
+        <div class="admin-section-head">
+          <div><h3>Campagnes questionnaire Clients</h3><p class="admin-help">Créez les campagnes T0 / T+3 / T+6, copiez leur lien public et générez le QR code à remettre au commerce.</p></div>
+          <button type="button" id="admin-campaign-refresh" class="app-btn app-btn-secondary">↻ Actualiser</button>
+        </div>
+        <div class="admin-campaign-create">
+          <label>Entreprise<select id="admin-campaign-org"><option value="">— Choisir —</option></select></label>
+          <label>Étape<select id="admin-campaign-label"><option value="T0">T0 — Diagnostic initial</option><option value="T+3">T+3 — Point intermédiaire</option><option value="T+6">T+6 — Bilan final</option></select></label>
+          <button type="button" id="admin-campaign-create" class="app-btn app-btn-primary">Créer la campagne</button>
+        </div>
+        <p id="admin-campaign-message" class="admin-help" role="status" aria-live="polite"></p>
+        <div id="admin-campaigns-list" class="admin-campaigns-list"></div>
+      </section>
+
       <section class="admin-card">
         <h3>Créer un utilisateur</h3>
         <div class="admin-form-grid">
@@ -669,7 +684,7 @@
   </div>
 
   <script src="config.js"></script>
-  <script src="script.js?v=0.5-h.2.1"></script>
+  <script src="script.js?v=0.5-h.2.2"></script>
 
 <script>
 if ('serviceWorker' in navigator) {
