@@ -1237,24 +1237,42 @@ async function adminLoadCustomerCampaigns(){
   const rows=r.data||[];
   list.innerHTML=rows.length?rows.map(adminRenderCustomerCampaign).join(''):'<p class="admin-help">Aucune campagne Client.</p>';
 }
+function adminFormatCampaignDate(value){
+  if(!value)return "Aucune date de fin";
+  try{return "Fin : "+new Intl.DateTimeFormat("fr-FR",{day:"2-digit",month:"2-digit",year:"numeric"}).format(new Date(value));}
+  catch(e){return "Fin : "+String(value);}
+}
 function adminRenderCustomerCampaign(c){
   const link=PEKAHELLIX_CLIENT_BASE_URL+'?c='+encodeURIComponent(c.public_code);
   const qr='https://api.qrserver.com/v1/create-qr-code/?size=220x220&data='+encodeURIComponent(link);
-  return '<article class="admin-campaign-row" data-id="'+adminEscape(c.id)+'" data-code="'+adminEscape(c.public_code)+'">'+
-    '<div class="admin-campaign-main"><strong>'+adminEscape(c.organization_name)+' · '+adminEscape(c.label)+'</strong>'+
-    '<span>'+Number(c.response_count||0)+' réponse'+(Number(c.response_count||0)>1?'s':'')+' · '+(c.is_active?'Active':'Fermée')+'</span>'+
-    '<code>'+adminEscape(c.public_code)+'</code></div>'+
-    '<div class="admin-campaign-actions"><button type="button" class="admin-mini-btn campaign-copy">Copier le lien</button>'+
-    '<a class="admin-mini-btn campaign-qr" href="'+qr+'" target="_blank" rel="noopener">QR code</a>'+
-    '<button type="button" class="admin-mini-btn '+(c.is_active?'danger':'')+' campaign-toggle">'+(c.is_active?'Fermer':'Réouvrir')+'</button></div></article>';
+  const count=Number(c.response_count||0);
+  return '<article class="admin-campaign-row" data-id="'+adminEscape(c.id)+'" data-code="'+adminEscape(c.public_code)+'" data-count="'+count+'">'+
+    '<div class="admin-campaign-main"><strong>'+adminEscape(c.organization_name)+' · '+adminEscape(c.label)+'</strong>'+ 
+    '<span>'+count+' réponse'+(count>1?'s':'')+' · '+(c.is_active?'Active':'Fermée')+' · '+adminEscape(adminFormatCampaignDate(c.ends_at))+'</span>'+ 
+    '<code>'+adminEscape(c.public_code)+'</code></div>'+ 
+    '<div class="admin-campaign-actions"><button type="button" class="admin-mini-btn campaign-copy">Copier le lien</button>'+ 
+    '<a class="admin-mini-btn campaign-qr" href="'+qr+'" target="_blank" rel="noopener">QR code</a>'+ 
+    '<button type="button" class="admin-mini-btn '+(c.is_active?'danger':'')+' campaign-toggle">'+(c.is_active?'Fermer':'Réouvrir')+'</button>'+ 
+    '<button type="button" class="admin-mini-btn danger campaign-delete" title="Suppression possible uniquement si aucune réponse n’est rattachée">Supprimer</button></div></article>';
 }
 async function adminCreateCustomerCampaign(){
   const org=document.getElementById("admin-campaign-org").value;
   const label=document.getElementById("admin-campaign-label").value;
+  const endDate=document.getElementById("admin-campaign-end-date").value||null;
   if(!org){adminCampaignSetMessage("Choisissez une entreprise.",true);return;}
-  const r=await supabaseClient.rpc("admin_create_communication_customer_campaign",{p_organization_id:org,p_label:label});
+  const r=await supabaseClient.rpc("admin_create_communication_customer_campaign",{p_organization_id:org,p_label:label,p_ends_at:endDate});
   if(r.error){adminCampaignSetMessage("Création impossible : "+r.error.message,true);return;}
   adminCampaignSetMessage("Campagne "+label+" créée. Le lien public et le QR code sont prêts.",false);
+  document.getElementById("admin-campaign-end-date").value="";
+  await adminLoadCustomerCampaigns();
+}
+async function adminDeleteCustomerCampaign(row){
+  const count=Number(row.dataset.count||0);
+  if(count>0){adminCampaignSetMessage("Suppression impossible : cette campagne contient déjà des réponses. Fermez-la pour préserver les données.",true);return;}
+  if(!window.confirm("Supprimer définitivement cette campagne sans réponse ?"))return;
+  const r=await supabaseClient.rpc("admin_delete_communication_customer_campaign",{p_campaign_id:row.dataset.id});
+  if(r.error){adminCampaignSetMessage("Suppression impossible : "+r.error.message,true);return;}
+  adminCampaignSetMessage("Campagne supprimée.",false);
   await adminLoadCustomerCampaigns();
 }
 async function adminToggleCustomerCampaign(row){
@@ -2118,7 +2136,7 @@ document.addEventListener("DOMContentLoaded", function() {
   document.getElementById("admin-create-org").addEventListener("click", adminCreateOrganization);
   document.getElementById("admin-campaign-refresh").addEventListener("click", adminLoadCustomerCampaigns);
   document.getElementById("admin-campaign-create").addEventListener("click", adminCreateCustomerCampaign);
-  document.getElementById("admin-campaigns-list").addEventListener("click", function(e){ const row=e.target.closest(".admin-campaign-row"); if(!row)return; if(e.target.closest(".campaign-copy")) adminCopyCampaignLink(row); if(e.target.closest(".campaign-toggle")) adminToggleCustomerCampaign(row); });
+  document.getElementById("admin-campaigns-list").addEventListener("click", function(e){ const row=e.target.closest(".admin-campaign-row"); if(!row)return; if(e.target.closest(".campaign-copy")) adminCopyCampaignLink(row); if(e.target.closest(".campaign-toggle")) adminToggleCustomerCampaign(row); if(e.target.closest(".campaign-delete")) adminDeleteCustomerCampaign(row); });
   document.getElementById("admin-create-user").addEventListener("click", adminCreateUser);
   document.getElementById("admin-users-list").addEventListener("click", function(e) {
     const row = e.target.closest(".admin-user-row");
