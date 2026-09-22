@@ -1247,7 +1247,7 @@ function adminRenderCustomerCampaign(c){
   const qr='https://api.qrserver.com/v1/create-qr-code/?size=220x220&data='+encodeURIComponent(link);
   const count=Number(c.response_count||0);
   return '<article class="admin-campaign-row" data-id="'+adminEscape(c.id)+'" data-code="'+adminEscape(c.public_code)+'" data-count="'+count+'">'+
-    '<div class="admin-campaign-main"><strong>'+adminEscape(c.organization_name)+' · '+adminEscape(c.label)+'</strong>'+ 
+    '<div class="admin-campaign-main"><strong>'+adminEscape(c.organization_name)+' · '+adminEscape(c.stage||c.label)+'</strong>'+ 
     '<span>'+count+' réponse'+(count>1?'s':'')+' · '+(c.is_active?'Active':'Fermée')+' · '+adminEscape(adminFormatCampaignDate(c.ends_at))+'</span>'+ 
     '<code>'+adminEscape(c.public_code)+'</code></div>'+ 
     '<div class="admin-campaign-actions"><button type="button" class="admin-mini-btn campaign-copy">Copier le lien</button>'+ 
@@ -1257,12 +1257,12 @@ function adminRenderCustomerCampaign(c){
 }
 async function adminCreateCustomerCampaign(){
   const org=document.getElementById("admin-campaign-org").value;
-  const label=document.getElementById("admin-campaign-label").value;
+  const stage=document.getElementById("admin-campaign-label").value;
   const endDate=document.getElementById("admin-campaign-end-date").value||null;
   if(!org){adminCampaignSetMessage("Choisissez une entreprise.",true);return;}
-  const r=await supabaseClient.rpc("admin_create_communication_customer_campaign",{p_organization_id:org,p_label:label,p_ends_at:endDate});
+  const r=await supabaseClient.rpc("admin_create_communication_customer_campaign",{p_organization_id:org,p_stage:stage,p_ends_at:endDate});
   if(r.error){adminCampaignSetMessage("Création impossible : "+r.error.message,true);return;}
-  adminCampaignSetMessage("Campagne "+label+" créée. Le lien public et le QR code sont prêts.",false);
+  adminCampaignSetMessage("Campagne "+stage+" créée. Le lien public et le QR code sont prêts.",false);
   document.getElementById("admin-campaign-end-date").value="";
   await adminLoadCustomerCampaigns();
 }
