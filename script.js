@@ -1239,7 +1239,7 @@ async function adminLoadCustomerCampaigns(){
 }
 function adminFormatCampaignDate(value){
   if(!value)return "Aucune date de fin";
-  try{return "Fin : "+new Intl.DateTimeFormat("fr-FR",{day:"2-digit",month:"2-digit",year:"numeric"}).format(new Date(value));}
+  try{return "Fin : "+new Intl.DateTimeFormat("fr-FR",{day:"2-digit",month:"2-digit",year:"numeric",timeZone:"Europe/Paris"}).format(new Date(value));}
   catch(e){return "Fin : "+String(value);}
 }
 function adminRenderCustomerCampaign(c){
@@ -1268,7 +1268,13 @@ async function adminCreateCustomerCampaign(){
 }
 async function adminDeleteCustomerCampaign(row){
   const count=Number(row.dataset.count||0);
-  if(count>0){adminCampaignSetMessage("Suppression impossible : cette campagne contient déjà des réponses. Fermez-la pour préserver les données.",true);return;}
+  if(count>0){
+    const isActive=row.querySelector('.campaign-toggle')?.textContent.trim()==='Fermer';
+    adminCampaignSetMessage(isActive
+      ? "Suppression impossible : cette campagne contient déjà des réponses et doit être conservée afin de préserver l’historique des données. Vous pouvez la fermer pour empêcher toute nouvelle réponse."
+      : "Suppression impossible : cette campagne contient des réponses et doit être conservée afin de préserver l’historique des données.",true);
+    return;
+  }
   if(!window.confirm("Supprimer définitivement cette campagne sans réponse ?"))return;
   const r=await supabaseClient.rpc("admin_delete_communication_customer_campaign",{p_campaign_id:row.dataset.id});
   if(r.error){adminCampaignSetMessage("Suppression impossible : "+r.error.message,true);return;}
