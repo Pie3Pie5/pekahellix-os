@@ -1242,17 +1242,25 @@ function adminFormatCampaignDate(value){
   try{return "Fin : "+new Intl.DateTimeFormat("fr-FR",{day:"2-digit",month:"2-digit",year:"numeric",timeZone:"Europe/Paris"}).format(new Date(value));}
   catch(e){return "Fin : "+String(value);}
 }
+function adminCampaignDateInputValue(value){
+  if(!value)return "";
+  try{
+    const parts=new Intl.DateTimeFormat("en-CA",{year:"numeric",month:"2-digit",day:"2-digit",timeZone:"Europe/Paris"}).formatToParts(new Date(value));
+    const get=t=>parts.find(p=>p.type===t)?.value||""; return get("year")+"-"+get("month")+"-"+get("day");
+  }catch(e){return "";}
+}
 function adminRenderCustomerCampaign(c){
   const link=PEKAHELLIX_CLIENT_BASE_URL+'?c='+encodeURIComponent(c.public_code);
   const qr='https://api.qrserver.com/v1/create-qr-code/?size=220x220&data='+encodeURIComponent(link);
   const count=Number(c.response_count||0);
-  return '<article class="admin-campaign-row" data-id="'+adminEscape(c.id)+'" data-code="'+adminEscape(c.public_code)+'" data-count="'+count+'">'+
+  return '<article class="admin-campaign-row" data-id="'+adminEscape(c.id)+'" data-code="'+adminEscape(c.public_code)+'" data-count="'+count+'" data-end-date="'+adminEscape(adminCampaignDateInputValue(c.ends_at))+'">'+
     '<div class="admin-campaign-main"><strong>'+adminEscape(c.organization_name)+' · '+adminEscape(c.stage||c.label)+'</strong>'+ 
     '<span>'+count+' réponse'+(count>1?'s':'')+' · '+(c.is_active?'Active':'Fermée')+' · '+adminEscape(adminFormatCampaignDate(c.ends_at))+'</span>'+ 
     '<code>'+adminEscape(c.public_code)+'</code></div>'+ 
     '<div class="admin-campaign-actions"><button type="button" class="admin-mini-btn campaign-copy">Copier le lien</button>'+ 
-    '<a class="admin-mini-btn campaign-qr" href="'+qr+'" target="_blank" rel="noopener">QR code</a>'+ 
-    '<button type="button" class="admin-mini-btn '+(c.is_active?'danger':'')+' campaign-toggle">'+(c.is_active?'Fermer':'Réouvrir')+'</button>'+ 
+    '<a class="admin-mini-btn campaign-qr" href="'+qr+'" target="_blank" rel="noopener">QR code</a>'+
+    '<button type="button" class="admin-mini-btn campaign-edit">Modifier</button>'+ 
+    '<button type="button" class="admin-mini-btn '+(c.is_active?'danger':'')+' campaign-toggle">'+(c.is_active?'Fermer':'Rouvrir')+'</button>'+ 
     '<button type="button" class="admin-mini-btn danger campaign-delete" title="Suppression possible uniquement si aucune réponse n’est rattachée">Supprimer</button></div></article>';
 }
 async function adminCreateCustomerCampaign(){
@@ -1264,6 +1272,19 @@ async function adminCreateCustomerCampaign(){
   if(r.error){adminCampaignSetMessage("Création impossible : "+r.error.message,true);return;}
   adminCampaignSetMessage("Campagne "+stage+" créée. Le lien public et le QR code sont prêts.",false);
   document.getElementById("admin-campaign-end-date").value="";
+  await adminLoadCustomerCampaigns();
+}
+
+async function adminEditCustomerCampaign(row){
+  const iso=row.dataset.endDate||"";
+  const current=iso?iso.slice(8,10)+"/"+iso.slice(5,7)+"/"+iso.slice(0,4):"";
+  const entered=window.prompt("Date de fin de campagne (JJ/MM/AAAA). Laissez vide pour supprimer la date de fin :",current);
+  if(entered===null)return;
+  const raw=entered.trim(); let value=null;
+  if(raw){const m=raw.match(/^(\d{2})\/(\d{2})\/(\d{4})$/); if(!m){adminCampaignSetMessage("Format de date invalide. Utilisez JJ/MM/AAAA.",true);return;} value=m[3]+"-"+m[2]+"-"+m[1];}
+  const r=await supabaseClient.rpc("admin_update_communication_customer_campaign_end_date",{p_campaign_id:row.dataset.id,p_ends_at:value});
+  if(r.error){adminCampaignSetMessage("Modification impossible : "+r.error.message,true);return;}
+  adminCampaignSetMessage(value?"Date de fin modifiée.":"Date de fin supprimée.",false);
   await adminLoadCustomerCampaigns();
 }
 async function adminDeleteCustomerCampaign(row){
@@ -1283,10 +1304,10 @@ async function adminDeleteCustomerCampaign(row){
 }
 async function adminToggleCustomerCampaign(row){
   const id=row.dataset.id; const btn=row.querySelector('.campaign-toggle');
-  const makeActive=btn.textContent.trim()==='Réouvrir';
+  const makeActive=btn.textContent.trim()==='Rouvrir';
   const r=await supabaseClient.rpc("admin_set_communication_customer_campaign_active",{p_campaign_id:id,p_is_active:makeActive});
   if(r.error){adminCampaignSetMessage("Modification impossible : "+r.error.message,true);return;}
-  adminCampaignSetMessage(makeActive?"Campagne réouverte.":"Campagne fermée.",false); await adminLoadCustomerCampaigns();
+  adminCampaignSetMessage(makeActive?"Campagne rouverte.":"Campagne fermée.",false); await adminLoadCustomerCampaigns();
 }
 async function adminCopyCampaignLink(row){
   const link=PEKAHELLIX_CLIENT_BASE_URL+'?c='+encodeURIComponent(row.dataset.code);
@@ -2142,7 +2163,7 @@ document.addEventListener("DOMContentLoaded", function() {
   document.getElementById("admin-create-org").addEventListener("click", adminCreateOrganization);
   document.getElementById("admin-campaign-refresh").addEventListener("click", adminLoadCustomerCampaigns);
   document.getElementById("admin-campaign-create").addEventListener("click", adminCreateCustomerCampaign);
-  document.getElementById("admin-campaigns-list").addEventListener("click", function(e){ const row=e.target.closest(".admin-campaign-row"); if(!row)return; if(e.target.closest(".campaign-copy")) adminCopyCampaignLink(row); if(e.target.closest(".campaign-toggle")) adminToggleCustomerCampaign(row); if(e.target.closest(".campaign-delete")) adminDeleteCustomerCampaign(row); });
+  document.getElementById("admin-campaigns-list").addEventListener("click", function(e){ const row=e.target.closest(".admin-campaign-row"); if(!row)return; if(e.target.closest(".campaign-copy")) adminCopyCampaignLink(row); if(e.target.closest(".campaign-edit")) adminEditCustomerCampaign(row); if(e.target.closest(".campaign-toggle")) adminToggleCustomerCampaign(row); if(e.target.closest(".campaign-delete")) adminDeleteCustomerCampaign(row); });
   document.getElementById("admin-create-user").addEventListener("click", adminCreateUser);
   document.getElementById("admin-users-list").addEventListener("click", function(e) {
     const row = e.target.closest(".admin-user-row");
