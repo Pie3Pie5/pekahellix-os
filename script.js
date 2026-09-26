@@ -1306,7 +1306,7 @@ async function adminToggleCustomerCampaign(row){
   const id=row.dataset.id; const btn=row.querySelector('.campaign-toggle');
   const makeActive=btn.textContent.trim()==='Rouvrir';
   const r=await supabaseClient.rpc("admin_set_communication_customer_campaign_active",{p_campaign_id:id,p_is_active:makeActive});
-  if(r.error){adminCampaignSetMessage("Modification impossible : "+r.error.message,true);return;}
+  if(r.error){adminCampaignSetMessage((makeActive?"Réouverture impossible : ":"Modification impossible : ")+r.error.message,true);return;}
   adminCampaignSetMessage(makeActive?"Campagne rouverte.":"Campagne fermée.",false); await adminLoadCustomerCampaigns();
 }
 async function adminCopyCampaignLink(row){
