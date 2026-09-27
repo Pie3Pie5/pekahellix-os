@@ -1426,43 +1426,84 @@ async function adminDeleteUser(row) {
    ============================================================ */
 const ADMIN_360_EXT_LABELS={"EXT-01":"Clarté & efficacité","EXT-02":"Image & cohérence","EXT-03":"Accueil & relation client","EXT-04":"Écoute & réactivité","EXT-05":"Ancrage local","EXT-06":"Attractivité & fidélisation"};
 const ADMIN_360_INT_LABELS={"INT-01":"Circulation de l’information","INT-02":"Expression & écoute","INT-03":"Communication dans l’équipe","INT-04":"Feedback","INT-05":"Reconnaissance","INT-06":"Vision & objectifs","INT-07":"Temps d’échange collectifs"};
+const ADMIN_360_PR_LABELS={"PR-01":"Réseaux sociaux","PR-02":"Visibilité locale numérique","PR-03":"Communication locale","PR-04":"Avis & réclamations","PR-05":"Identité visuelle","PR-06":"Satisfaction client","PR-07":"Communication des engagements","PR-08":"Fidélisation"};
+const ADMIN_360_CLIENT_QUESTIONS={
+ "EXT-01":"Comprenez-vous facilement les offres, services et informations communiqués par ce commerce ?",
+ "EXT-02":"L'image donnée par ce commerce vous paraît-elle claire, cohérente et professionnelle ?",
+ "EXT-03":"Percevez-vous positivement l'accueil et la qualité de la relation avec ce commerce ?",
+ "EXT-04":"Vous sentez-vous écouté(e) et obtenez-vous une réponse satisfaisante lorsque vous sollicitez ce commerce ?",
+ "EXT-05":"L'implication de ce commerce dans la vie locale vous paraît-elle visible ?",
+ "EXT-06":"L'image et la communication de ce commerce vous donnent-elles envie d'y revenir et de le recommander ?"
+};
 function admin360Num(v,suffix=""){return v==null?"—":Number(v).toLocaleString("fr-FR",{maximumFractionDigits:1})+suffix;}
 function admin360Score(v){return admin360Num(v," / 100");}
+function admin360Question(id,pop){
+  if(pop==='client')return ADMIN_360_CLIENT_QUESTIONS[id]||'';
+  const src=pop==='employee'?COMM_QUESTIONS_EMPLOYE:COMM_QUESTIONS_GERANT;
+  return src.find(q=>q.id===id)?.text||'';
+}
+function admin360QuestionBlock(id,internal,practice=false){
+  const rows=[];
+  const mq=admin360Question(id,'manager'); if(mq)rows.push(['Gérant',mq]);
+  if(!practice){const eq=admin360Question(id,'employee'); if(eq)rows.push(['Employés',eq]); if(!internal){const cq=admin360Question(id,'client');if(cq)rows.push(['Clients',cq]);}}
+  return '<div class="admin-360-question-print"><strong>Question'+(rows.length>1?'s':'')+' associée'+(rows.length>1?'s':'')+'</strong>'+rows.map(x=>'<p><b>'+x[0]+' :</b> '+adminEscape(x[1])+'</p>').join('')+'</div>';
+}
+function admin360OpenQuestions(id,internal,practice=false){
+  const labels=practice?ADMIN_360_PR_LABELS:(internal?ADMIN_360_INT_LABELS:ADMIN_360_EXT_LABELS);
+  const html=admin360QuestionBlock(id,internal,practice);
+  let modal=document.getElementById('admin-360-modal');
+  if(!modal){modal=document.createElement('div');modal.id='admin-360-modal';modal.className='admin-360-modal';document.body.appendChild(modal);}
+  modal.innerHTML='<div class="admin-360-modal-backdrop" data-close="1"></div><div class="admin-360-modal-dialog" role="dialog" aria-modal="true"><div class="admin-360-modal-head"><h4>'+adminEscape(labels[id]||id)+'</h4><button type="button" data-close="1" aria-label="Fermer">×</button></div>'+html+'<div class="admin-360-modal-actions"><button type="button" class="app-btn app-btn-secondary" data-close="1">Fermer</button></div></div>';
+  modal.classList.add('is-open'); modal.querySelectorAll('[data-close]').forEach(x=>x.addEventListener('click',()=>modal.classList.remove('is-open')));
+}
+function admin360AttentionText(r){
+  if(r.alignment==null)return 'Alignement en attente d’un second regard.';
+  let t=(r.gap_level||'')+(r.gap_direction?' · '+r.gap_direction:'');
+  if(r.gap_level==='Écart majeur')t='Écart majeur entre les perceptions'+(r.gap_direction?' · '+r.gap_direction:'');
+  return t+'.';
+}
 function admin360Bars(rows,internal){
   if(!rows||!rows.length)return '<p class="admin-help">Aucune donnée pour cette étape.</p>';
   const labels=internal?ADMIN_360_INT_LABELS:ADMIN_360_EXT_LABELS;
   return '<div class="admin-360-axis-list">'+rows.map(r=>{
     const series=[['Gérant',r.manager_score],['Employés',r.employee_score]]; if(!internal)series.push(['Clients',r.customer_score]);
     const bars=series.map(x=>'<div class="admin-360-mini"><span>'+x[0]+'</span><div><i style="width:'+(x[1]==null?0:Math.max(0,Math.min(100,Number(x[1]))))+'%"></i></div><strong>'+admin360Num(x[1],'%')+'</strong></div>').join('');
-    const meta=r.alignment==null?'Alignement en attente d’un second regard':'Alignement '+admin360Num(r.alignment,'%')+(r.gap_level?' · '+adminEscape(r.gap_level):'')+(r.gap_direction?' · '+adminEscape(r.gap_direction):'');
-    return '<article class="admin-360-axis"><div class="admin-360-axis-head"><strong>'+adminEscape(labels[r.question_id]||r.question_id)+'</strong><span>'+meta+'</span></div>'+bars+'</article>';
+    const meta=r.alignment==null?'Alignement en attente d’un second regard':'Alignement '+admin360Num(r.alignment,'%');
+    return '<article class="admin-360-axis">'+admin360QuestionBlock(r.question_id,internal)+'<div class="admin-360-axis-head"><div><strong>'+adminEscape(labels[r.question_id]||r.question_id)+'</strong><button type="button" class="admin-360-question-btn no-print" data-qid="'+r.question_id+'" data-internal="'+(internal?'1':'0')+'">Voir les questions</button></div><span>'+meta+'</span></div><div class="admin-360-chart">'+bars+'</div><div class="admin-360-axis-attention"><b>Point d’attention :</b> '+adminEscape(admin360AttentionText(r))+'</div></article>';
   }).join('')+'</div>';
 }
-function admin360Attention(summary,ext,intl){
-  const items=[];
-  if(summary.customer_count>0&&summary.customer_count<=2)items.push(summary.customer_count+' réponse Client : résultat à interpréter avec une grande prudence.');
-  else if(summary.customer_interpretation)items.push(summary.customer_interpretation+'.');
-  if(summary.employee_count>0&&!summary.employee_anonymity_ok)items.push('Résultats Employés masqués : seuil d’anonymat non atteint.');
-  if(!summary.manager_count)items.push('Diagnostic Gérant absent pour cette étape.');
-  [...(ext||[]),...(intl||[])].filter(x=>x.gap_level==='Écart majeur').forEach(x=>items.push((ADMIN_360_EXT_LABELS[x.question_id]||ADMIN_360_INT_LABELS[x.question_id]||x.question_id)+' : écart majeur entre perceptions.'));
-  return items.length?'<ul>'+items.map(x=>'<li>'+adminEscape(x)+'</li>').join('')+'</ul>':'<p class="admin-help">Aucun point d’attention automatique détecté.</p>';
+function admin360Maturity(rows){
+  if(!rows||!rows.length)return '<p class="admin-help">Aucune donnée de maturité pour cette étape.</p>';
+  return '<div class="admin-360-axis-list">'+rows.map(r=>'<article class="admin-360-axis admin-360-practice">'+admin360QuestionBlock(r.question_id,false,true)+'<div class="admin-360-axis-head"><div><strong>'+adminEscape(ADMIN_360_PR_LABELS[r.question_id]||r.question_id)+'</strong><button type="button" class="admin-360-question-btn no-print" data-qid="'+r.question_id+'" data-practice="1">Voir la question</button></div><span>'+admin360Score(r.score)+'</span></div><div class="admin-360-mini"><span>Gérant</span><div><i style="width:'+(r.score==null?0:Math.max(0,Math.min(100,Number(r.score))))+'%"></i></div><strong>'+admin360Num(r.score,'%')+'</strong></div></article>').join('')+'</div>';
+}
+function admin360Kpi(title,value,small){return '<div><span>'+title+'</span><strong>'+admin360Score(value)+'</strong><small>'+small+'</small></div>';}
+function admin360ExportPdf(){
+  const org=document.getElementById('admin-360-org'); const stage=document.getElementById('admin-360-stage');
+  document.body.dataset.printOrg=org?.options[org.selectedIndex]?.text||''; document.body.dataset.printStage=stage?.value||'';
+  window.print();
 }
 async function adminLoad360Dashboard(){
   if(!userCanAccess("admin")||!supabaseClient)return;
   const box=document.getElementById("admin-360-content"), org=document.getElementById("admin-360-org")?.value, stage=document.getElementById("admin-360-stage")?.value||"T0";
   if(!box)return; if(!org){box.innerHTML='<p class="admin-help">Choisissez une entreprise pour afficher son diagnostic.</p>';return;}
   box.innerHTML='<p class="admin-loading">Chargement du diagnostic 360°…</p>';
-  const [sr,er,ir]=await Promise.all([
+  const [sr,er,ir,mr]=await Promise.all([
     supabaseClient.from("communication_360_dashboard_summary").select("*").eq("organization_id",org).eq("stage",stage).maybeSingle(),
     supabaseClient.from("communication_360_external_secure_analysis").select("*").eq("organization_id",org).eq("stage",stage).order("question_id"),
-    supabaseClient.from("communication_360_internal_secure_analysis").select("*").eq("organization_id",org).eq("stage",stage).order("question_id")
+    supabaseClient.from("communication_360_internal_secure_analysis").select("*").eq("organization_id",org).eq("stage",stage).order("question_id"),
+    supabaseClient.from("communication_360_maturity_analysis").select("*").eq("organization_id",org).eq("stage",stage).order("question_id")
   ]);
-  const err=sr.error||er.error||ir.error; if(err){console.error("communication 360",err);box.innerHTML='<div class="admin-message is-error">Dashboard indisponible : '+adminEscape(err.message||'vérifiez les droits de lecture des vues H.3-A.')+'</div>';return;}
+  const err=sr.error||er.error||ir.error||mr.error; if(err){console.error("communication 360",err);box.innerHTML='<div class="admin-message is-error">Dashboard indisponible : '+adminEscape(err.message||'vérifiez les droits de lecture des vues H.3-A.')+'</div>';return;}
   const d=sr.data; if(!d){box.innerHTML='<div class="admin-360-empty"><strong>Aucune donnée pour '+adminEscape(stage)+'</strong><span>Le diagnostic apparaîtra dès qu’une population aura répondu.</span></div>';return;}
-  box.innerHTML='<div class="admin-360-status"><div><span>Statut</span><strong>'+adminEscape(d.diagnostic_status)+'</strong></div><div class="admin-360-pop"><span>Gérant <b>'+d.manager_count+'</b></span><span>Employés <b>'+d.employee_count+'</b></span><span>Clients <b>'+d.customer_count+'</b></span></div></div>'+
-    '<div class="admin-360-kpis"><div><span>Perception externe</span><strong>'+admin360Score(d.manager_external_score)+'</strong><small>Gérant</small></div><div><span>Perception externe</span><strong>'+admin360Score(d.employee_external_score)+'</strong><small>Employés</small></div><div><span>Perception externe</span><strong>'+admin360Score(d.customer_external_score)+'</strong><small>Clients</small></div><div><span>Alignement externe</span><strong>'+admin360Score(d.external_alignment)+'</strong><small>'+Number(d.external_axes_compared||0)+' axe(s) comparé(s)</small></div><div><span>Perception interne</span><strong>'+admin360Score(d.manager_internal_score)+'</strong><small>Gérant</small></div><div><span>Perception interne</span><strong>'+admin360Score(d.employee_internal_score)+'</strong><small>Employés</small></div><div><span>Alignement interne</span><strong>'+admin360Score(d.internal_alignment)+'</strong><small>'+Number(d.internal_axes_compared||0)+' axe(s) comparé(s)</small></div><div><span>Maturité des pratiques</span><strong>'+admin360Score(d.maturity_score)+'</strong><small>Gérant</small></div></div>'+
-    '<div class="admin-360-nps"><div><span>NPS Clients</span><strong>'+admin360Num(d.customer_nps)+'</strong><small>'+(d.customer_nps_respondents==null?'Aucune réponse':d.customer_nps_respondents+' répondant(s) · '+adminEscape(d.customer_sample_status||''))+'</small></div><div><span>eNPS Employés</span><strong>'+admin360Num(d.employee_enps)+'</strong><small>'+(d.employee_enps_respondents==null?'Aucune réponse':d.employee_enps_respondents+' répondant(s) · '+adminEscape(d.employee_sample_status||''))+'</small></div></div>'+
-    '<section class="admin-360-panel"><h4>Perception externe — détail par axe</h4>'+admin360Bars(er.data,false)+'</section><section class="admin-360-panel"><h4>Perception interne — détail par axe</h4>'+admin360Bars(ir.data,true)+'</section><section class="admin-360-panel admin-360-attention"><h4>Points d’attention</h4>'+admin360Attention(d,er.data,ir.data)+'</section>';
+  box.innerHTML='<div class="admin-360-toolbar no-print"><button type="button" id="admin-360-pdf" class="app-btn app-btn-secondary">Exporter le diagnostic en PDF</button></div>'+ 
+    '<div class="admin-360-print-title"><h2>Diagnostic Communication 360°</h2><p>'+adminEscape(document.getElementById('admin-360-org')?.options[document.getElementById('admin-360-org').selectedIndex]?.text||'')+' · '+adminEscape(stage)+'</p></div>'+ 
+    '<div class="admin-360-status"><div><span>Statut</span><strong>'+adminEscape(d.diagnostic_status)+'</strong></div><div class="admin-360-pop"><span>Gérant <b>'+d.manager_count+'</b></span><span>Employés <b>'+d.employee_count+'</b></span><span>Clients <b>'+d.customer_count+'</b></span></div></div>'+ 
+    '<section class="admin-360-panel admin-360-section"><h4>Perception externe</h4><div class="admin-360-kpis admin-360-kpis-external">'+admin360Kpi('Gérant',d.manager_external_score,'Perception externe')+admin360Kpi('Employés',d.employee_external_score,'Perception externe')+admin360Kpi('Clients',d.customer_external_score,'Perception externe')+admin360Kpi('Alignement',d.external_alignment,Number(d.external_axes_compared||0)+' axe(s) comparé(s)')+'</div>'+admin360Bars(er.data,false)+'</section>'+ 
+    '<section class="admin-360-panel admin-360-section"><h4>Perception interne</h4><div class="admin-360-kpis admin-360-kpis-internal">'+admin360Kpi('Gérant',d.manager_internal_score,'Perception interne')+admin360Kpi('Employés',d.employee_internal_score,'Perception interne')+admin360Kpi('Alignement',d.internal_alignment,Number(d.internal_axes_compared||0)+' axe(s) comparé(s)')+'</div>'+admin360Bars(ir.data,true)+'</section>'+ 
+    '<section class="admin-360-panel admin-360-section"><h4>Maturité des pratiques</h4><div class="admin-360-kpis admin-360-kpis-maturity">'+admin360Kpi('Maturité des pratiques',d.maturity_score,'Gérant')+'</div>'+admin360Maturity(mr.data)+'</section>'+ 
+    '<section class="admin-360-panel admin-360-section"><h4>Recommandation</h4><div class="admin-360-nps"><div><span>NPS Clients</span><strong>'+admin360Num(d.customer_nps)+'</strong><small>'+(d.customer_nps_respondents==null?'Aucune réponse':d.customer_nps_respondents+' répondant(s) · '+adminEscape(d.customer_sample_status||''))+'</small><p>'+adminEscape(d.customer_interpretation||'')+'</p></div><div><span>eNPS Employés</span><strong>'+admin360Num(d.employee_enps)+'</strong><small>'+(d.employee_enps_respondents==null?'Aucune réponse':d.employee_enps_respondents+' répondant(s) · '+adminEscape(d.employee_sample_status||''))+'</small></div></div></section>';
+  box.querySelectorAll('.admin-360-question-btn').forEach(b=>b.addEventListener('click',()=>admin360OpenQuestions(b.dataset.qid,b.dataset.internal==='1',b.dataset.practice==='1')));
+  document.getElementById('admin-360-pdf')?.addEventListener('click',admin360ExportPdf);
 }
 
 /* ============================================================
