@@ -1000,7 +1000,7 @@ async function openApp(appId) {
   if (win) {
     win.classList.remove("hidden");
     setActiveDockApp(appId);
-    if (appId === "admin") { adminLoadOrganizations().then(adminLoadUsers).then(adminLoadCustomerCampaigns); }
+    if (appId === "admin") { adminLoadOrganizations().then(async function(){ await adminLoadUsers(); await adminLoadCustomerCampaigns(); await adminLoad360Dashboard(); }); }
     // H.2.1 — après une nouvelle connexion, appliquer le profil Communication
     // avant d'afficher le sélecteur. Un questionnaire déjà commencé dans la
     // session courante reste en revanche intact.
@@ -1116,8 +1116,16 @@ async function adminLoadOrganizations(){
   const sel=document.getElementById("admin-new-organization");
   if(sel) sel.innerHTML='<option value="">— Aucune entreprise —</option>'+adminOrganizations.map(o=>'<option value="'+adminEscape(o.id)+'">'+adminEscape(o.name)+'</option>').join('');
   adminSyncCampaignOrganizations();
+  adminSync360Organizations();
 }
 function adminOrganizationOptions(selected){return '<option value="">Aucune entreprise</option>'+adminOrganizations.map(o=>'<option value="'+adminEscape(o.id)+'"'+(o.id===selected?' selected':'')+'>'+adminEscape(o.name)+'</option>').join('');}
+function adminSync360Organizations(){
+  const sel=document.getElementById("admin-360-org"); if(!sel)return;
+  const current=sel.value;
+  sel.innerHTML='<option value="">— Choisir —</option>'+adminOrganizations.map(o=>'<option value="'+adminEscape(o.id)+'">'+adminEscape(o.name)+'</option>').join('');
+  if(adminOrganizations.some(o=>o.id===current)) sel.value=current;
+  else if(adminOrganizations.length===1) sel.value=adminOrganizations[0].id;
+}
 async function adminCreateOrganization(){
   const input=document.getElementById("admin-new-org-name"); const name=input.value.trim(); if(!name){adminSetMessage("Saisissez le nom de l’entreprise.",true);return;}
   const r=await supabaseClient.rpc("admin_create_organization",{p_name:name}); if(r.error){adminSetMessage("Création de l’entreprise impossible : "+r.error.message,true);return;}
@@ -1411,6 +1419,51 @@ async function adminDeleteUser(row) {
   }
 }
 
+
+/* ============================================================
+   ADMIN — COMMUNICATION 360° H.3-B
+   Le navigateur affiche les calculs sécurisés produits par Supabase.
+   ============================================================ */
+const ADMIN_360_EXT_LABELS={"EXT-01":"Clarté & efficacité","EXT-02":"Image & cohérence","EXT-03":"Accueil & relation client","EXT-04":"Écoute & réactivité","EXT-05":"Ancrage local","EXT-06":"Attractivité & fidélisation"};
+const ADMIN_360_INT_LABELS={"INT-01":"Circulation de l’information","INT-02":"Expression & écoute","INT-03":"Communication dans l’équipe","INT-04":"Feedback","INT-05":"Reconnaissance","INT-06":"Vision & objectifs","INT-07":"Temps d’échange collectifs"};
+function admin360Num(v,suffix=""){return v==null?"—":Number(v).toLocaleString("fr-FR",{maximumFractionDigits:1})+suffix;}
+function admin360Score(v){return admin360Num(v," / 100");}
+function admin360Bars(rows,internal){
+  if(!rows||!rows.length)return '<p class="admin-help">Aucune donnée pour cette étape.</p>';
+  const labels=internal?ADMIN_360_INT_LABELS:ADMIN_360_EXT_LABELS;
+  return '<div class="admin-360-axis-list">'+rows.map(r=>{
+    const series=[['Gérant',r.manager_score],['Employés',r.employee_score]]; if(!internal)series.push(['Clients',r.customer_score]);
+    const bars=series.map(x=>'<div class="admin-360-mini"><span>'+x[0]+'</span><div><i style="width:'+(x[1]==null?0:Math.max(0,Math.min(100,Number(x[1]))))+'%"></i></div><strong>'+admin360Num(x[1],'%')+'</strong></div>').join('');
+    const meta=r.alignment==null?'Alignement en attente d’un second regard':'Alignement '+admin360Num(r.alignment,'%')+(r.gap_level?' · '+adminEscape(r.gap_level):'')+(r.gap_direction?' · '+adminEscape(r.gap_direction):'');
+    return '<article class="admin-360-axis"><div class="admin-360-axis-head"><strong>'+adminEscape(labels[r.question_id]||r.question_id)+'</strong><span>'+meta+'</span></div>'+bars+'</article>';
+  }).join('')+'</div>';
+}
+function admin360Attention(summary,ext,intl){
+  const items=[];
+  if(summary.customer_count>0&&summary.customer_count<=2)items.push(summary.customer_count+' réponse Client : résultat à interpréter avec une grande prudence.');
+  else if(summary.customer_interpretation)items.push(summary.customer_interpretation+'.');
+  if(summary.employee_count>0&&!summary.employee_anonymity_ok)items.push('Résultats Employés masqués : seuil d’anonymat non atteint.');
+  if(!summary.manager_count)items.push('Diagnostic Gérant absent pour cette étape.');
+  [...(ext||[]),...(intl||[])].filter(x=>x.gap_level==='Écart majeur').forEach(x=>items.push((ADMIN_360_EXT_LABELS[x.question_id]||ADMIN_360_INT_LABELS[x.question_id]||x.question_id)+' : écart majeur entre perceptions.'));
+  return items.length?'<ul>'+items.map(x=>'<li>'+adminEscape(x)+'</li>').join('')+'</ul>':'<p class="admin-help">Aucun point d’attention automatique détecté.</p>';
+}
+async function adminLoad360Dashboard(){
+  if(!userCanAccess("admin")||!supabaseClient)return;
+  const box=document.getElementById("admin-360-content"), org=document.getElementById("admin-360-org")?.value, stage=document.getElementById("admin-360-stage")?.value||"T0";
+  if(!box)return; if(!org){box.innerHTML='<p class="admin-help">Choisissez une entreprise pour afficher son diagnostic.</p>';return;}
+  box.innerHTML='<p class="admin-loading">Chargement du diagnostic 360°…</p>';
+  const [sr,er,ir]=await Promise.all([
+    supabaseClient.from("communication_360_dashboard_summary").select("*").eq("organization_id",org).eq("stage",stage).maybeSingle(),
+    supabaseClient.from("communication_360_external_secure_analysis").select("*").eq("organization_id",org).eq("stage",stage).order("question_id"),
+    supabaseClient.from("communication_360_internal_secure_analysis").select("*").eq("organization_id",org).eq("stage",stage).order("question_id")
+  ]);
+  const err=sr.error||er.error||ir.error; if(err){console.error("communication 360",err);box.innerHTML='<div class="admin-message is-error">Dashboard indisponible : '+adminEscape(err.message||'vérifiez les droits de lecture des vues H.3-A.')+'</div>';return;}
+  const d=sr.data; if(!d){box.innerHTML='<div class="admin-360-empty"><strong>Aucune donnée pour '+adminEscape(stage)+'</strong><span>Le diagnostic apparaîtra dès qu’une population aura répondu.</span></div>';return;}
+  box.innerHTML='<div class="admin-360-status"><div><span>Statut</span><strong>'+adminEscape(d.diagnostic_status)+'</strong></div><div class="admin-360-pop"><span>Gérant <b>'+d.manager_count+'</b></span><span>Employés <b>'+d.employee_count+'</b></span><span>Clients <b>'+d.customer_count+'</b></span></div></div>'+
+    '<div class="admin-360-kpis"><div><span>Perception externe</span><strong>'+admin360Score(d.manager_external_score)+'</strong><small>Gérant</small></div><div><span>Perception externe</span><strong>'+admin360Score(d.employee_external_score)+'</strong><small>Employés</small></div><div><span>Perception externe</span><strong>'+admin360Score(d.customer_external_score)+'</strong><small>Clients</small></div><div><span>Alignement externe</span><strong>'+admin360Score(d.external_alignment)+'</strong><small>'+Number(d.external_axes_compared||0)+' axe(s) comparé(s)</small></div><div><span>Perception interne</span><strong>'+admin360Score(d.manager_internal_score)+'</strong><small>Gérant</small></div><div><span>Perception interne</span><strong>'+admin360Score(d.employee_internal_score)+'</strong><small>Employés</small></div><div><span>Alignement interne</span><strong>'+admin360Score(d.internal_alignment)+'</strong><small>'+Number(d.internal_axes_compared||0)+' axe(s) comparé(s)</small></div><div><span>Maturité des pratiques</span><strong>'+admin360Score(d.maturity_score)+'</strong><small>Gérant</small></div></div>'+
+    '<div class="admin-360-nps"><div><span>NPS Clients</span><strong>'+admin360Num(d.customer_nps)+'</strong><small>'+(d.customer_nps_respondents==null?'Aucune réponse':d.customer_nps_respondents+' répondant(s) · '+adminEscape(d.customer_sample_status||''))+'</small></div><div><span>eNPS Employés</span><strong>'+admin360Num(d.employee_enps)+'</strong><small>'+(d.employee_enps_respondents==null?'Aucune réponse':d.employee_enps_respondents+' répondant(s) · '+adminEscape(d.employee_sample_status||''))+'</small></div></div>'+
+    '<section class="admin-360-panel"><h4>Perception externe — détail par axe</h4>'+admin360Bars(er.data,false)+'</section><section class="admin-360-panel"><h4>Perception interne — détail par axe</h4>'+admin360Bars(ir.data,true)+'</section><section class="admin-360-panel admin-360-attention"><h4>Points d’attention</h4>'+admin360Attention(d,er.data,ir.data)+'</section>';
+}
 
 /* ============================================================
    COMMUNICATION — RESTITUTION AGRÉGÉE EMPLOYÉS V0.5-G.3.2
@@ -2159,7 +2212,10 @@ document.addEventListener("DOMContentLoaded", function() {
   });
 
   /* ── ADMINISTRATION ── */
-  document.getElementById("admin-refresh").addEventListener("click", async function(){ await adminLoadOrganizations(); await adminLoadUsers(); await adminLoadCustomerCampaigns(); });
+  document.getElementById("admin-refresh").addEventListener("click", async function(){ await adminLoadOrganizations(); await adminLoadUsers(); await adminLoadCustomerCampaigns(); await adminLoad360Dashboard(); });
+  document.getElementById("admin-360-refresh").addEventListener("click", adminLoad360Dashboard);
+  document.getElementById("admin-360-org").addEventListener("change", adminLoad360Dashboard);
+  document.getElementById("admin-360-stage").addEventListener("change", adminLoad360Dashboard);
   document.getElementById("admin-create-org").addEventListener("click", adminCreateOrganization);
   document.getElementById("admin-campaign-refresh").addEventListener("click", adminLoadCustomerCampaigns);
   document.getElementById("admin-campaign-create").addEventListener("click", adminCreateCustomerCampaign);
