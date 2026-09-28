@@ -1439,7 +1439,7 @@ function admin360Num(v,suffix=""){return v==null?"—":Number(v).toLocaleString(
 function admin360Score(v){return admin360Num(v," / 100");}
 function admin360Question(id,pop){
   if(pop==='client')return ADMIN_360_CLIENT_QUESTIONS[id]||'';
-  const src=pop==='employee'?COMM_QUESTIONS_EMPLOYE:COMM_QUESTIONS_GERANT;
+  const src=pop==='employee'?COMM_QUESTIONS_SALARIE:COMM_QUESTIONS_GERANT;
   return src.find(q=>q.id===id)?.text||'';
 }
 function admin360QuestionBlock(id,internal,practice=false){
