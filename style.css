@@ -1788,3 +1788,13 @@ body.logo-lightbox-open { overflow: hidden !important; }
     overflow: visible !important;
   }
 }
+
+/* V0.5-H.3-B.2.3 — PDF : chaque regroupement du diagnostic démarre sur une nouvelle page */
+@media print {
+  /* Externe reste à la suite de l'en-tête. Interne, Maturité et Recommandation
+     démarrent chacun sur une nouvelle page pour éviter de scinder un regroupement. */
+  .admin-360-section ~ .admin-360-section {
+    page-break-before: always !important;
+    break-before: page !important;
+  }
+}
