@@ -1798,3 +1798,8 @@ body.logo-lightbox-open { overflow: hidden !important; }
     break-before: page !important;
   }
 }
+
+
+/* V0.5-H.4.1 — Campagnes Communication 360° historisées */
+.admin-campaign-create{grid-template-columns:1.25fr .75fr 1.15fr .8fr .8fr auto}.admin-campaign-create input[type="text"]{min-height:42px;border:1px solid #d8dee7;border-radius:10px;padding:8px 10px;background:#fff;color:#172b3f}.admin-campaign-title{display:flex;align-items:center;gap:7px;flex-wrap:wrap}.admin-campaign-badge,.admin-campaign-model{display:inline-flex;align-items:center;border-radius:999px;padding:3px 7px;font-size:.68rem;font-weight:800;background:#eef3f8;color:#526579}.admin-campaign-model.is-h4{background:#eaf8f0;color:#21734a}.admin-campaign-main span b{color:#34495e}.admin-campaign-row[data-model="legacy"]{background:#fbfcfd}.admin-campaign-row[data-model="legacy"] .admin-campaign-main>code{opacity:.75}
+@media(max-width:1050px){.admin-campaign-create{grid-template-columns:1fr 1fr 1fr}.admin-campaign-create .app-btn{grid-column:1/-1}}@media(max-width:700px){.admin-campaign-create{grid-template-columns:1fr}.admin-campaign-create .app-btn{grid-column:auto}}

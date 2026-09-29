@@ -1245,10 +1245,10 @@ async function adminLoadCustomerCampaigns(){
   const rows=r.data||[];
   list.innerHTML=rows.length?rows.map(adminRenderCustomerCampaign).join(''):'<p class="admin-help">Aucune campagne Client.</p>';
 }
-function adminFormatCampaignDate(value){
-  if(!value)return "Aucune date de fin";
-  try{return "Fin : "+new Intl.DateTimeFormat("fr-FR",{day:"2-digit",month:"2-digit",year:"numeric",timeZone:"Europe/Paris"}).format(new Date(value));}
-  catch(e){return "Fin : "+String(value);}
+function adminFormatCampaignDate(value, prefix){
+  if(!value)return (prefix||"Date")+" : —";
+  try{return (prefix||"Date")+" : "+new Intl.DateTimeFormat("fr-FR",{day:"2-digit",month:"2-digit",year:"numeric",timeZone:"Europe/Paris"}).format(new Date(value));}
+  catch(e){return (prefix||"Date")+" : "+String(value);}
 }
 function adminCampaignDateInputValue(value){
   if(!value)return "";
@@ -1257,63 +1257,89 @@ function adminCampaignDateInputValue(value){
     const get=t=>parts.find(p=>p.type===t)?.value||""; return get("year")+"-"+get("month")+"-"+get("day");
   }catch(e){return "";}
 }
+function adminCampaignStatus(c){
+  if(c.status_label)return c.status_label;
+  if(c.closed_at)return "Fermée manuellement";
+  const now=Date.now(), start=c.starts_at?new Date(c.starts_at).getTime():null, end=c.ends_at?new Date(c.ends_at).getTime():null;
+  if(start!==null && start>now)return "À venir";
+  if(end!==null && end<now)return "Terminée";
+  return c.is_active?"Ouverte":"Inactive";
+}
 function adminRenderCustomerCampaign(c){
   const link=PEKAHELLIX_CLIENT_BASE_URL+'?c='+encodeURIComponent(c.public_code);
   const qr='https://api.qrserver.com/v1/create-qr-code/?size=220x220&data='+encodeURIComponent(link);
-  const count=Number(c.response_count||0);
-  return '<article class="admin-campaign-row" data-id="'+adminEscape(c.id)+'" data-code="'+adminEscape(c.public_code)+'" data-count="'+count+'" data-end-date="'+adminEscape(adminCampaignDateInputValue(c.ends_at))+'">'+
-    '<div class="admin-campaign-main"><strong>'+adminEscape(c.organization_name)+' · '+adminEscape(c.stage||c.label)+'</strong>'+ 
-    '<span>'+count+' réponse'+(count>1?'s':'')+' · '+(c.is_active?'Active':'Fermée')+' · '+adminEscape(adminFormatCampaignDate(c.ends_at))+'</span>'+ 
+  const count=Number(c.response_count||0), managerCount=Number(c.manager_count||0), employeeCount=Number(c.employee_count||0);
+  const model=c.campaign_model_version||"legacy", isH4=model==="h4", status=adminCampaignStatus(c);
+  const canToggle=isH4 || model==="legacy";
+  return '<article class="admin-campaign-row" data-id="'+adminEscape(c.id)+'" data-code="'+adminEscape(c.public_code)+'" data-count="'+count+'" data-manager-count="'+managerCount+'" data-employee-count="'+employeeCount+'" data-model="'+adminEscape(model)+'" data-stage="'+adminEscape(c.stage||'')+'" data-label="'+adminEscape(c.label||'')+'" data-start-date="'+adminEscape(adminCampaignDateInputValue(c.starts_at))+'" data-end-date="'+adminEscape(adminCampaignDateInputValue(c.ends_at))+'">'+
+    '<div class="admin-campaign-main"><div class="admin-campaign-title"><strong>'+adminEscape(c.organization_name)+' · '+adminEscape(c.label||c.stage)+'</strong><span class="admin-campaign-badge">'+adminEscape(c.stage||'')+'</span><span class="admin-campaign-model '+(isH4?'is-h4':'')+'">'+(isH4?'H.4':'Historique')+'</span></div>'+ 
+    '<span>'+adminEscape(adminFormatCampaignDate(c.starts_at,"Début"))+' · '+adminEscape(adminFormatCampaignDate(c.ends_at,"Fin"))+' · <b>'+adminEscape(status)+'</b></span>'+ 
+    '<span>Gérant : '+managerCount+' · Employés : '+employeeCount+' · Clients : '+count+'</span>'+ 
     '<code>'+adminEscape(c.public_code)+'</code></div>'+ 
     '<div class="admin-campaign-actions"><button type="button" class="admin-mini-btn campaign-copy">Copier le lien</button>'+ 
     '<a class="admin-mini-btn campaign-qr" href="'+qr+'" target="_blank" rel="noopener">QR code</a>'+
     '<button type="button" class="admin-mini-btn campaign-edit">Modifier</button>'+ 
-    '<button type="button" class="admin-mini-btn '+(c.is_active?'danger':'')+' campaign-toggle">'+(c.is_active?'Fermer':'Rouvrir')+'</button>'+ 
+    (canToggle?'<button type="button" class="admin-mini-btn '+(status==="Ouverte"?'danger':'')+' campaign-toggle">'+(status==="Ouverte"?'Fermer':'Rouvrir')+'</button>':'')+ 
     '<button type="button" class="admin-mini-btn danger campaign-delete" title="Suppression possible uniquement si aucune réponse n’est rattachée">Supprimer</button></div></article>';
 }
 async function adminCreateCustomerCampaign(){
   const org=document.getElementById("admin-campaign-org").value;
   const stage=document.getElementById("admin-campaign-label").value;
+  const label=document.getElementById("admin-campaign-name").value.trim()||null;
+  const startDate=document.getElementById("admin-campaign-start-date").value||null;
   const endDate=document.getElementById("admin-campaign-end-date").value||null;
   if(!org){adminCampaignSetMessage("Choisissez une entreprise.",true);return;}
-  const r=await supabaseClient.rpc("admin_create_communication_customer_campaign",{p_organization_id:org,p_stage:stage,p_ends_at:endDate});
+  if(!startDate||!endDate){adminCampaignSetMessage("La date de début et la date de fin sont obligatoires pour une campagne H.4.",true);return;}
+  if(endDate<startDate){adminCampaignSetMessage("La date de fin doit être postérieure ou égale à la date de début.",true);return;}
+  const r=await supabaseClient.rpc("admin_create_communication_campaign_h4",{p_organization_id:org,p_stage:stage,p_label:label,p_start_date:startDate,p_end_date:endDate});
   if(r.error){adminCampaignSetMessage("Création impossible : "+r.error.message,true);return;}
-  adminCampaignSetMessage("Campagne "+stage+" créée. Le lien public et le QR code sont prêts.",false);
+  adminCampaignSetMessage("Campagne "+(label||stage)+" créée. Elle est désormais commune aux questionnaires Gérant, Employés et Clients.",false);
+  document.getElementById("admin-campaign-name").value="";
+  document.getElementById("admin-campaign-start-date").value="";
   document.getElementById("admin-campaign-end-date").value="";
   await adminLoadCustomerCampaigns();
 }
-
+function adminDateFrToIso(raw){
+  const m=String(raw||"").trim().match(/^(\d{2})\/(\d{2})\/(\d{4})$/); if(!m)return null;
+  const iso=m[3]+"-"+m[2]+"-"+m[1], d=new Date(iso+"T12:00:00Z");
+  return Number.isNaN(d.getTime())||d.toISOString().slice(0,10)!==iso?null:iso;
+}
+function adminIsoToFr(iso){return iso?iso.slice(8,10)+"/"+iso.slice(5,7)+"/"+iso.slice(0,4):"";}
 async function adminEditCustomerCampaign(row){
-  const iso=row.dataset.endDate||"";
-  const current=iso?iso.slice(8,10)+"/"+iso.slice(5,7)+"/"+iso.slice(0,4):"";
-  const entered=window.prompt("Date de fin de campagne (JJ/MM/AAAA). Laissez vide pour supprimer la date de fin :",current);
-  if(entered===null)return;
-  const raw=entered.trim(); let value=null;
-  if(raw){const m=raw.match(/^(\d{2})\/(\d{2})\/(\d{4})$/); if(!m){adminCampaignSetMessage("Format de date invalide. Utilisez JJ/MM/AAAA.",true);return;} value=m[3]+"-"+m[2]+"-"+m[1];}
-  const r=await supabaseClient.rpc("admin_update_communication_customer_campaign_end_date",{p_campaign_id:row.dataset.id,p_ends_at:value});
+  const isH4=row.dataset.model==="h4";
+  if(!isH4){
+    const entered=window.prompt("Campagne historique : nouvelle date de fin (JJ/MM/AAAA).",adminIsoToFr(row.dataset.endDate||""));
+    if(entered===null)return; const value=adminDateFrToIso(entered);
+    if(!value){adminCampaignSetMessage("Format ou date invalide. Utilisez JJ/MM/AAAA.",true);return;}
+    const r=await supabaseClient.rpc("admin_update_communication_customer_campaign_end_date",{p_campaign_id:row.dataset.id,p_ends_at:value});
+    if(r.error){adminCampaignSetMessage("Modification impossible : "+r.error.message,true);return;}
+    adminCampaignSetMessage("Date de fin de la campagne historique modifiée.",false); await adminLoadCustomerCampaigns(); return;
+  }
+  const stage=window.prompt("Type de campagne : T0, T+3 ou T+6",row.dataset.stage||"T0"); if(stage===null)return;
+  if(!["T0","T+3","T+6"].includes(stage.trim())){adminCampaignSetMessage("Type invalide. Utilisez T0, T+3 ou T+6.",true);return;}
+  const label=window.prompt("Libellé de la campagne :",row.dataset.label||stage.trim()); if(label===null)return;
+  const startRaw=window.prompt("Date de début (JJ/MM/AAAA) :",adminIsoToFr(row.dataset.startDate||"")); if(startRaw===null)return;
+  const endRaw=window.prompt("Date de fin (JJ/MM/AAAA) :",adminIsoToFr(row.dataset.endDate||"")); if(endRaw===null)return;
+  const startDate=adminDateFrToIso(startRaw), endDate=adminDateFrToIso(endRaw);
+  if(!startDate||!endDate){adminCampaignSetMessage("Date invalide. Utilisez JJ/MM/AAAA.",true);return;}
+  if(endDate<startDate){adminCampaignSetMessage("La date de fin doit être postérieure ou égale à la date de début.",true);return;}
+  const r=await supabaseClient.rpc("admin_manage_communication_campaign_h4",{p_campaign_id:row.dataset.id,p_action:"modify",p_stage:stage.trim(),p_label:label.trim()||stage.trim(),p_start_date:startDate,p_end_date:endDate});
   if(r.error){adminCampaignSetMessage("Modification impossible : "+r.error.message,true);return;}
-  adminCampaignSetMessage(value?"Date de fin modifiée.":"Date de fin supprimée.",false);
-  await adminLoadCustomerCampaigns();
+  adminCampaignSetMessage("Campagne modifiée.",false); await adminLoadCustomerCampaigns();
 }
 async function adminDeleteCustomerCampaign(row){
-  const count=Number(row.dataset.count||0);
-  if(count>0){
-    const isActive=row.querySelector('.campaign-toggle')?.textContent.trim()==='Fermer';
-    adminCampaignSetMessage(isActive
-      ? "Suppression impossible : cette campagne contient déjà des réponses et doit être conservée afin de préserver l’historique des données. Vous pouvez la fermer pour empêcher toute nouvelle réponse."
-      : "Suppression impossible : cette campagne contient des réponses et doit être conservée afin de préserver l’historique des données.",true);
-    return;
-  }
+  const total=Number(row.dataset.count||0)+Number(row.dataset.managerCount||0)+Number(row.dataset.employeeCount||0);
+  if(total>0){adminCampaignSetMessage("Suppression impossible : cette campagne contient des réponses et doit être conservée afin de préserver l’historique des données.",true);return;}
   if(!window.confirm("Supprimer définitivement cette campagne sans réponse ?"))return;
   const r=await supabaseClient.rpc("admin_delete_communication_customer_campaign",{p_campaign_id:row.dataset.id});
   if(r.error){adminCampaignSetMessage("Suppression impossible : "+r.error.message,true);return;}
-  adminCampaignSetMessage("Campagne supprimée.",false);
-  await adminLoadCustomerCampaigns();
+  adminCampaignSetMessage("Campagne supprimée.",false); await adminLoadCustomerCampaigns();
 }
 async function adminToggleCustomerCampaign(row){
-  const id=row.dataset.id; const btn=row.querySelector('.campaign-toggle');
-  const makeActive=btn.textContent.trim()==='Rouvrir';
-  const r=await supabaseClient.rpc("admin_set_communication_customer_campaign_active",{p_campaign_id:id,p_is_active:makeActive});
+  const btn=row.querySelector('.campaign-toggle'), makeActive=btn.textContent.trim()==='Rouvrir', isH4=row.dataset.model==="h4";
+  const rpc=isH4?"admin_manage_communication_campaign_h4":"admin_set_communication_customer_campaign_active";
+  const args=isH4?{p_campaign_id:row.dataset.id,p_action:makeActive?"reopen":"close",p_stage:null,p_label:null,p_start_date:null,p_end_date:null}:{p_campaign_id:row.dataset.id,p_is_active:makeActive};
+  const r=await supabaseClient.rpc(rpc,args);
   if(r.error){adminCampaignSetMessage((makeActive?"Réouverture impossible : ":"Modification impossible : ")+r.error.message,true);return;}
   adminCampaignSetMessage(makeActive?"Campagne rouverte.":"Campagne fermée.",false); await adminLoadCustomerCampaigns();
 }

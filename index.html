@@ -623,13 +623,15 @@
 
       <section class="admin-card admin-campaign-card">
         <div class="admin-section-head">
-          <div><h3>Campagnes questionnaire Clients</h3><p class="admin-help">Créez les campagnes T0 / T+3 / T+6, copiez leur lien public et générez le QR code à remettre au commerce.</p></div>
+          <div><h3>Campagnes Communication 360°</h3><p class="admin-help">Une campagne est commune aux questionnaires Gérant, Employés et Clients. Les campagnes H.4 sont historisées et ne peuvent pas se chevaucher pour une même entreprise.</p></div>
           <button type="button" id="admin-campaign-refresh" class="app-btn app-btn-secondary">↻ Actualiser</button>
         </div>
         <div class="admin-campaign-create">
           <label>Entreprise<select id="admin-campaign-org"><option value="">— Choisir —</option></select></label>
-          <label>Étape<select id="admin-campaign-label"><option value="T0">T0 — Diagnostic initial</option><option value="T+3">T+3 — Point intermédiaire</option><option value="T+6">T+6 — Bilan final</option></select></label>
-          <label>Date de fin <span class="admin-optional">(facultative)</span><input type="date" id="admin-campaign-end-date" /></label>
+          <label>Type<select id="admin-campaign-label"><option value="T0">T0 — Diagnostic initial</option><option value="T+3">T+3 — Point intermédiaire</option><option value="T+6">T+6 — Bilan final</option></select></label>
+          <label>Libellé <span class="admin-optional">(facultatif)</span><input type="text" id="admin-campaign-name" maxlength="120" placeholder="Ex. Diagnostic septembre 2026" /></label>
+          <label>Date de début<input type="date" id="admin-campaign-start-date" /></label>
+          <label>Date de fin<input type="date" id="admin-campaign-end-date" /></label>
           <button type="button" id="admin-campaign-create" class="app-btn app-btn-primary">Créer la campagne</button>
         </div>
         <p id="admin-campaign-message" class="admin-help" role="status" aria-live="polite"></p>
