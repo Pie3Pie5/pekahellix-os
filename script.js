@@ -1270,7 +1270,13 @@ function adminRenderCustomerCampaign(c){
   const qr='https://api.qrserver.com/v1/create-qr-code/?size=220x220&data='+encodeURIComponent(link);
   const count=Number(c.response_count||0), managerCount=Number(c.manager_count||0), employeeCount=Number(c.employee_count||0);
   const model=c.campaign_model_version||"legacy", isH4=model==="h4", status=adminCampaignStatus(c);
-  const canToggle=isH4 || model==="legacy";
+  // H.4.2 : le bouton dépend de l’état administratif, pas du seul statut temporel.
+  // Une campagne H.4 à venir mais active doit pouvoir être fermée ; une campagne
+  // terminée par sa date n’affiche pas « Rouvrir » : il faut d’abord modifier ses dates.
+  const isAdministrativelyOpen=c.is_active===true && !c.closed_at;
+  const canToggle=isH4 ? status!=="Terminée" : true;
+  const toggleLabel=isH4 ? (isAdministrativelyOpen?"Fermer":"Rouvrir") : (status==="Ouverte"?"Fermer":"Rouvrir");
+  const toggleDanger=toggleLabel==="Fermer";
   return '<article class="admin-campaign-row" data-id="'+adminEscape(c.id)+'" data-code="'+adminEscape(c.public_code)+'" data-count="'+count+'" data-manager-count="'+managerCount+'" data-employee-count="'+employeeCount+'" data-model="'+adminEscape(model)+'" data-stage="'+adminEscape(c.stage||'')+'" data-label="'+adminEscape(c.label||'')+'" data-start-date="'+adminEscape(adminCampaignDateInputValue(c.starts_at))+'" data-end-date="'+adminEscape(adminCampaignDateInputValue(c.ends_at))+'">'+
     '<div class="admin-campaign-main"><div class="admin-campaign-title"><strong>'+adminEscape(c.organization_name)+' · '+adminEscape(c.label||c.stage)+'</strong><span class="admin-campaign-badge">'+adminEscape(c.stage||'')+'</span><span class="admin-campaign-model '+(isH4?'is-h4':'')+'">'+(isH4?'H.4':'Historique')+'</span></div>'+ 
     '<span>'+adminEscape(adminFormatCampaignDate(c.starts_at,"Début"))+' · '+adminEscape(adminFormatCampaignDate(c.ends_at,"Fin"))+' · <b>'+adminEscape(status)+'</b></span>'+ 
@@ -1279,7 +1285,7 @@ function adminRenderCustomerCampaign(c){
     '<div class="admin-campaign-actions"><button type="button" class="admin-mini-btn campaign-copy">Copier le lien</button>'+ 
     '<a class="admin-mini-btn campaign-qr" href="'+qr+'" target="_blank" rel="noopener">QR code</a>'+
     '<button type="button" class="admin-mini-btn campaign-edit">Modifier</button>'+ 
-    (canToggle?'<button type="button" class="admin-mini-btn '+(status==="Ouverte"?'danger':'')+' campaign-toggle">'+(status==="Ouverte"?'Fermer':'Rouvrir')+'</button>':'')+ 
+    (canToggle?'<button type="button" class="admin-mini-btn '+(toggleDanger?'danger':'')+' campaign-toggle">'+toggleLabel+'</button>':'')+ 
     '<button type="button" class="admin-mini-btn danger campaign-delete" title="Suppression possible uniquement si aucune réponse n’est rattachée">Supprimer</button></div></article>';
 }
 async function adminCreateCustomerCampaign(){
